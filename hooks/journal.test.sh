@@ -3,7 +3,8 @@
 set -uo pipefail
 
 HOOK="$(cd "$(dirname "$0")" && pwd)/journal.sh"
-CODEX_HOOKS="$(cd "$(dirname "$0")" && pwd)/hooks.json"
+CLAUDE_HOOKS="$(cd "$(dirname "$0")" && pwd)/hooks.json"
+CODEX_HOOKS="$(cd "$(dirname "$0")" && pwd)/codex-hooks.json"
 fails=0
 
 assert_contains() {
@@ -12,6 +13,17 @@ assert_contains() {
   else
     echo "  FAIL — $3"
     echo "        expected substring: $2"
+    echo "        got: $1"
+    fails=$((fails + 1))
+  fi
+}
+
+assert_equals() {
+  if [ "$1" = "$2" ]; then
+    echo "  ok  — $3"
+  else
+    echo "  FAIL — $3"
+    echo "        expected: $2"
     echo "        got: $1"
     fails=$((fails + 1))
   fi
@@ -70,13 +82,36 @@ make_canonical_journal() {
     "$d/.claude/journal/$slug.md" >"$d/.pasadena/journal/$slug.md"
 }
 
-echo "== Task 0: Codex hook registration =="
+echo "== Task 0: hook registration =="
+assert_contains "$(jq -r '.hooks.SessionStart[0].matcher' "$CLAUDE_HOOKS")" \
+  "startup|resume|clear|compact|fork" "Claude SessionStart includes fork"
+assert_contains "$(jq -r '.hooks.SessionEnd | length' "$CLAUDE_HOOKS")" \
+  "2" "Claude config has clear and exit SessionEnd matchers"
+assert_contains "$(jq -r '.hooks.StopFailure[0].matcher' "$CLAUDE_HOOKS")" \
+  "rate_limit" "Claude config registers StopFailure"
+assert_contains "$(jq -r '.hooks.SessionEnd[0].hooks[0].command' "$CLAUDE_HOOKS")" \
+  'session-end clear' "Claude clear SessionEnd passes clear"
+assert_contains "$(jq -r '.hooks.SessionEnd[1].hooks[0].command' "$CLAUDE_HOOKS")" \
+  'session-end exit' "Claude exit SessionEnd passes exit"
 assert_contains "$(jq -r '.hooks.SessionStart[0].matcher' "$CODEX_HOOKS")" \
   "startup|resume|clear|compact" "Codex SessionStart events are registered"
-assert_contains "$(jq -r '.hooks.SessionEnd[0].hooks[0].command' "$CODEX_HOOKS")" \
-  '${PLUGIN_ROOT}/hooks/journal.sh" session-end' "Codex hooks use the bundled plugin root"
 assert_empty "$(jq -r '.hooks.StopFailure // empty' "$CODEX_HOOKS")" \
   "Codex config does not invent StopFailure"
+
+assert_equals "$(jq -c '.hooks | keys' "$CODEX_HOOKS")" \
+  '["PostToolUse","SessionEnd","SessionStart"]' "Codex config has exactly its three supported events"
+assert_empty "$(jq -r '[.hooks[] | .[] | .hooks[] | .command | select(contains("${CLAUDE_PLUGIN_ROOT}") | not)] | .[]' "$CLAUDE_HOOKS")" \
+  "every Claude hook command uses CLAUDE_PLUGIN_ROOT"
+assert_empty "$(jq -r '[.hooks[] | .[] | .hooks[] | .command | select(contains("${PLUGIN_ROOT}"))] | .[]' "$CLAUDE_HOOKS")" \
+  "no Claude hook command uses PLUGIN_ROOT"
+assert_empty "$(jq -r '[.hooks[] | .[] | .hooks[] | .command | select(contains("${PLUGIN_ROOT}") | not)] | .[]' "$CODEX_HOOKS")" \
+  "every Codex hook command uses PLUGIN_ROOT"
+assert_empty "$(jq -r '[.hooks[] | .[] | .hooks[] | .command | select(contains("${CLAUDE_PLUGIN_ROOT}"))] | .[]' "$CODEX_HOOKS")" \
+  "no Codex hook command uses CLAUDE_PLUGIN_ROOT"
+assert_equals "$(jq -r '.hooks' .codex-plugin/plugin.json)" \
+  "./hooks/codex-hooks.json" "Codex manifest routes to its dedicated hook config"
+assert_equals "$(jq -r 'has("hooks")' .claude-plugin/plugin.json)" \
+  "false" "Claude manifest has no ineffective hooks path"
 
 echo "== Task 1: path resolution and trunk branches =="
 

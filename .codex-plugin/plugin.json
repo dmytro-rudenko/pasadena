@@ -2,6 +2,7 @@
   "name": "pasadena",
   "version": "0.5.1",
   "description": "Spec-driven development with a session journal and six focused workflow skills.",
+  "hooks": "./hooks/codex-hooks.json",
   "author": {
     "name": "dmytro-rudenko",
     "email": "ph.dmitry.rudenko@gmail.com",
