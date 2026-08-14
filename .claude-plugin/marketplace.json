@@ -1,0 +1,27 @@
+{
+  "name": "pasadena",
+  "description": "pasadena — spec-driven development with a session journal for its spine",
+  "owner": {
+    "name": "dmytro-rudenko",
+    "email": "ph.dmitry.rudenko@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "pasadena",
+      "source": "./",
+      "version": "0.5.1",
+      "license": "MIT",
+      "description": "Spec-driven development run by six skills named after the Big Bang Theory cast: sheldon shapes the spec through questions, penny debugs a browser prototype before it is written, leonard plans in native plan mode, wolowitz builds the plan's independent tasks in parallel waves behind a draft PR, amy writes the failing test first, and raj keeps the session journal that holds the state between them",
+      "category": "Development",
+      "keywords": [
+        "claude-code",
+        "spec-driven-development",
+        "planning",
+        "multi-agent",
+        "tdd",
+        "prototyping",
+        "session-journal"
+      ]
+    }
+  ]
+}

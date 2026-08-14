@@ -1,0 +1,21 @@
+{
+  "name": "pasadena",
+  "interface": {
+    "displayName": "Pasadena"
+  },
+  "plugins": [
+    {
+      "name": "pasadena",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/dmytro-rudenko/pasadena.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development"
+    }
+  ]
+}

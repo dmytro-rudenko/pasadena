@@ -1,0 +1,4 @@
+# Prototype server runtime: pid, log, port, session key, click events.
+# The prototype *content* is committed under docs/sdd/proto/ — it is the
+# evidence the spec argues from. This is only the machinery that serves it.
+.sdd/

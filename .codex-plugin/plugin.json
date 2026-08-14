@@ -1,0 +1,37 @@
+{
+  "name": "pasadena",
+  "version": "0.5.1",
+  "description": "Spec-driven development with a session journal and six focused workflow skills.",
+  "author": {
+    "name": "dmytro-rudenko",
+    "email": "ph.dmitry.rudenko@gmail.com",
+    "url": "https://github.com/dmytro-rudenko"
+  },
+  "homepage": "https://github.com/dmytro-rudenko/pasadena",
+  "repository": "https://github.com/dmytro-rudenko/pasadena",
+  "license": "MIT",
+  "keywords": [
+    "spec-driven-development",
+    "session-journal",
+    "planning",
+    "tdd",
+    "prototyping",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Pasadena",
+    "shortDescription": "Spec-driven development with a session journal",
+    "longDescription": "A six-skill development workflow that preserves task context in a branch journal.",
+    "developerName": "dmytro-rudenko",
+    "category": "Development",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://github.com/dmytro-rudenko/pasadena",
+    "defaultPrompt": [
+      "Use Pasadena to plan this feature.",
+      "Start a Pasadena session journal for this task.",
+      "Resume this Pasadena task from its journal."
+    ],
+    "brandColor": "#1F2937"
+  }
+}
