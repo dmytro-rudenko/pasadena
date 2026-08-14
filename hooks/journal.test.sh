@@ -77,6 +77,11 @@ assert_contains "$(jq -r '.hooks.SessionEnd[0].hooks[0].command' "$CODEX_HOOKS")
   '${PLUGIN_ROOT}/hooks/journal.sh" session-end' "Codex hooks use the bundled plugin root"
 assert_empty "$(jq -r '.hooks.StopFailure // empty' "$CODEX_HOOKS")" \
   "Codex config does not invent StopFailure"
+# Claude Code also auto-discovers hooks/hooks.json — the guard keeps it a no-op there
+for ev in SessionStart PostToolUse SessionEnd; do
+  assert_contains "$(jq -r ".hooks.$ev[0].hooks[0].command" "$CODEX_HOOKS")" \
+    '[ -n "${CLAUDE_PLUGIN_ROOT:-}" ] ||' "$ev is skipped under Claude Code"
+done
 
 echo "== Task 1: path resolution and trunk branches =="
 
