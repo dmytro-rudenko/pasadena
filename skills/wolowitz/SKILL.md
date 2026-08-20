@@ -5,12 +5,13 @@ description: Use when the user asks to implement an approved plan, run the plan,
 
 # Building
 
-Execute an approved plan wave by wave. Independent tasks run at the same time,
-you verify and commit them, and every wave leaves a comment on the PR and an
-offer to continue in a fresh session.
+Execute an approved plan wave by wave, in one session. Independent tasks run at
+the same time as subagents, you verify and commit them, and every wave leaves a
+short comment on the PR before the next wave begins.
 
-You are the controller. **You never edit code yourself** — your context stays
-clean for coordination, and a fix you make yourself skips review.
+You are the controller. **You never edit code yourself** — the code work lives
+in the wave's subagents, so your context stays clean across every wave and a fix
+you make yourself skips review.
 
 ## Setup
 
@@ -55,9 +56,9 @@ plan stays the single source of requirements:
   make a subagent read the whole file;
 - interfaces and decisions from earlier waves that the task text cannot know;
 - your resolution of any ambiguity you spotted in the task;
-- **name the model explicitly.** An omitted model inherits yours, which is
-  usually the most expensive one available. Transcription-grade edits go cheap;
-  anything needing judgement goes standard.
+- **do not set a model or effort.** Every implementer runs on the session's
+  active model and effort — the one the user chose. Omit the model so the
+  dispatch inherits it; never downgrade a task to a cheaper model.
 
 A dispatch describes one task, not the session's history. Do not paste
 accumulated summaries of earlier waves into later prompts.
@@ -87,9 +88,9 @@ Do not ask the reviewer to re-run tests you already ran on the same code.
 - **Rounds 1–2:** send the open findings, verbatim, back to the implementer
   that wrote the code through the host's follow-up messaging tool — it still
   has the context.
-- **Round 3:** a fresh implementer on a more capable model, framed honestly:
-  "two prior attempts failed on this task; you own it now, here is what was
-  tried."
+- **Round 3:** a fresh implementer — same model as everything else — framed
+  honestly: "two prior attempts failed on this task; you own it now, here is
+  what was tried."
 
 Still open after three? Park it. Write down what is unresolved, note it in the
 PR comment, and keep moving. Do not fix it yourself.
@@ -105,17 +106,13 @@ stays one-commit-per-task, which is what makes it reviewable.
 
 ### 7. Comment on the PR
 
-One comment per wave:
+One comment per wave, **2–3 sentences** — no longer:
 
     gh pr comment <n> --body-file <file>
 
-What belongs in it: which tasks landed and their shas, what was actually
-decided or discovered, what the verification showed, any rulings you made, and
-anything parked. The wave's review is most of this already — reuse it rather
-than composing twice.
-
-Write what a reviewer needs to follow the reasoning, not a changelog they can
-read from `git log`. No `gh`? Skip it, once, out loud.
+Say which tasks landed with their shas, whether verification passed, and any
+ruling or parked item a reviewer could not infer from `git log`. That is all —
+the diff and the commits carry the detail. No `gh`? Skip it, once, out loud.
 
 ### 8. Close the wave
 
@@ -124,15 +121,20 @@ read from `git log`. No `gh`? Skip it, once, out loud.
    step with a file and a command.
 3. `✎` note — what this wave decided or proved, not that it finished.
 
-### 9. Offer a fresh session, and stop
+### 9. Start the next wave
+
+Do not stop, and do not offer a fresh session. The wave's code work happened in
+subagents whose contexts are discarded, so yours is still clean — go straight
+back to step 1 for the next wave. Report the boundary in one line and keep
+moving:
 
 > Хвиля 2/5 закрита: задачі 2 і 7, `ca37a58` `2fd166f`, тести зелені,
-> коментар у PR. `## Now` вказує на хвилю 3.
-> Рекомендую нову сесію — digest поверне тебе сюди. Продовжуємо в цій сесії?
+> коментар у PR. Починаю хвилю 3.
 
-Then stop and wait. This is the boundary the framework is built around: a long
-plan executed in one session degrades as the context fills, and the journal
-exists precisely so it does not have to be.
+The `## Now` you just updated is the crash-recovery net, not a reason to hand
+off: a session that resumes after an interruption reads it, but you never end
+this one to create that session on purpose. Stop only for the four things under
+**Rulings, not stalls** — otherwise run every wave through to the finish.
 
 ## Rulings, not stalls
 
@@ -154,9 +156,10 @@ Four things stop you instead:
 
 When the last wave is closed:
 
-1. **Whole-branch review** on your most capable model, over
-   `git merge-base <trunk> HEAD..HEAD`. One fix dispatch for its findings —
-   all of them together, not one agent per finding. There is no second wave.
+1. **Whole-branch review** over `git merge-base <trunk> HEAD..HEAD`, on the
+   session's active model like every other dispatch. One fix dispatch for its
+   findings — all of them together, not one agent per finding. There is no
+   second wave.
 2. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
    `git rm` the journal, commit `chore(journal): close <task>`.
 3. `gh pr ready` — the draft becomes a real PR.
@@ -169,6 +172,7 @@ When the last wave is closed:
 | "I'll dispatch them one at a time, it's safer" | It is not safer, it is slower. Disjoint write sets are what makes it safe; the wave table already proved that. |
 | "The implementer can commit its own work" | Two commits in one worktree race the index lock. You commit. |
 | "This finding is small, I'll just fix it" | A controller fix skips review and burns your context. Send it back. |
-| "I'll run all five waves and report at the end" | Every wave boundary is an offer to start fresh. That is the whole session-hygiene story. |
+| "I'll run all five waves and comment once at the end" | Run all waves in this session, yes — but one PR comment per wave, so the review arrives in order instead of as one wall. |
+| "The context will fill, I should hand off to a fresh session" | The code work is in subagents; the main context only holds compact reports. Loop the waves — hand off only if a genuine ruling forces a stop. |
 | "I don't remember doing Task 4, I'll redo it" | The plan's checkboxes and `git log` are the record. Trust them over your memory. |
 | "The reviewer should re-run the tests to be sure" | You ran them. Asking twice buys a slower review, not a safer one. |

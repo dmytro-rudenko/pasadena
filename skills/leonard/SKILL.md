@@ -28,10 +28,20 @@ puts the implementation plan in front of the user as the approval gate. If the
 host exposes no plan-mode control, present the same plan in chat and wait for
 explicit approval before making changes.
 
-Explore before decomposing. Read what the spec touches, find the existing
-helpers and patterns the tasks should reuse, and name them by path in the
-tasks. A plan that reinvents a utility three files over is a plan that failed
-at this step.
+Explore before decomposing — this is where a plan's quality is won or lost.
+Gather context deliberately, so every task carries what an implementer needs and
+nothing it must guess:
+
+- **Read the stack.** Framework and versions, the test runner, the naming and
+  folder conventions, and the existing helpers and abstractions the tasks
+  should reuse. Name them by path in the tasks — a plan that reinvents a utility
+  three files over failed here.
+- **Restate the goal of each task** in actionable terms: what exists or changes
+  once that task is done.
+- **Enumerate every file** each task creates, modifies, or reads. This is what
+  becomes the task's `**Writes:**` and `**Reads:**` lines below, and what the
+  wave computation keys on — so getting it exact here is what makes the parallel
+  waves safe.
 
 ## 2. Write the plan into the native plan file
 
@@ -149,17 +159,20 @@ do not ask whether to proceed:
 3. commit both;
 4. `✎` note: what the decomposition turned on, not that a plan now exists.
 
-Then invoke `wolowitz` and start wave 1. `wolowitz` has its own stop at every
-wave boundary; that is where the user gets their next say.
+Then invoke `wolowitz` and start wave 1. `wolowitz` runs every wave through to
+the finish in this session — its code work is in subagents, so it does not stop
+at wave boundaries; the user's next say is the finished branch or a genuine
+ruling that forces a halt.
 
 ## Red flags
 
 | Thought | Reality |
 |---|---|
 | "The plan is what I'll do after approval — save the file, commit, hand over" | That is a plan to write a plan, and it costs a whole approval round. The file holds the decomposition; step 5 happens without being announced. |
-| "Approved — now I'll write it up and check back before building" | Approval already was the go-ahead. Persist and start wave 1 in the same breath; the next stop is `wolowitz`'s wave boundary. |
+| "Approved — now I'll write it up and check back before building" | Approval already was the go-ahead. Persist and start wave 1 in the same breath; `wolowitz` then runs the waves through to the finish. |
 | "The plan is obvious, I'll skip plan mode" | The gate is the point, not the ceremony. Approving a plan in the UI is one keystroke. |
 | "I'll list the files roughly, the implementer will figure it out" | `Writes:` is what the builder stages and what the waves are computed from. Rough means wrong. |
 | "Everything is independent, one big wave" | Check the write sets. Two tasks touching one file are not independent no matter how unrelated they read. |
 | "I'll keep the steps short, they're competent" | They are competent and they have never seen this repo. Exact values or nothing. |
 | "This step is the same as Task 2's" | Write it out. Tasks are read out of order, by different agents. |
+| "I'll gather context as I write each task" | Scan the stack and enumerate the files up front. A task built on a guessed convention is a defect shipped into the wave. |
