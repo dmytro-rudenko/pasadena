@@ -1,6 +1,26 @@
 ---
 name: penny
 description: Use when the user asks to prototype the UI, build a browser prototype, compare UI options, or make a design question visible. Shows 2-4 working variants, debugs the chosen one with the user, and records sign-off for the spec
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - AskUserQuestion
+  - TodoWrite
+  - Skill
+  - Edit(docs/sdd/proto/**)
+  - mcp__playwright
+  - mcp__claude-in-chrome
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/proto/start.sh *)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/proto/stop.sh *)
+  - Bash(git status *)
+  - Bash(git add *)
+  - Bash(git commit *)
+  - Bash(ls *)
+  - Bash(cat docs/sdd/proto/*)
+disallowed-tools:
+  - Agent
+  - NotebookEdit
 ---
 
 # Prototyping
@@ -14,6 +34,15 @@ A spec for work with a UI surface is written only after this skill has signed
 off. The spec therefore describes a design the user has exercised and includes
 every issue found during prototype debugging.
 </HARD-GATE>
+
+## Tools
+
+**This skill writes only under `docs/sdd/proto/<slug>/`** — the variants, the
+screens, and `decision.md`. That is prototype code, thrown away by design, so
+the product tree stays untouched no matter how far the debug loop goes. The
+server starts and stops only through the plugin's `proto/` scripts, and the
+browser is driven through Playwright or Chrome MCP. No subagents: the point of
+this phase is that you use the prototype yourself.
 
 ## When
 

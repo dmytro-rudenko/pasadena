@@ -10,6 +10,10 @@ Write the test first. Watch it fail. Write the minimum that passes.
 **Core principle:** watching the test fail for the predicted reason proves that
 it tests the right thing.
 
+This skill declares no tool rules. It is a technique applied inside whichever
+skill or implementer is already running, and its writes are that caller's
+writes; a scope declared here would narrow theirs for the rest of the turn.
+
 Following the full sequence preserves both the letter and the spirit of these
 rules.
 

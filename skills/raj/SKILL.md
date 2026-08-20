@@ -1,6 +1,28 @@
 ---
 name: raj
 description: Use when the user asks to start, resume, pause, hand off, or finish a task that spans sessions, or when unfinished work needs its context preserved for the next session. Keeps the session journal
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - TodoWrite
+  - Edit(.pasadena/journal/**)
+  - Edit(.claude/journal/**)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/journal.sh *)
+  - Bash(mkdir -p .pasadena/journal)
+  - Bash(git status *)
+  - Bash(git log *)
+  - Bash(git branch *)
+  - Bash(git rev-parse *)
+  - Bash(git add *)
+  - Bash(git commit *)
+  - Bash(git rm *)
+  - Bash(gh pr view *)
+  - Bash(gh pr edit *)
+  - Bash(gh pr ready *)
+disallowed-tools:
+  - Agent
+  - NotebookEdit
 ---
 
 # Session journal
@@ -14,6 +36,16 @@ user request.
 The mechanics — start, commits, pause, hard stop — are written by the
 `pasadena` plugin hooks. Your job is three things: create the file, keep
 `## Now` current, close the journal when the task is done.
+
+## Tools
+
+**This skill writes exactly one file: the journal for the current branch.** It
+is also the only skill that writes it — `sheldon`, `leonard`, and `wolowitz`
+come here to start one, to set `spec:` and `plan:`, and to close it. Timeline
+lines go through the plugin's `journal.sh` rather than by hand, because the
+script owns the `### YYYY-MM-DD` heading and coordinates with the commit hook.
+Everything else is reading: `git log`, the journal, the session-start digest.
+No subagents — a journal entry never justifies a second context.
 
 **Language.** Write the journal content in the language the user speaks. Keep
 the section headings (`## Goal`, `## Now`, `## Timeline`) verbatim in English —

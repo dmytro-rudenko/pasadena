@@ -1,6 +1,37 @@
 ---
 name: wolowitz
 description: Use when the user asks to implement an approved plan, run the plan, execute planned tasks, or continue a build. Runs independent tasks in parallel waves, verifies and commits each one, and comments progress on the PR
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Edit
+  - Write
+  - Agent
+  - TodoWrite
+  - Skill
+  - Bash(git status *)
+  - Bash(git log *)
+  - Bash(git diff *)
+  - Bash(git show *)
+  - Bash(git rev-parse *)
+  - Bash(git merge-base *)
+  - Bash(git worktree *)
+  - Bash(git add *)
+  - Bash(git commit *)
+  - Bash(git rm *)
+  - Bash(gh pr view *)
+  - Bash(gh pr comment *)
+  - Bash(gh pr edit *)
+  - Bash(gh pr ready *)
+  - Bash(bash *)
+  - Bash(npm *)
+  - Bash(pnpm *)
+  - Bash(yarn *)
+  - Bash(make *)
+  - Bash(pytest *)
+  - Bash(go test *)
+  - Bash(cargo test *)
 ---
 
 # Building
@@ -11,6 +42,19 @@ short comment on the PR before the next wave begins.
 
 You are the controller. **All code edits live in the wave's subagents** — your
 context stays clean across every wave, and every fix receives review.
+
+## Tools
+
+This is the only skill in the workflow whose writes are not scoped to a
+directory: the plan sends it anywhere in the tree. Edit code directly only for
+a change small enough to state in one line; anything larger goes to the wave's
+implementers, whose contexts are discarded, which is what lets one session run
+every wave.
+
+`git push` is deliberately absent from the pre-approved list — a push to a
+shared branch is one of the four stop gates below, so it asks. The plan's
+verification command asks once when its runner is not in the list; approve it
+and the rest of the build runs uninterrupted.
 
 ## Setup
 
