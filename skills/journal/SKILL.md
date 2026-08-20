@@ -13,6 +13,6 @@ Use `raj` for the requested action.
 - `finish`: summarize the work in the PR, delete the active journal file, and
   commit `chore(journal): close <task>`.
 
-With no action, inspect the active journal and report its goal, current state,
-and next step. Read `.claude/journal` only as a fallback for an existing task;
-never create a new journal there.
+When the action is omitted, inspect the active journal and report its goal,
+current state, and next step. `.pasadena/journal` is always the location for a
+new journal; `.claude/journal` is read only as a fallback for an existing task.

@@ -5,37 +5,35 @@ description: Use when the user asks to plan the implementation, write an impleme
 
 # Planning
 
-Turn an agreed spec into tasks a subagent with no context can execute, and
+Turn an agreed spec into self-contained tasks a subagent can execute, and
 declare which of them can run at the same time.
 
 Two things make this different from writing a plan by hand: the approval gate
-is **native plan mode**, not a sentence you invent; and every task declares the
-files it writes, which is what lets the builder run independent tasks in
-parallel instead of marching through them one by one.
+always uses **native plan mode** when it is available, and every task declares
+the files it writes. Those declarations let the builder run independent tasks
+in parallel.
 
 ## Before you start
 
-There must be an agreed spec. If there is not, this is the wrong skill —
-`sheldon` first. If the shaping classifier called the work *bounded* or a
-*spike*, there is no plan document at all: bounded work goes straight to
-implementation after its in-chat design was approved, and a spike's output is
-an answer.
+Begin with an agreed spec. Work that still needs an agreed spec returns to
+`sheldon` first. The shaping classifier routes *bounded* work directly from an
+approved in-chat design to implementation, while a *spike* produces an answer;
+both paths remain outside the plan-document flow.
 
 ## 1. Use plan mode
 
 Use Codex plan mode when it is available. It keeps exploration read-only and
 puts the implementation plan in front of the user as the approval gate. If the
-host exposes no plan-mode control, present the same plan in chat and wait for
-explicit approval before making changes.
+host provides chat as the approval surface, present the same plan there and
+wait for explicit approval before making changes.
 
 Explore before decomposing — this is where a plan's quality is won or lost.
-Gather context deliberately, so every task carries what an implementer needs and
-nothing it must guess:
+Gather context deliberately, so every task carries what an implementer needs:
 
 - **Read the stack.** Framework and versions, the test runner, the naming and
   folder conventions, and the existing helpers and abstractions the tasks
-  should reuse. Name them by path in the tasks — a plan that reinvents a utility
-  three files over failed here.
+  should reuse. Name them by path in the tasks — every task reuses the relevant
+  utilities already present in the repository.
 - **Restate the goal of each task** in actionable terms: what exists or changes
   once that task is done.
 - **Enumerate every file** each task creates, modifies, or reads. This is what
@@ -45,17 +43,14 @@ nothing it must guess:
 
 ## 2. Write the plan into the native plan file
 
-**The file's content is the decomposition itself — nothing else.** Plan mode
-normally asks "what will you do once I approve?", and here the honest answer
-would be step 5 below: save the file, set the journal, commit. Do not write
-that. Those steps are bookkeeping, they are not the plan, and a plan file
-describing them is a plan to write a plan. What the user approves is the task
-list `wolowitz` will execute.
+**The file contains only the decomposition.** Plan mode normally asks "what
+will you do once I approve?" The user approves the task list `wolowitz` will
+execute. Step 5 handles persistence, journal updates, and the commit as
+bookkeeping after approval.
 
-**Write for an implementer who knows the language but nothing about this
-repo, and who will read only their own task.** That is longer than a plan
-written for the user to skim, and deliberately so: every value the implementer
-has to guess is a defect you shipped into the wave.
+**Write for an implementer whose repository context comes entirely from their
+own task.** The plan provides every value needed for implementation, even when
+that makes it longer than a plan written for the user to skim.
 
 Header:
 
@@ -92,9 +87,8 @@ Then one block per task:
 - [ ] **Step 4: run it, watch it pass** — expect `All checks passed.`
 ```
 
-`**Writes:**` is load-bearing — it is what the wave computation and the
-builder's staging both key on. A task that writes a file it did not declare
-corrupts a wave.
+`**Writes:**` is load-bearing: the wave computation and the builder's staging
+both key on it. Each task writes only the files it declares.
 
 `**Interfaces:**` exists because an implementer sees only their own task. It is
 how they learn the names and signatures their neighbours produce.
@@ -102,18 +96,17 @@ how they learn the names and signatures their neighbours produce.
 Steps follow `amy`: failing test, watch it fail, minimum that passes, watch it
 pass. One action per step, with the literal command and its expected output.
 
-**No placeholders.** "TBD", "add appropriate error handling", "write tests for
-the above", "similar to Task 2" — each of these is a decision you pushed onto
-someone with less context than you. Repeat the code; tasks are read out of
-order.
+**Every field has a final value.** Replace "TBD", "add appropriate error
+handling", "write tests for the above", and "similar to Task 2" with the exact
+decision or code. Repeat the code because agents read tasks out of order.
 
 ## 3. Compute the waves
 
 Task B must come after task A when any of these hold:
 
 1. B declares `**Depends on:** A`;
-2. their `**Writes:**` sets intersect — two agents editing one file in one
-   worktree is a lost edit, not a merge;
+2. their `**Writes:**` sets intersect, so one agent at a time owns that file in
+   the shared worktree;
 3. B's `Consumes:` names something A's `Produces:` defines.
 
 Everything else can run together. Group by topological level and put the table
@@ -128,9 +121,8 @@ at the top of the plan:
 | 3 | 3, 5, 9 | disjoint: three separate files |
 ```
 
-A wave of one is normal and is exactly the old sequential flow. Do not force
-tasks together to make the table look impressive — a false parallel costs a
-whole wave when it collides.
+A wave of one is normal and is exactly the old sequential flow. Group tasks
+only when the dependency rules above prove that they can run together.
 
 **Say what you had to serialize and why.** "Tasks 1–3 all write
 `hooks/journal.sh`, so they are three waves" is information the builder and
@@ -138,41 +130,43 @@ the reader both want.
 
 ## 4. Present the plan for approval
 
-Present the plan through the host's plan-mode approval control, or in chat when
-that control is unavailable. If the user asks for changes, revise the plan and
-present it again — do not argue the plan into acceptance.
+Present the plan through the host's plan-mode approval control when provided;
+use chat as the fallback approval surface. If the user asks for changes, revise
+the plan and present it again. User feedback directly produces the next
+revision.
 
 **This is the only approval gate in planning, and it is the start of
-building.** Approval means "execute this decomposition", not "go ahead and
-write it down". There is no second plan and no second gate.
+building.** Approval authorizes execution of the decomposition, including its
+immediate persistence and the start of wave 1. One plan and one gate cover this
+transition.
 
 ## 5. Persist it, then build
 
 Approval unblocks writing, so do all of this in the turn right after it — it
-is bookkeeping, not a checkpoint. Do not stop, do not summarise the plan back,
-do not ask whether to proceed:
+is bookkeeping rather than a checkpoint. Continue directly through all four
+steps:
 
 1. copy the approved plan to `docs/sdd/plans/YYYY-MM-DD-<slug>.md`;
 2. set `plan:` in the journal frontmatter to that path — this is what tells
    the next session the stage is *building*, and it is what `wolowitz` reads
    in its setup;
 3. commit both;
-4. `✎` note: what the decomposition turned on, not that a plan now exists.
+4. `✎` note: the execution state enabled by the decomposition.
 
 Then invoke `wolowitz` and start wave 1. `wolowitz` runs every wave through to
 the finish in this session — its code work is in subagents, so it does not stop
 at wave boundaries; the user's next say is the finished branch or a genuine
 ruling that forces a halt.
 
-## Red flags
+## Decision and acceptance rules
 
-| Thought | Reality |
+| Situation | Rule |
 |---|---|
-| "The plan is what I'll do after approval — save the file, commit, hand over" | That is a plan to write a plan, and it costs a whole approval round. The file holds the decomposition; step 5 happens without being announced. |
-| "Approved — now I'll write it up and check back before building" | Approval already was the go-ahead. Persist and start wave 1 in the same breath; `wolowitz` then runs the waves through to the finish. |
-| "The plan is obvious, I'll skip plan mode" | The gate is the point, not the ceremony. Approving a plan in the UI is one keystroke. |
-| "I'll list the files roughly, the implementer will figure it out" | `Writes:` is what the builder stages and what the waves are computed from. Rough means wrong. |
-| "Everything is independent, one big wave" | Check the write sets. Two tasks touching one file are not independent no matter how unrelated they read. |
-| "I'll keep the steps short, they're competent" | They are competent and they have never seen this repo. Exact values or nothing. |
-| "This step is the same as Task 2's" | Write it out. Tasks are read out of order, by different agents. |
-| "I'll gather context as I write each task" | Scan the stack and enumerate the files up front. A task built on a guessed convention is a defect shipped into the wave. |
+| Plan content | The approved file contains the executable decomposition; step 5 persists it after approval. |
+| Approval transition | Approval immediately persists the plan and starts wave 1. `wolowitz` then runs every wave through to the finish. |
+| Plan-mode gate | Every plan uses native plan mode when available, with one-keystroke UI approval as the gate. |
+| File ownership | Every `Writes:` set names the exact files the builder stages and the wave computation uses. |
+| Wave independence | Tasks share a wave only when their write sets and interfaces satisfy the dependency rules above. |
+| Task context | Each task supplies exact values and complete steps for an implementer seeing that task in isolation. |
+| Repeated work | Each task repeats the full instruction because agents read tasks out of order. |
+| Context gathering | The stack scan and file enumeration happen up front, so every task rests on a verified convention. |
