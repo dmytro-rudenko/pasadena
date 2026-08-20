@@ -1,11 +1,19 @@
 ---
 name: journal
 description: Use when the user asks to start, update, pause, inspect, or finish a Pasadena session journal.
+allowed-tools:
+  - Read
+  - Glob
+  - Skill
+  - Bash(git branch *)
+  - Bash(git status *)
 ---
 
 # Pasadena journal actions
 
-Use `raj` for the requested action.
+Use `raj` for the requested action. This skill routes and declares no
+`disallowed-tools`: a restriction set here would still apply to `raj` inside
+the same turn and block the journal write it exists to make.
 
 - `start`: create the canonical `.pasadena/journal/<branch>.md` file.
 - `note`: update `## Now` and append a `✎` line through the bundled journal script.

@@ -1,12 +1,42 @@
 ---
 name: leonard
 description: Use when the user asks to plan the implementation, write an implementation plan, break an agreed spec into tasks, or identify parallel work. Runs native plan mode, declares file sets, and computes parallel waves
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - WebFetch
+  - WebSearch
+  - AskUserQuestion
+  - TodoWrite
+  - Skill
+  - Edit(docs/sdd/plans/**)
+  - Bash(git status *)
+  - Bash(git log *)
+  - Bash(git diff *)
+  - Bash(git show *)
+  - Bash(git add *)
+  - Bash(git commit *)
+  - Bash(ls *)
+  - Bash(rg *)
+  - Bash(wc *)
 ---
 
 # Planning
 
 Turn an agreed spec into self-contained tasks a subagent can execute, and
 declare which of them can run at the same time.
+
+## Tools
+
+Read anything. **The only file this skill writes is the plan**,
+`docs/sdd/plans/YYYY-MM-DD-<slug>.md`. Step 5's journal update goes through
+`raj`, which owns that file. No production code changes here — the plan
+describes them and `wolowitz` makes them.
+
+This skill deliberately carries no `disallowed-tools`: step 5 invokes
+`wolowitz` inside the same turn, and a restriction declared here would still
+be in force when the builder's first wave starts.
 
 Two things make this different from writing a plan by hand: the approval gate
 always uses **native plan mode** when it is available, and every task declares
@@ -147,9 +177,9 @@ is bookkeeping rather than a checkpoint. Continue directly through all four
 steps:
 
 1. copy the approved plan to `docs/sdd/plans/YYYY-MM-DD-<slug>.md`;
-2. set `plan:` in the journal frontmatter to that path — this is what tells
-   the next session the stage is *building*, and it is what `wolowitz` reads
-   in its setup;
+2. have `raj` set `plan:` in the journal frontmatter to that path — this is
+   what tells the next session the stage is *building*, and it is what
+   `wolowitz` reads in its setup;
 3. commit both;
 4. `✎` note: the execution state enabled by the decomposition.
 

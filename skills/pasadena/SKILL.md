@@ -1,11 +1,25 @@
 ---
 name: pasadena
 description: Use when the user asks to start, resume, plan, or run a Pasadena spec-driven development workflow. Inspects the task journal and routes to the next workflow skill.
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Skill
+  - Bash(git branch *)
+  - Bash(git status *)
+  - Bash(git log *)
+  - Bash(ls *)
 ---
 
 # Pasadena workflow
 
 Use this skill as the entry point for the full Pasadena workflow.
+
+This skill only inspects and routes; every write belongs to the skill it routes
+into. It declares no `disallowed-tools` on purpose — a restriction set here
+would stay in force for the rest of the turn and follow the routed skill into
+its own work.
 
 1. Inspect the current branch, `.pasadena/journal/<branch>.md`, and then the
    legacy `.claude/journal/<branch>.md` only when the canonical file is absent.
