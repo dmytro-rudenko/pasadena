@@ -101,6 +101,9 @@ For each task in the wave, in task order: stage exactly that task's
 `**Writes:**` set, commit with the message the plan gives it. The history
 stays one-commit-per-task, which is what makes it reviewable.
 
+Keep the message description to **30–40 words** — what changed and why, and
+nothing else. The diff carries the detail.
+
 ### 7. Comment on the PR
 
 One comment per wave, **2–3 sentences** — no longer:
