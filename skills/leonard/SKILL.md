@@ -27,10 +27,19 @@ puts the implementation plan in front of the user as the approval gate. If the
 host provides chat as the approval surface, present the same plan there and
 wait for explicit approval before making changes.
 
-Explore before decomposing. Read what the spec touches, find the existing
-helpers and patterns the tasks should reuse, and name them by path in the
-tasks. Every task reuses the relevant utilities already present in the
-repository.
+Explore before decomposing — this is where a plan's quality is won or lost.
+Gather context deliberately, so every task carries what an implementer needs:
+
+- **Read the stack.** Framework and versions, the test runner, the naming and
+  folder conventions, and the existing helpers and abstractions the tasks
+  should reuse. Name them by path in the tasks — every task reuses the relevant
+  utilities already present in the repository.
+- **Restate the goal of each task** in actionable terms: what exists or changes
+  once that task is done.
+- **Enumerate every file** each task creates, modifies, or reads. This is what
+  becomes the task's `**Writes:**` and `**Reads:**` lines below, and what the
+  wave computation keys on — so getting it exact here is what makes the parallel
+  waves safe.
 
 ## 2. Write the plan into the native plan file
 
@@ -144,17 +153,20 @@ steps:
 3. commit both;
 4. `✎` note: the execution state enabled by the decomposition.
 
-Then invoke `wolowitz` and start wave 1. `wolowitz` has its own stop at every
-wave boundary; that is where the user gets their next say.
+Then invoke `wolowitz` and start wave 1. `wolowitz` runs every wave through to
+the finish in this session — its code work is in subagents, so it does not stop
+at wave boundaries; the user's next say is the finished branch or a genuine
+ruling that forces a halt.
 
 ## Decision and acceptance rules
 
 | Situation | Rule |
 |---|---|
 | Plan content | The approved file contains the executable decomposition; step 5 persists it after approval. |
-| Approval transition | Approval immediately persists the plan and starts wave 1. The next stop is `wolowitz`'s wave boundary. |
+| Approval transition | Approval immediately persists the plan and starts wave 1. `wolowitz` then runs every wave through to the finish. |
 | Plan-mode gate | Every plan uses native plan mode when available, with one-keystroke UI approval as the gate. |
 | File ownership | Every `Writes:` set names the exact files the builder stages and the wave computation uses. |
 | Wave independence | Tasks share a wave only when their write sets and interfaces satisfy the dependency rules above. |
 | Task context | Each task supplies exact values and complete steps for an implementer seeing that task in isolation. |
 | Repeated work | Each task repeats the full instruction because agents read tasks out of order. |
+| Context gathering | The stack scan and file enumeration happen up front, so every task rests on a verified convention. |

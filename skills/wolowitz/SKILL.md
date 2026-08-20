@@ -5,12 +5,12 @@ description: Use when the user asks to implement an approved plan, run the plan,
 
 # Building
 
-Execute an approved plan wave by wave. Independent tasks run at the same time,
-you verify and commit them, and every wave leaves a comment on the PR and an
-offer to continue in a fresh session.
+Execute an approved plan wave by wave, in one session. Independent tasks run at
+the same time as subagents, you verify and commit them, and every wave leaves a
+short comment on the PR before the next wave begins.
 
 You are the controller. **All code edits live in the wave's subagents** — your
-context stays clean for coordination, and every fix receives review.
+context stays clean across every wave, and every fix receives review.
 
 ## Setup
 
@@ -52,9 +52,9 @@ plan stays the single source of requirements:
   `## Global constraints`; the plan content stays at its source;
 - interfaces and decisions from earlier waves that the task requires;
 - your resolution of any ambiguity you spotted in the task;
-- **name the model explicitly.** An omitted model inherits yours, which is
-  usually the most expensive one available. Transcription-grade edits go cheap;
-  anything needing judgement goes standard.
+- **do not set a model or effort.** Every implementer runs on the session's
+  active model and effort — the one the user chose. Omit the model so the
+  dispatch inherits it; never downgrade a task to a cheaper model.
 
 A dispatch describes one task and its required context. The plan and journal
 remain the source for accumulated history from earlier waves.
@@ -84,9 +84,9 @@ focuses on the diff and skips duplicate test execution.
 - **Rounds 1–2:** send the open findings, verbatim, back to the implementer
   that wrote the code through the host's follow-up messaging tool — it still
   has the context.
-- **Round 3:** a fresh implementer on a more capable model, framed honestly:
-  "two prior attempts failed on this task; you own it now, here is what was
-  tried."
+- **Round 3:** a fresh implementer — same model as everything else — framed
+  honestly: "two prior attempts failed on this task; you own it now, here is
+  what was tried."
 
 Findings still open after three rounds are parked. Write down what is unresolved,
 note it in the PR comment, keep every fix with an implementer, and continue.
@@ -103,17 +103,14 @@ stays one-commit-per-task, which is what makes it reviewable.
 
 ### 7. Comment on the PR
 
-One comment per wave:
+One comment per wave, **2–3 sentences** — no longer:
 
     gh pr comment <n> --body-file <file>
 
-What belongs in it: which tasks landed and their shas, what was actually
-decided or discovered, what the verification showed, any rulings you made, and
-anything parked. The wave's review is most of this already — reuse it rather
-than composing twice.
-
-Write the reasoning a reviewer needs to follow; `git log` provides the changelog.
-When `gh` is unavailable, announce that once and continue.
+Say which tasks landed with their shas, whether verification passed, and any
+ruling or parked item a reviewer could not infer from `git log`. That is all —
+the diff and the commits carry the detail. When `gh` is unavailable, announce
+that once and continue.
 
 ### 8. Close the wave
 
@@ -122,15 +119,19 @@ When `gh` is unavailable, announce that once and continue.
    step with a file and a command.
 3. `✎` note — the decision or proof produced by this wave.
 
-### 9. Offer a fresh session, then pause
+### 9. Start the next wave
+
+The wave's code work happened in subagents whose contexts are discarded, so
+yours is still clean — go straight back to step 1 for the next wave. Report the
+boundary in one line and keep moving:
 
 > Хвиля 2/5 закрита: задачі 2 і 7, `ca37a58` `2fd166f`, тести зелені,
-> коментар у PR. `## Now` вказує на хвилю 3.
-> Рекомендую нову сесію — digest поверне тебе сюди. Продовжуємо в цій сесії?
+> коментар у PR. Починаю хвилю 3.
 
-Pause at this boundary and wait. This is the session boundary the framework is
-built around: the journal preserves the exact continuation point while a fresh
-session restores full context capacity.
+The `## Now` you just updated is the crash-recovery net: a session that resumes
+after an interruption reads it and picks up the exact continuation point. Run
+every wave through to the finish in this session, stopping only for the four
+things under **Rulings and stop gates**.
 
 ## Rulings and stop gates
 
@@ -152,9 +153,9 @@ Execution pauses only for these four gates:
 
 When the last wave is closed:
 
-1. **Whole-branch review** on your most capable model, over
-   `git merge-base <trunk> HEAD..HEAD`. One combined fix dispatch receives all
-   findings together; this is the single whole-branch fix wave.
+1. **Whole-branch review** over `git merge-base <trunk> HEAD..HEAD`, on the
+   session's active model like every other dispatch. One combined fix dispatch
+   receives all findings together; this is the single whole-branch fix wave.
 2. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
    `git rm` the journal, commit `chore(journal): close <task>`.
 3. `gh pr ready` — the draft becomes a real PR.
@@ -167,6 +168,7 @@ When the last wave is closed:
 | A wave contains multiple tasks | Dispatch all implementers in one message; disjoint write sets provide safe concurrency. |
 | A task is ready to commit | The controller commits it, keeping access to the shared index serialized. |
 | Review finds a small issue | Return it to the responsible implementer so the fix receives review. |
-| A wave closes | Offer a fresh session and preserve the continuation point in `## Now`. |
+| A wave closes | Post its one PR comment, then start the next wave in the same session. |
+| The context feels long | The code work stays in subagents and the main context holds compact reports; loop the waves and hand off only when a genuine ruling forces a stop. |
 | A resumed task appears complete | Treat the plan's checkboxes and `git log` as the authoritative record. |
 | The wave suite has already run | The reviewer uses that result and focuses on spec compliance and quality. |
