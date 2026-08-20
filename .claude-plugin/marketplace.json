@@ -9,7 +9,7 @@
     {
       "name": "pasadena",
       "source": "./",
-      "version": "0.6.0",
+      "version": "0.6.1",
       "license": "MIT",
       "description": "Spec-driven development run by six skills named after the Big Bang Theory cast: sheldon shapes the spec through questions, penny debugs a browser prototype before it is written, leonard plans in native plan mode, wolowitz builds the plan's independent tasks in parallel waves behind a draft PR, amy writes the failing test first, and raj keeps the session journal that holds the state between them",
       "category": "Development",
