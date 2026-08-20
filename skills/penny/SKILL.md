@@ -6,41 +6,39 @@ description: Use when the user asks to prototype the UI, build a browser prototy
 # Prototyping
 
 Put working variants in front of the user, then debug the one they pick until
-it is actually right. The record of what that produced is what the spec is
-written from — **not the other way round**.
+it is right. The specification draws from the resulting record of validated
+choices and debug findings.
 
 <HARD-GATE>
-A spec for work with a UI surface is not written until this skill has signed
-off. A spec written from an undebugged prototype describes a design nobody has
-used yet: every problem the debugging would have found becomes a change request
-against a spec that is already committed.
+A spec for work with a UI surface is written only after this skill has signed
+off. The spec therefore describes a design the user has exercised and includes
+every issue found during prototype debugging.
 </HARD-GATE>
 
 ## When
 
-Offer this the moment the work has a visual or interactive surface. Do not wait
-for a question so obviously visual that it forces the offer — that is how
-superpowers' visual companion ended up never appearing.
+Offer this as soon as the work has a visual or interactive surface. An early
+offer ensures visual questions reach the browser while they can still shape the
+design.
 
 The test is still per-question: **would the user understand this better by
-seeing it than by reading it?** A question about a UI topic is not automatically
-a visual question. "What does 'compact' mean for this list?" is conceptual — ask
-it in the terminal. "Which of these three list densities reads better?" is
-visual — show it.
+seeing it than by reading it?** Use the terminal for conceptual UI questions
+such as "What does 'compact' mean for this list?" Use the browser for visual
+comparisons such as "Which of these three list densities reads better?"
 
-Skip it entirely for work with no surface: a hook, a parser, a migration.
-For those, the equivalent evidence is a spike — cheapest thing that answers the
-question, thrown away afterwards.
+Backend-only work, such as a hook, parser, or migration, uses a spike as its
+equivalent evidence: the cheapest investigation that answers the question,
+with throwaway output.
 
 ## The offer
 
-One message, nothing else in it:
+Send one message containing only this offer:
 
 > Це буде швидше показати, ніж описати. Зберу 2–4 робочі варіанти в браузері —
 > покликаєш, поламаєш, скажеш що не так. Відкривати?
 
-Wait for the answer. If they decline, continue in the terminal and do not ask
-again unless they raise it.
+Wait for the answer. If they decline, continue in the terminal and offer again
+only when they raise it.
 
 ## Start the server
 
@@ -51,13 +49,14 @@ The session-start digest hands you the absolute path to the plugin's
 
 It prints one line of JSON: `url`, `content_dir`, `state_dir`, `events`.
 
-**Give the user the complete URL, `?key=` and all.** Without the key every
-request is refused. Stop it when the phase is over:
+**Give the user the complete URL, `?key=` and all.** The key authorizes every
+request. Stop the server when the phase is over:
 `bash "<plugin root>/proto/stop.sh"`.
 
-If the digest is absent, the bundled hooks were likely not trusted yet. Ask the
-user to review and trust Pasadena's hook definition through `/hooks`, then
-start a new session instead of guessing an installed-plugin path.
+The digest becomes available after the bundled hooks are trusted. While hook
+trust is pending, ask the user to review and trust Pasadena's hook definition
+through `/hooks`, then start a new session with the path supplied by the
+digest.
 
 The content directory is committed — the variants are the evidence. The state
 directory (`.sdd/`) is git-ignored: pid, log, port, key, click events.
@@ -86,50 +85,51 @@ Classes available from `frame.css`: `.options`/`.option`/`.letter` (add
 and the wireframe primitives `.mock-nav`/`.mock-sidebar`/`.mock-content`/`.mock-button`/`.mock-input`.
 
 **Live variants** — `docs/sdd/proto/<slug>/variants/{a,b,c}/index.html`. Real
-working HTML/CSS/JS you can click through. These do **not** link `frame.css`:
-they carry their own design, and that design is the thing under review.
+working HTML/CSS/JS you can click through. Each carries its own design in place
+of `frame.css`, and that design is the thing under review.
 
 `/` always serves the newest `.html` in the content directory, so writing a new
-screen moves the user's open tab to it. An explicit path is never redirected —
-a variant the user is clicking through stays put.
+screen moves the user's open tab to it. An explicit path remains fixed so a
+variant the user is clicking through stays put.
 
 ## Rules that keep it useful
 
-- **2–4 variants, never more.** More than four is a menu, not a decision.
-- **Genuinely different approaches.** Three colour schemes of one layout is one
-  variant. If you cannot name what each one trades away, you have one variant.
+- **Always show 2–4 variants.** This range keeps the set focused on one
+  decision.
+- **Genuinely different approaches.** Each variant names its trade-off. Three
+  colour schemes of one layout count as one variant.
 - **Real content where it matters.** Placeholder text hides the design problems
   that only long names, empty states and eight-item lists reveal.
-- **Never `cat` or heredoc the HTML into the terminal.** Write the file. The
-  user reads it in the browser; dumping it in chat costs tokens and shows less.
-- **Never reuse a filename.** `layout.html` → `layout-v2.html`. The history of
-  the iteration is worth as much as its result.
+- **Write HTML to the file.** The user reads it in the browser, while the
+  terminal remains for commands and concise updates.
+- **Always use a fresh filename.** `layout.html` → `layout-v2.html`. The history
+  of the iteration is worth as much as its result.
 - **Scale fidelity to the question.** A wireframe answers "where does it go";
   only a real prototype answers "does this feel right to use".
 
 ## The debug loop — this is the point
 
-A picked variant is not a finished one. Drive it yourself before asking the
+A picked variant enters the debug loop. Drive it yourself before asking the
 user to judge it again:
 
 1. Open it with Playwright or Chrome MCP and **use** it — click through the
-   real flow, not just the landing state.
+   complete flow, including the states beyond the landing view.
 2. Read the console. The server answers `/favicon.ico` with 204 precisely so
-   that the only errors there are the prototype's own.
+   every remaining console error belongs to the prototype.
 3. Screenshot the states that matter: empty, full, error, narrow viewport.
 4. Fix what you find, write the next version, tell the user what changed and
    what to look at.
 
-Loop until the user stops finding problems. Every loop you skip becomes a
-change request against a committed spec.
+Loop until the user confirms the problems are resolved. Complete every
+necessary iteration before committing the spec.
 
 Read the clicks between turns — they are in the `events` file from the startup
 JSON, one JSON object per line:
 
     {"type":"click","choice":"b","text":"Top bar…","screen":"/","selected":true,"ts":"…"}
 
-Merge them with what the user typed. A click is a signal, not a decision: ask
-about anything the click leaves ambiguous.
+Merge them with what the user typed. Treat a click as a signal and ask the user
+to resolve any ambiguity it leaves.
 
 ## Sign-off
 
@@ -154,12 +154,12 @@ for a first-time user in testing.
 Then update `## Now`, write a `✎` note, commit the prototype directory, and
 hand back to `sheldon`. The spec cites this file and argues from it.
 
-## Red flags
+## Decision and acceptance rules
 
-| Thought | Reality |
+| Situation | Rule |
 |---|---|
-| "The design is obvious, I'll write the spec" | Then the prototype costs you ten minutes and confirms it. If it does not confirm it, you just saved a rewrite. |
-| "They picked B, we're done" | Picking is the start of this phase, not the end. Debugging is what the spec needs. |
-| "I'll prototype after the spec, to validate it" | Then the spec is a guess and the prototype is a change request against it. |
-| "One variant is enough, I know what they want" | One variant is a proposal you cannot compare. Two is the minimum that lets them choose. |
-| "It looks right in the screenshot" | A screenshot is not a click. Use the flow. |
+| The design appears obvious | A ten-minute prototype confirms it or exposes changes before the spec is written. |
+| The user picks a variant | The selection starts the debug loop; user sign-off completes the phase. |
+| The spec needs visual evidence | Prototype, debug, and sign-off happen before specification writing. |
+| The user needs a comparison | Present at least two and at most four genuinely different variants. |
+| The prototype looks right in a screenshot | Exercise the live flow and inspect all relevant states before sign-off. |

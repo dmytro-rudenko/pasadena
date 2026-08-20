@@ -9,27 +9,25 @@ Execute an approved plan wave by wave. Independent tasks run at the same time,
 you verify and commit them, and every wave leaves a comment on the PR and an
 offer to continue in a fresh session.
 
-You are the controller. **You never edit code yourself** — your context stays
-clean for coordination, and a fix you make yourself skips review.
+You are the controller. **All code edits live in the wave's subagents** — your
+context stays clean for coordination, and every fix receives review.
 
 ## Setup
 
-1. **Isolation.** You must be in a worktree, not on trunk. `sheldon`
-   created one; if you arrived here without one, create it with the available
-   Codex worktree control or `git worktree add`, and say so.
-2. **Journal.** It should exist with `spec:` and `plan:` set. If `plan:` is
-   empty, planning is not finished — go back.
+1. **Isolation.** Implementation always takes place in a worktree while trunk
+   stays unchanged. `sheldon` created one; if it is absent, create it with the
+   available Codex worktree control or `git worktree add`, and say so.
+2. **Journal.** It exists with `spec:` and `plan:` set. Building begins after
+   `plan:` is set; an empty value routes the task back to planning.
 3. **The plan.** Read it. Read the `## Waves` table and the `## Global
-   constraints` section; you will hand both down. If the plan has no waves
-   table, compute one now with the rules in `leonard` and say what you
+   constraints` section; you will hand both down. When the waves table is
+   absent, compute one now with the rules in `leonard` and say what you
    computed.
 4. **Baseline.** Run the plan's verification command before touching anything.
-   A suite that was already red is not something you want to discover after a
-   wave of parallel edits.
-5. **Resume, don't restart.** Checked boxes in the plan mean done — the commits
-   they refer to are in `git log` whether or not you remember making them.
-   Start at the first unchecked task. After a compaction, trust the plan file
-   and the git log over your own recollection.
+   This records any existing red tests before the wave's parallel edits.
+5. **Resume from the record.** Checked boxes in the plan mean done, and their
+   commits are present in `git log`. Start at the first unchecked task. After a
+   compaction, the plan file and git log remain authoritative.
 
 ## The wave loop
 
@@ -37,30 +35,29 @@ For each wave in order:
 
 ### 1. Record the base
 
-`git rev-parse HEAD`. This is what the wave's review diffs against — never
-`HEAD~1`, which silently drops all but the last commit.
+Run `git rev-parse HEAD` and keep the result as `BASE`. The wave's review always
+diffs against `BASE`, capturing every commit in the wave.
 
 ### 2. Dispatch the whole wave at once
 
-**All of the wave's implementers in a single message.** Multiple dispatches in
-one response run concurrently; one per response is the sequential execution
-this framework exists to stop doing.
+**Dispatch all of the wave's implementers in a single message.** Multiple
+dispatches in one response run concurrently, which is the execution model the
+wave table establishes.
 
 Each dispatch carries what `implementer-prompt.md` lays out. Compose it so the
 plan stays the single source of requirements:
 
 - one line on where this task sits in the project;
 - the plan's path and the task number, told to read **only** that task plus
-  `## Global constraints` — never paste the plan into the prompt, and never
-  make a subagent read the whole file;
-- interfaces and decisions from earlier waves that the task text cannot know;
+  `## Global constraints`; the plan content stays at its source;
+- interfaces and decisions from earlier waves that the task requires;
 - your resolution of any ambiguity you spotted in the task;
 - **name the model explicitly.** An omitted model inherits yours, which is
   usually the most expensive one available. Transcription-grade edits go cheap;
   anything needing judgement goes standard.
 
-A dispatch describes one task, not the session's history. Do not paste
-accumulated summaries of earlier waves into later prompts.
+A dispatch describes one task and its required context. The plan and journal
+remain the source for accumulated history from earlier waves.
 
 ### 3. Verify the wave yourself
 
@@ -69,18 +66,18 @@ whole suite, once. Implementers only ran their own task's check, on purpose: a
 suite run by four agents at once is a flake generator.
 
 Then `git status --porcelain`. Every changed file must be claimed by exactly
-one task's `**Writes:**`. A file nobody claimed is a defect in the plan —
-record a ruling saying which task owns it and why, and carry on. Two tasks
-claiming one file should never have shared a wave; if it happened, note it and
-serialize the rest.
+one task's `**Writes:**`. A changed file outside those claims is a defect in the
+plan: record a ruling assigning its owner and explaining why, then carry on.
+Overlapping write claims require a ruling and serialized execution for the
+remaining work.
 
 ### 4. Review the wave
 
-One reviewer over `BASE..HEAD` — the diff, not the files. Use
-`reviewer-prompt.md`. It returns two verdicts, spec compliance and quality;
-never accept a report missing either.
+One reviewer examines the `BASE..HEAD` diff with `reviewer-prompt.md`. A complete
+report contains both verdicts: spec compliance and quality.
 
-Do not ask the reviewer to re-run tests you already ran on the same code.
+The controller's verification result remains authoritative; the reviewer
+focuses on the diff and skips duplicate test execution.
 
 ### 5. Fix loop, at most three rounds
 
@@ -91,13 +88,14 @@ Do not ask the reviewer to re-run tests you already ran on the same code.
   "two prior attempts failed on this task; you own it now, here is what was
   tried."
 
-Still open after three? Park it. Write down what is unresolved, note it in the
-PR comment, and keep moving. Do not fix it yourself.
+Findings still open after three rounds are parked. Write down what is unresolved,
+note it in the PR comment, keep every fix with an implementer, and continue.
 
 ### 6. Commit — one commit per task, by you
 
-Implementers do not commit. Two `git commit` processes in one worktree race
-`.git/index.lock`, and a shared index is not something to be clever about.
+Only the controller commits; implementers return their changes uncommitted.
+Commit processes stay serialized because the worktree shares one
+`.git/index.lock`.
 
 For each task in the wave, in task order: stage exactly that task's
 `**Writes:**` set, commit with the message the plan gives it. The history
@@ -114,35 +112,35 @@ decided or discovered, what the verification showed, any rulings you made, and
 anything parked. The wave's review is most of this already — reuse it rather
 than composing twice.
 
-Write what a reviewer needs to follow the reasoning, not a changelog they can
-read from `git log`. No `gh`? Skip it, once, out loud.
+Write the reasoning a reviewer needs to follow; `git log` provides the changelog.
+When `gh` is unavailable, announce that once and continue.
 
 ### 8. Close the wave
 
 1. Tick the wave's checkboxes in the plan file and commit it.
 2. Update `## Now`: which wave is next, what is verified, the concrete next
    step with a file and a command.
-3. `✎` note — what this wave decided or proved, not that it finished.
+3. `✎` note — the decision or proof produced by this wave.
 
-### 9. Offer a fresh session, and stop
+### 9. Offer a fresh session, then pause
 
 > Хвиля 2/5 закрита: задачі 2 і 7, `ca37a58` `2fd166f`, тести зелені,
 > коментар у PR. `## Now` вказує на хвилю 3.
 > Рекомендую нову сесію — digest поверне тебе сюди. Продовжуємо в цій сесії?
 
-Then stop and wait. This is the boundary the framework is built around: a long
-plan executed in one session degrades as the context fills, and the journal
-exists precisely so it does not have to be.
+Pause at this boundary and wait. This is the session boundary the framework is
+built around: the journal preserves the exact continuation point while a fresh
+session restores full context capacity.
 
-## Rulings, not stalls
+## Rulings and stop gates
 
-A running plan does not wait on a human for things you can decide. An
-ambiguity in a task, a conflict between two tasks, a plan defect, a cap you
-would have asked to raise — decide it, write it down as
-`Ruling: <what> — <why> — <what it costs if wrong>`, and keep going. Rulings
-go in the wave's PR comment.
+A running plan resolves every decision within the controller's authority. For
+an ambiguity in a task, a conflict between two tasks, a plan defect, or a cap
+that requires adjustment, record
+`Ruling: <what> — <why> — <what it costs if wrong>` and keep going. Rulings go
+in the wave's PR comment.
 
-Four things stop you instead:
+Execution pauses only for these four gates:
 
 - an irreversible or destructive operation;
 - anything security-sensitive;
@@ -155,20 +153,20 @@ Four things stop you instead:
 When the last wave is closed:
 
 1. **Whole-branch review** on your most capable model, over
-   `git merge-base <trunk> HEAD..HEAD`. One fix dispatch for its findings —
-   all of them together, not one agent per finding. There is no second wave.
+   `git merge-base <trunk> HEAD..HEAD`. One combined fix dispatch receives all
+   findings together; this is the single whole-branch fix wave.
 2. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
    `git rm` the journal, commit `chore(journal): close <task>`.
 3. `gh pr ready` — the draft becomes a real PR.
 
-## Red flags
+## Decision rules
 
-| Thought | Reality |
+| Situation | Required rule |
 |---|---|
-| "These two tasks are basically independent, one wave" | Check the `Writes:` sets. Basically is not disjoint. |
-| "I'll dispatch them one at a time, it's safer" | It is not safer, it is slower. Disjoint write sets are what makes it safe; the wave table already proved that. |
-| "The implementer can commit its own work" | Two commits in one worktree race the index lock. You commit. |
-| "This finding is small, I'll just fix it" | A controller fix skips review and burns your context. Send it back. |
-| "I'll run all five waves and report at the end" | Every wave boundary is an offer to start fresh. That is the whole session-hygiene story. |
-| "I don't remember doing Task 4, I'll redo it" | The plan's checkboxes and `git log` are the record. Trust them over your memory. |
-| "The reviewer should re-run the tests to be sure" | You ran them. Asking twice buys a slower review, not a safer one. |
+| Two tasks are candidates for one wave | Their `Writes:` sets must be disjoint. |
+| A wave contains multiple tasks | Dispatch all implementers in one message; disjoint write sets provide safe concurrency. |
+| A task is ready to commit | The controller commits it, keeping access to the shared index serialized. |
+| Review finds a small issue | Return it to the responsible implementer so the fix receives review. |
+| A wave closes | Offer a fresh session and preserve the continuation point in `## Now`. |
+| A resumed task appears complete | Treat the plan's checkboxes and `git log` as the authoritative record. |
+| The wave suite has already run | The reviewer uses that result and focuses on spec compliance and quality. |

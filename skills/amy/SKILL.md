@@ -7,134 +7,134 @@ description: Use when the user asks to run a failing test first, write the faili
 
 Write the test first. Watch it fail. Write the minimum that passes.
 
-**Core principle:** if you did not watch the test fail, you do not know that it
-tests the right thing.
+**Core principle:** watching the test fail for the predicted reason proves that
+it tests the right thing.
 
-Violating the letter of these rules is violating their spirit.
+Following the full sequence preserves both the letter and the spirit of these
+rules.
 
 ## The Iron Law
 
 ```
-NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
+A FAILING TEST ALWAYS PRECEDES PRODUCTION CODE
 ```
 
-Wrote code before the test? Delete it and start over. Not "keep it as
-reference", not "adapt it while writing the test", not "look at it once".
-Delete means delete — anything else is testing after, wearing a disguise.
+Production code written before its test is discarded, and the cycle starts
+again with the failing test. A fresh start keeps the test independent of the
+implementation and preserves the tests-first sequence.
 
 ## When it applies
 
 **Always:** new features, bug fixes, refactors, behaviour changes.
 
-**Exceptions, and you say them out loud rather than deciding quietly:**
+**Exceptions are always stated out loud:**
 
 - **Prototypes.** A `penny` variant is thrown away by design — it
-  exists to answer a question, not to be maintained. Do not TDD it. When a
-  prototype's *behaviour* graduates into the real implementation, that
-  implementation is TDD'd from scratch.
-- **Generated code and configuration.** Test what consumes them, not them.
+  exists to answer a question and remains outside the maintained product. TDD
+  begins from scratch when a prototype's *behaviour* graduates into the real
+  implementation.
+- **Generated code and configuration.** Tests cover the code that consumes
+  them.
 
-Thinking "skip TDD just this once"? That thought is the rationalization, not
-the exception.
+Only the stated exceptions alter the TDD sequence.
 
 ## Any runner counts
 
-TDD is a sequence, not a framework. Use whatever the repo already runs. If it
-has no test framework at all, a script that exits non-zero on a failed
-assertion is a test — `hooks/journal.test.sh` in this repo is exactly that,
-and it is not a lesser one. Never add a test framework as a side effect of
-writing a test; that is a dependency decision, and it belongs to the plan.
+TDD is a sequence that works with any framework. Use whatever the repo already
+runs. If it has yet to adopt a test framework, a script that exits non-zero on
+a failed assertion is a test — `hooks/journal.test.sh` in this repo is exactly
+that, and it counts equally. The repository's existing runner remains in use;
+a new test framework enters through an explicit dependency decision in the
+plan.
 
 ## Red → Green → Refactor
 
 ### RED — write one failing test
 
-One behaviour. A name that describes that behaviour. Real code, not mocks,
-unless a mock is unavoidable.
+One behaviour. A name that describes that behaviour. Use real code, with mocks
+reserved for unavoidable boundaries.
 
 **Before you write it, name the production change that would make this test
-fail.** Say it in one sentence. If you cannot name one, the test asserts
-something the code cannot get wrong — it will pass forever and prove nothing.
-This single question kills more useless tests than every other rule here.
+fail.** Say it in one sentence. A valid test always names a production change
+that could make it fail; this keeps the assertion tied to behaviour the code
+can get wrong.
 
 Three more rules that keep a test honest:
 
-- **Assert on real behaviour, never on mock behaviour.** `expect(mock).toHaveBeenCalledTimes(3)`
-  tests your mock. `expect(attempts).toBe(3)` tests the code.
-- **Test-only helpers live in test utilities**, never as a hook or a flag on
-  the production class. Production code that knows it is under test is lying
-  to you in both directions.
-- **Understand a dependency's side effects before mocking it.** A mock that
-  omits the write, the retry or the throw makes the test pass for a system
-  that does not exist.
+- **Assert on real behaviour.** `expect(attempts).toBe(3)` tests the code;
+  `expect(mock).toHaveBeenCalledTimes(3)` describes the substitute.
+- **Test-only helpers live in test utilities.** Production classes remain free
+  of test hooks and flags, so their behaviour stays identical in every
+  environment.
+- **Understand a dependency's side effects before mocking it.** A faithful mock
+  reproduces the write, retry and throw that affect the behaviour under test.
 
 ### Verify RED — watch it fail
 
-**Mandatory. Never skipped, never assumed.** Run it and read the output.
+**Mandatory. Always run it and read the output.**
 
-- It must **fail**, not error. An error is usually a typo, not a missing feature.
+- The missing behaviour must produce a **failure**. Runtime and syntax errors
+  are corrected first so the test reaches its assertion.
 - The failure message must be the one you predicted.
-- It passes already? Then you are testing behaviour that exists. The test is
-  wrong — fix the test, not the code.
+- An initial pass proves that the behaviour already exists. Choose a test that
+  exposes the missing behaviour while production code remains unchanged.
 
 ### GREEN — the minimum that passes
 
-The simplest thing that makes this test pass. No extra parameters, no options
-object, no error paths the test does not demand. Those are the next test's job,
-if they are anyone's.
+The simplest thing that makes this test pass. The change includes only the
+parameters, options and error paths the current test demands. Later tests can
+expand that scope when the behaviour requires it.
 
 ### Verify GREEN — watch it pass
 
 Run it again. The new test passes, every other test still passes, and the
-output is clean — no stack traces, no warnings you have learned to ignore.
+output is clean and expected.
 
-Test still fails? Fix the code, never the test.
-Another test broke? Fix it now, not later.
+If the test still fails, continue changing the production code while the test
+remains fixed. If another test breaks, restore the full suite immediately.
 
 ### REFACTOR
 
 Only once green. Remove duplication, improve names, extract helpers. Keep the
-tests green and add no behaviour. Then the next failing test.
+tests green and keep behaviour unchanged. Then the next failing test.
 
-## Rationalizations
+## Decision rules
 
-| Excuse | Reality |
+| Situation | Rule |
 |---|---|
-| "Too simple to test" | Simple code breaks. The test costs thirty seconds. |
-| "I'll test after" | Tests written after pass immediately, which proves nothing. You never watched it fail, so you never proved it can catch the bug. |
-| "Tests after achieve the same thing — spirit, not ritual" | Tests-after answer "what does this do?". Tests-first answer "what should this do?". After-the-fact tests are biased by the code you already wrote: you cover the cases you remembered, not the ones you would have discovered. |
-| "I already tested it manually" | No record of what you covered, no way to re-run it, easy to forget a case under pressure. "Worked when I tried it" is not coverage. |
-| "Deleting X hours of work is wasteful" | Sunk cost. That time is spent either way. The real choice is rewrite with TDD, or keep code you cannot trust and bolt tests onto it. |
-| "I'll keep it as reference and write tests first" | You will adapt it. That is testing after. |
-| "I need to explore first" | Fine — explore, then throw the exploration away and start with TDD. |
-| "This is hard to test" | Listen to that. Hard to test is hard to use; the design is telling you something. |
-| "TDD will slow me down" | It is the fast path: bugs caught before the commit, regressions prevented, refactoring without fear. The shortcut is debugging in production. |
-| "The existing code has no tests" | You are improving it. Add the test for the part you touch. |
+| The behaviour looks simple | Write the small test; simple code still benefits from a thirty-second regression check. |
+| Implementation exists before its test | Discard the implementation and restart with the failing test so the test proves it can catch the bug. |
+| Tests-after appears equivalent | Tests-first answers "what should this do?" before implementation can bias which cases are covered. |
+| A manual check already passed | Add a repeatable automated record that runs consistently under pressure. |
+| Significant implementation time is already spent | Treat that time as sunk cost and choose the trustworthy TDD rewrite. |
+| Early code seems useful as a reference | Discard it so the test remains independent of the implementation. |
+| Exploration is needed first | Explore freely, discard the exploration, and begin maintained work with TDD. |
+| The behaviour is hard to test | Simplify the interface; test difficulty exposes design difficulty. |
+| TDD appears slower | Use the fast path that catches bugs before commit, prevents regressions and supports safe refactoring. |
+| The existing area lacks tests | Add the test for the part being changed. |
 
-## Red flags — stop and start over
+## Sequence acceptance gate
 
-Code before test · test written after implementation · a test that passes the
-first time you run it · you cannot explain why it failed · "tests will come
-later" · "just this once" · "keep it as reference" · "already spent hours,
-deleting is wasteful" · "TDD is dogma, I'm being pragmatic" · "this case is
-different because…"
-
-All of these mean the same thing: delete the code, start again with the test.
+A valid cycle has a test written first, an initial failure for the predicted
+reason, a clear explanation of that failure, and only then the minimum
+production change. Every test remains part of the maintained suite. When any
+part of this sequence is missing, discard the production change and restart
+with the test.
 
 ## When stuck
 
 | Problem | What it means |
 |---|---|
-| Don't know how to test it | Write the API you wish existed, then the assertion. |
+| The test shape is unclear | Write the API you wish existed, then the assertion. |
 | The test is complicated | The design is complicated. Simplify the interface. |
-| I have to mock everything | The code is too coupled. Inject the dependency. |
-| The setup is enormous | Extract helpers. Still enormous? The design is wrong. |
+| The test requires mocks for every dependency | The code is too coupled. Inject the dependency. |
+| The setup is enormous | Extract helpers. If it stays enormous, simplify the design. |
 
 ## Bug fixes
 
-Never fix a bug without a test. Write the test that reproduces it, watch it
-fail — that failure is your proof you found the actual bug and not a
-neighbouring one — then fix. The test now also prevents the regression.
+Every bug fix begins with a test that reproduces it. Watch it fail — that
+failure proves you found the actual bug rather than a neighbouring one — then
+fix it. The test now also prevents the regression.
 
 ## Before calling the work done
 
@@ -142,7 +142,7 @@ neighbouring one — then fix. The test now also prevents the regression.
 - [ ] You watched each one fail, and the failure was the expected one
 - [ ] You wrote the minimum that passed
 - [ ] Everything is green and the output is clean
-- [ ] Tests assert on real behaviour, not on mocks
+- [ ] Tests assert on real behaviour
 - [ ] Edge cases and error paths are covered
 
-Cannot tick them all? You skipped TDD. Start over.
+Completion begins after every box is ticked. Otherwise, restart with the test.
