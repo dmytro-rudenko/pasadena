@@ -2,6 +2,9 @@
 name: leonard
 description: Use when the user asks to plan the implementation, write an implementation plan, break an agreed spec into tasks, or identify parallel work. Runs native plan mode, declares file sets, and computes parallel waves
 allowed-tools:
+  - EnterPlanMode
+  - ExitPlanMode
+  - ToolSearch
   - Read
   - Grep
   - Glob
@@ -52,10 +55,13 @@ both paths remain outside the plan-document flow.
 
 ## 1. Use plan mode
 
-Use Codex plan mode when it is available. It keeps exploration read-only and
-puts the implementation plan in front of the user as the approval gate. If the
-host provides chat as the approval surface, present the same plan there and
-wait for explicit approval before making changes.
+Enter plan mode as the first action of this skill. In Claude Code that is the
+`EnterPlanMode` tool — when it is deferred, load it first with
+`ToolSearch("select:EnterPlanMode")`, then call it. In Codex it is Codex plan
+mode. Plan mode keeps exploration read-only and puts the implementation plan in
+front of the user as the approval gate. Fall back to chat only when the host
+exposes no plan-mode tool at all: present the same plan there and wait for
+explicit approval before making changes.
 
 Explore before decomposing — this is where a plan's quality is won or lost.
 Gather context deliberately, so every task carries what an implementer needs:
@@ -194,7 +200,7 @@ ruling that forces a halt.
 |---|---|
 | Plan content | The approved file contains the executable decomposition; step 5 persists it after approval. |
 | Approval transition | Approval immediately persists the plan and starts wave 1. `wolowitz` then runs every wave through to the finish. |
-| Plan-mode gate | Every plan uses native plan mode when available, with one-keystroke UI approval as the gate. |
+| Plan-mode gate | Planning opens by calling the host's plan-mode tool (`EnterPlanMode` in Claude Code), with one-keystroke UI approval as the gate. |
 | File ownership | Every `Writes:` set names the exact files the builder stages and the wave computation uses. |
 | Wave independence | Tasks share a wave only when their write sets and interfaces satisfy the dependency rules above. |
 | Task context | Each task supplies exact values and complete steps for an implementer seeing that task in isolation. |
