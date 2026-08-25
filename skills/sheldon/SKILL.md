@@ -1,8 +1,31 @@
 ---
-
 name: sheldon
 description: Use when the user asks to write a specification, design a feature, define project scope, add functionality, or change behavior. Classifies the work, explores intent through questions, and produces an agreed specification before implementation begins
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - WebFetch
+  - WebSearch
+  - AskUserQuestion
+  - TodoWrite
+  - Skill
+  - Edit(docs/sdd/specs/**)
+  - Bash(git status *)
+  - Bash(git log *)
+  - Bash(git diff *)
+  - Bash(git show *)
+  - Bash(git worktree *)
+  - Bash(git add *)
+  - Bash(git commit *)
+  - Bash(gh pr create *)
+  - Bash(gh pr view *)
+  - Bash(ls *)
+  - Bash(rg *)
+  - Bash(wc *)
+disallowed-tools:
+  - NotebookEdit
+---
 
 # Shaping
 
@@ -11,6 +34,13 @@ Turn an idea into an agreed design through dialogue, then write the specificatio
 <HARD-GATE>
 Until you have fully explained to the user what you intend to do and received their explicit approval, work exclusively in shaping mode: exploration, questions, design, and specification. The codebase remains unchanged, no scaffolding is created, and implementation skills remain outside this phase. This rule applies to every path below. The amount of ceremony scales with the task; explicit approval is always required.
 </HARD-GATE>
+
+## Tools
+
+Read anything. **The only file this skill writes is the spec**,
+`docs/sdd/specs/YYYY-MM-DD-<slug>.md`. The journal belongs to `raj` — invoke
+that skill rather than editing `.pasadena/journal/` here. Code, tests, and
+configuration stay untouched: they are `wolowitz`'s work, two phases away.
 
 ## Classify first — and say it out loud
 
