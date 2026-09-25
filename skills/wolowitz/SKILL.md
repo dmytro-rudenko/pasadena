@@ -56,6 +56,20 @@ shared branch is one of the four stop gates below, so it asks. The plan's
 verification command asks once when its runner is not in the list; approve it
 and the rest of the build runs uninterrupted.
 
+## Models
+
+Every dispatch sets `model` **explicitly** — never leave it to a default, never
+pick a cheaper one to save cost:
+
+| Dispatch | `model` |
+|---|---|
+| Implementer, including a round-3 fresh implementer | The session's model, as your own system prompt names it: `opus` on Opus, `fable` on Fable |
+| Wave reviewer and whole-branch review | `fable` |
+| Read-only `Explore` lookup | `sonnet` is allowed |
+
+`sonnet` and `haiku` never write code and never review. On a host without these
+names, use its closest equivalent.
+
 ## Setup
 
 1. **Isolation.** Implementation always takes place in a worktree while trunk
@@ -96,9 +110,7 @@ plan stays the single source of requirements:
   `## Global constraints`; the plan content stays at its source;
 - interfaces and decisions from earlier waves that the task requires;
 - your resolution of any ambiguity you spotted in the task;
-- **do not set a model or effort.** Every implementer runs on the session's
-  active model and effort — the one the user chose. Omit the model so the
-  dispatch inherits it; never downgrade a task to a cheaper model.
+- `model` set to the session's model, per **Models**.
 
 A dispatch describes one task and its required context. The plan and journal
 remain the source for accumulated history from earlier waves.
@@ -117,8 +129,9 @@ remaining work.
 
 ### 4. Review the wave
 
-One reviewer examines the `BASE..HEAD` diff with `reviewer-prompt.md`. A complete
-report contains both verdicts: spec compliance and quality.
+One reviewer on `fable` examines the `BASE..HEAD` diff with
+`reviewer-prompt.md`. A complete report contains both verdicts: spec compliance
+and quality.
 
 The controller's verification result remains authoritative; the reviewer
 focuses on the diff and skips duplicate test execution.
@@ -128,9 +141,9 @@ focuses on the diff and skips duplicate test execution.
 - **Rounds 1–2:** send the open findings, verbatim, back to the implementer
   that wrote the code through the host's follow-up messaging tool — it still
   has the context.
-- **Round 3:** a fresh implementer — same model as everything else — framed
-  honestly: "two prior attempts failed on this task; you own it now, here is
-  what was tried."
+- **Round 3:** a fresh implementer — on the session's model, per **Models** —
+  framed honestly: "two prior attempts failed on this task; you own it now,
+  here is what was tried."
 
 Findings still open after three rounds are parked. Write down what is unresolved,
 note it in the PR comment, keep every fix with an implementer, and continue.
@@ -200,9 +213,9 @@ Execution pauses only for these four gates:
 
 When the last wave is closed:
 
-1. **Whole-branch review** over `git merge-base <trunk> HEAD..HEAD`, on the
-   session's active model like every other dispatch. One combined fix dispatch
-   receives all findings together; this is the single whole-branch fix wave.
+1. **Whole-branch review** over `git merge-base <trunk> HEAD..HEAD`, on
+   `fable` like every review. One combined fix dispatch receives all findings
+   together; this is the single whole-branch fix wave.
 2. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
    `git rm` the journal, commit `chore(journal): close <task>`.
 3. `gh pr ready` — the draft becomes a real PR.
