@@ -1,6 +1,7 @@
 ---
 name: pasadena
 description: Use when the user asks to start, resume, plan, or run a Pasadena spec-driven development workflow. Inspects the task journal and routes to the next workflow skill.
+argument-hint: "[what you want to build]"
 allowed-tools:
   - Read
   - Grep
