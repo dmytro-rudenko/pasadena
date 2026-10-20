@@ -110,6 +110,9 @@ plan stays the single source of requirements:
   `## Global constraints`; the plan content stays at its source;
 - interfaces and decisions from earlier waves that the task requires;
 - your resolution of any ambiguity you spotted in the task;
+- the instruction to invoke the `amy` skill (`pasadena:amy`) before writing
+  code — a subagent starts with no skills loaded, and naming amy in passing
+  does not load her;
 - `model` set to the session's model, per **Models**.
 
 A dispatch describes one task and its required context. The plan and journal

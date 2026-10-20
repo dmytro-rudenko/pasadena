@@ -37,8 +37,12 @@ ambiguity you spotted in the task; nothing else>
 4. **Do not dispatch subagents.** Not helpers, not a reviewer. Review comes
    from the controller after your report.
 
-5. **Follow `amy`** — failing test, watch it fail, minimum that passes, watch it
-   pass. The plan's steps are already in that order.
+5. **Invoke the `amy` skill before writing any code** — with the Skill tool,
+   as `pasadena:amy` (plain `amy` where the host does not prefix plugin
+   skills) — and follow it for every step. The plan orders its steps red →
+   green, but that order alone is not amy: her rules on discarding code
+   written before its test, checking the failure reason, and the done
+   checklist apply on top of it. Say in your report that you invoked it.
 
 6. **Use exactly the values the task gives.** Names, strings, numbers,
    signatures. If a value looks wrong, implement it as written and say so in
