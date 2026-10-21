@@ -16,7 +16,8 @@ allowed-tools:
   - Bash(pnpm *)
   - Bash(yarn *)
   - Bash(npx playwright *)
-  - Bash(curl *)
+  - Bash(curl -s http://localhost:*)
+  - Bash(curl -s http://127.0.0.1:*)
   - Bash(git status *)
   - Bash(git diff *)
   - TaskStop
@@ -51,8 +52,8 @@ Ask the question once. The answer settles the mode for the rest of the task.
    `preview`) or the README. Note the port it serves on.
 2. If that port already answers, use the running server and leave it alone.
 3. Otherwise start the command with the Bash tool's background mode
-   (`run_in_background`), wait until the port answers to `curl`, and record
-   that bernie started it.
+   (`run_in_background`), wait until `curl -s http://localhost:<port>`
+   answers, and record that bernie started it.
 4. When the work is done, stop only the server bernie started, with
    `TaskStop`. A server the user had running stays running.
 
