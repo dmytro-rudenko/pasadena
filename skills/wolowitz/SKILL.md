@@ -140,6 +140,16 @@ When every implementer has reported, run the plan's verification command — the
 whole suite, once. Implementers only ran their own task's check, on purpose: a
 suite run by four agents at once is a flake generator.
 
+**The acceptance tests are red on purpose until the last wave.** After Wave 0,
+the run is red exactly in Task 0's acceptance tests, each failing for the
+reason Task 0 predicted. After each later wave, the number of failing
+acceptance tests never grows, the tests named in the wave's `**Satisfies:**`
+lines pass, and everything outside the acceptance tests is green. After the
+last wave, none is red. Any red outside that expectation is a failed
+verification. When a commit hook or push gate rejects the red tests, mark them
+with the runner's expected-failure marker (`it.fails` in Vitest, `xfail` in
+pytest) and have each task remove the marker from the tests it satisfies.
+
 Then `git status --porcelain`. Every changed file must be claimed by exactly
 one task's `**Writes:**`. A changed file outside those claims is a defect in the
 plan: record a ruling assigning its owner and explaining why, then carry on.

@@ -32,7 +32,8 @@ ambiguity you spotted in the task; nothing else>
    wave is verified. Two `git commit` runs in one worktree race the index lock.
 
 3. **Do not run the whole test suite.** Run only your task's own verification
-   command. The controller runs the suite once when the wave is done.
+   command and the acceptance tests in its `**Satisfies:**` line, which must
+   end green. The controller runs the suite once when the wave is done.
 
 4. **Do not dispatch subagents.** Not helpers, not a reviewer. Review comes
    from the controller after your report.
