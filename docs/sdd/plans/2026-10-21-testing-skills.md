@@ -2,14 +2,15 @@
 
 **Goal:** У плагіні є `leslie`, `bernie`, `stuart`. amy має правило «Verify before claiming», а wolowitz — фолбек без субагентів, передачу червоної verification у leslie і `security-review` перед ready-PR. Метадані плагіна (версія 0.7.0, README, notices) узгоджені, і це перевіряє `skills/skills.test.sh`.
 **Spec:** docs/sdd/specs/2026-10-21-testing-skills.md
-**Verification:** `bash skills/skills.test.sh && bash hooks/journal.test.sh && bash proto/server.test.sh`. Остання лінія виводу — `All checks passed.`, exit 0.
+**Verification:** `bash skills/skills.test.sh && bash hooks/journal.test.sh && bash proto/server.test.sh && bash hooks/nudge.test.sh`. Остання лінія виводу — `All checks passed.`, exit 0. До хвилі 2 `hooks/nudge.test.sh` не існує, тож бейзлайн хвилі 2 рахується без нього.
 
 ## Waves
 | Wave | Tasks | Why together |
 |---|---|---|
 | 1 | 1, 2, 3, 4, 5, 6 | Write-набори не перетинаються: метадані й тест, amy, leslie, bernie, stuart, wolowitz. Інтерфейси між задачами — це лише імена скілів, зафіксовані в Global constraints. |
+| 2 | 7, 8 | Не перетинаються: `hooks/` (скрипт, тест, дві реєстрації) vs `README.md` і `README.uk.md`. README лише описує хук і нічого з Task 7 не споживає, крім імені `PASADENA_NUDGE` і події `UserPromptSubmit`, які тут зафіксовано. |
 
-Серіалізувати нічого не треба: кожен файл належить рівно одній задачі.
+Серіалізувати нічого не треба: кожен файл належить рівно одній задачі. Хвиля 2 іде після хвилі 1 лише тому, що спеку 3.7 дописали після неї.
 
 ## Global constraints
 
@@ -210,6 +211,181 @@
 
 ---
 
-## Після хвилі (Finish у wolowitz)
+### Task 7: хук `nudge` — скрипт, тест, реєстрація
 
-Whole-branch review → `security-review` на diff гілки → `journal finish` → `gh pr ready`. Ручні сценарії з розділу 6.2 спеки виконуються після встановлення 0.7.0, бо поточна сесія працює на плагіні 0.6.7. Їх треба перелічити в PR як post-merge checklist.
+**Writes:** `hooks/nudge.sh`, `hooks/nudge.test.sh`, `hooks/claude-hooks.json`, `hooks/hooks.json`
+**Reads:** `hooks/journal.sh` (стиль: `set -uo pipefail`, `jq` на stdin, `.cwd`), `hooks/journal.test.sh` (`assert_contains`/`assert_empty`, тимчасові репо), специфікація 3.7
+**Depends on:** —
+**Interfaces:**
+- Produces: подія `UserPromptSubmit` → `hooks/nudge.sh`; вимикач `PASADENA_NUDGE=0`.
+
+- [ ] **Step 1: write the failing test.** Створити `hooks/nudge.test.sh`:
+
+  ```bash
+  #!/usr/bin/env bash
+  # Self-check for the nudge hook. Run: bash hooks/nudge.test.sh
+  set -uo pipefail
+
+  DIR="$(cd "$(dirname "$0")" && pwd)"
+  HOOK="$DIR/nudge.sh"
+  fails=0
+
+  assert_contains() {
+    if [[ "$1" == *"$2"* ]]; then
+      echo "  ok  — $3"
+    else
+      echo "  FAIL — $3"
+      echo "        expected substring: $2"
+      echo "        got: $1"
+      fails=$((fails + 1))
+    fi
+  }
+
+  assert_empty() {
+    if [ -z "$1" ]; then
+      echo "  ok  — $2"
+    else
+      echo "  FAIL — $2"
+      echo "        expected empty output, got: $1"
+      fails=$((fails + 1))
+    fi
+  }
+
+  repo="$(mktemp -d)"
+  git -C "$repo" init -q
+  plain="$(mktemp -d)"
+
+  run() { jq -n --arg p "$1" --arg c "${2:-$repo}" '{prompt:$p,cwd:$c}' | bash "$HOOK" 2>/dev/null; }
+
+  echo "== bug prompts =="
+  assert_contains "$(run 'Тести в price.test.sh падають. Полагодь.')" "pasadena:leslie" "Ukrainian bug prompt points to leslie"
+  assert_contains "$(run 'the build is failing')" "pasadena:leslie" "English bug prompt points to leslie"
+  assert_contains "$(run 'полагодь і додай тест')" "pasadena:leslie" "bug wins over feature"
+
+  echo "== feature prompts =="
+  out="$(run 'Додай функцію mul')"
+  assert_contains "$out" "pasadena:amy" "feature prompt points to amy"
+  assert_empty "$(grep -o leslie <<<"$out")" "feature prompt does not mention leslie"
+
+  echo "== output shape =="
+  assert_contains "$(run 'fix the crash' | jq -r '.hookSpecificOutput.hookEventName' 2>/dev/null)" "UserPromptSubmit" "valid JSON with the event name"
+
+  echo "== silent cases =="
+  assert_empty "$(run '/pasadena')" "slash command stays silent"
+  assert_empty "$(run 'виклич pasadena:leslie і полагодь')" "named skill stays silent"
+  assert_empty "$(run 'що таке монада?')" "unrelated prompt stays silent"
+  assert_empty "$(PASADENA_NUDGE=0 run 'полагодь тест')" "PASADENA_NUDGE=0 turns it off"
+  assert_empty "$(run 'полагодь тест' "$plain")" "silent outside a Git repo"
+
+  echo "== registration =="
+  assert_contains "$(jq -r '.hooks.UserPromptSubmit[0].hooks[0].command' "$DIR/claude-hooks.json")" \
+    'hooks/nudge.sh' "Claude Code registers UserPromptSubmit"
+  assert_contains "$(jq -r '.hooks.UserPromptSubmit[0].hooks[0].command' "$DIR/hooks.json")" \
+    '[ -n "${CLAUDE_PLUGIN_ROOT:-}" ] || bash "${PLUGIN_ROOT}/hooks/nudge.sh"' "Codex registers UserPromptSubmit behind the guard"
+
+  rm -rf "$repo" "$plain"
+
+  echo
+  if [ "$fails" -gt 0 ]; then
+    echo "FAILED: $fails"
+    exit 1
+  fi
+  echo "All checks passed."
+  ```
+- [ ] **Step 2: run it, watch it fail.** `bash hooks/nudge.test.sh` → `FAILED: 7`: чотири assert на leslie/amy, event name і дві реєстрації. Assert-и на мовчання проходять, бо скрипту ще немає і вивід порожній.
+- [ ] **Step 3: implement.**
+  - `hooks/nudge.sh` (виконуваний не обов'язково, викликається через `bash`):
+
+    ```bash
+    #!/usr/bin/env bash
+    set -uo pipefail
+
+    [ "${PASADENA_NUDGE:-1}" = "0" ] && exit 0
+
+    export LC_ALL=C.UTF-8
+    input="$(cat)"
+    prompt="$(jq -r '.prompt // empty' <<<"$input" 2>/dev/null)"
+    cwd="$(jq -r '.cwd // empty' <<<"$input" 2>/dev/null)"
+    [ -n "$cwd" ] || cwd="$PWD"
+
+    [ "$(git -C "$cwd" rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ] || exit 0
+
+    trimmed="${prompt#"${prompt%%[![:space:]]*}"}"
+    [ "${trimmed:0:1}" = "/" ] && exit 0
+    grep -qiE 'leslie|amy|pasadena:' <<<"$prompt" && exit 0
+
+    bug='баг|помилк|падає|падають|впав|зламал|не працює|полагод|виправ|fix|bug|broken|failing|fails|error|crash|regression'
+    feature='додай|реаліз|імплемент|зроби функц|нов(а|у|ий) фіч|implement|add (a |an )?(feature|function|endpoint|test)|build (a|the)'
+
+    if grep -qiE "$bug" <<<"$prompt"; then
+      ctx='This prompt looks like a bug or failing check. Before changing any code, invoke the leslie skill with the Skill tool, as pasadena:leslie, and follow it: root cause first, then the fix through amy.'
+    elif grep -qiE "$feature" <<<"$prompt"; then
+      ctx='This prompt looks like new behaviour. Before writing production code, invoke the amy skill with the Skill tool, as pasadena:amy: failing test first.'
+    else
+      exit 0
+    fi
+
+    jq -n --arg ctx "$ctx" '{hookSpecificOutput:{hookEventName:"UserPromptSubmit",additionalContext:$ctx}}'
+    ```
+  - `hooks/claude-hooks.json`: у `.hooks` додати після `SessionStart`:
+    ```json
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/nudge.sh\"",
+            "shell": "bash",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    ```
+  - `hooks/hooks.json`: у `.hooks` додати після `SessionStart`:
+    ```json
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${CLAUDE_PLUGIN_ROOT:-}\" ] || bash \"${PLUGIN_ROOT}/hooks/nudge.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    ```
+  - Обидва JSON мають лишитися валідними: `jq . hooks/claude-hooks.json hooks/hooks.json >/dev/null && echo JSON_OK`.
+- [ ] **Step 4: run it, watch it pass.** `bash hooks/nudge.test.sh` → `All checks passed.`; `bash hooks/journal.test.sh` → `All checks passed.` (Codex-реєстрацію там теж перевіряють, і вона має лишитися зеленою).
+
+### Task 8: README — хук nudge
+
+**Writes:** `README.md`, `README.uk.md`
+**Reads:** специфікація 3.7
+**Depends on:** —
+**Interfaces:**
+- Consumes: подія `UserPromptSubmit`, вимикач `PASADENA_NUDGE=0`, тест `hooks/nudge.test.sh` (імена з Task 7, зафіксовані тут).
+
+- [ ] **Step 1: write the failing test.** `grep -q 'Codex uses four hooks' README.md && grep -q '^| `UserPromptSubmit` |' README.md && grep -q 'PASADENA_NUDGE=0' README.md && grep -q '^bash hooks/nudge.test.sh$' README.md && grep -q 'Codex використовує чотири hooks' README.uk.md && grep -q '^| `UserPromptSubmit` |' README.uk.md && grep -q 'PASADENA_NUDGE=0' README.uk.md && grep -q '^bash hooks/nudge.test.sh$' README.uk.md && echo OK`
+- [ ] **Step 2: run it, watch it fail.** Порожній вивід, exit 1.
+- [ ] **Step 3: implement.**
+  - `README.md`:
+    - `Codex uses three hooks; Claude Code adds \`StopFailure\`:` → `Codex uses four hooks; Claude Code adds \`StopFailure\`:`;
+    - у таблицю хуків після рядка `SessionStart` додати: `` | `UserPromptSubmit` | Reminds the agent to invoke leslie for a bug or amy for new behaviour; silent outside a Git repo. | Same | ``;
+    - `Hooks read Git state and append to the journal. They do not modify Git history or the index.` → `Hooks read Git state and append to the journal; \`UserPromptSubmit\` only adds context to the prompt. They do not modify Git history or the index.`;
+    - у `## Configuration` після абзацу про `PASADENA_TRUNK` і його JSON-прикладу додати абзац: ``PASADENA_NUDGE=0` turns off the `UserPromptSubmit` reminder.``;
+    - у `## Checks` у блок bash додати третій рядок `bash hooks/nudge.test.sh`, а в абзац під ним додати речення: `The nudge checks cover bug and feature prompts, the silent cases, and hook registration.`
+  - `README.uk.md`:
+    - `Codex використовує три hooks; Claude Code додає \`StopFailure\`:` → `Codex використовує чотири hooks; Claude Code додає \`StopFailure\`:`;
+    - у таблицю після рядка `SessionStart`: `` | `UserPromptSubmit` | Нагадує агенту викликати leslie для бага або amy для нової поведінки; поза Git-репозиторієм мовчить. | Те саме | ``;
+    - `Хуки читають Git-стан і дописують журнал. Git-історію та індекс вони не змінюють.` → `Хуки читають Git-стан і дописують журнал; \`UserPromptSubmit\` лише додає контекст до промпту. Git-історію та індекс вони не змінюють.`;
+    - у `## Конфігурація` (або відповідний розділ із `PASADENA_TRUNK`) після JSON-прикладу: ``PASADENA_NUDGE=0` вимикає нагадування `UserPromptSubmit`.``;
+    - у `## Перевірки` у блок bash третім рядком `bash hooks/nudge.test.sh`, а в абзац: `Третя перевіряє промпти про баги й фічі, випадки мовчання та реєстрацію хука.`
+- [ ] **Step 4: run it, watch it pass.** Команда з Step 1 → `OK`; `bash skills/skills.test.sh` → `All checks passed.`
+
+---
+
+## Після хвилі 2 (Finish у wolowitz)
+
+Whole-branch review → security pass (скіл `security-review` падає без `origin/HEAD`, тоді вручну) → повторний headless-прогін сценарію 2 тричі (`behave-setup.sh` і `behave-run.sh` запускає користувач, бо ізоляція worktree не дає git поза ним). Очікування: у кожному прогоні `pasadena:leslie` — перший Skill до будь-якого Edit. Далі `journal finish` → `gh pr ready`.
