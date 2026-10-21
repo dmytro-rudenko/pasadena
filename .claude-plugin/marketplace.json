@@ -9,9 +9,9 @@
     {
       "name": "pasadena",
       "source": "./",
-      "version": "0.6.7",
+      "version": "0.7.0",
       "license": "MIT",
-      "description": "Spec-driven development run by six skills named after the Big Bang Theory cast: sheldon shapes the spec through questions, penny debugs a browser prototype before it is written, leonard plans in native plan mode, wolowitz builds the plan's independent tasks in parallel waves behind a draft PR, amy writes the failing test first, and raj keeps the session journal that holds the state between them",
+      "description": "Spec-driven development run by nine skills named after the Big Bang Theory cast: sheldon shapes the spec through questions, penny debugs a browser prototype before it is written, leonard plans in native plan mode, wolowitz builds the plan's independent tasks in parallel waves behind a draft PR, amy writes the failing test first and demands proof before done, leslie finds the root cause before any fix, bernie checks features end-to-end in the browser, stuart catches broken layouts, and raj keeps the session journal that holds the state between them",
       "category": "Development",
       "keywords": [
         "claude-code",
@@ -20,7 +20,10 @@
         "multi-agent",
         "tdd",
         "prototyping",
-        "session-journal"
+        "session-journal",
+        "debugging",
+        "e2e",
+        "visual-testing"
       ]
     }
   ]

@@ -1,7 +1,7 @@
 {
   "name": "pasadena",
-  "version": "0.6.7",
-  "description": "Spec-driven development with a session journal and six focused workflow skills.",
+  "version": "0.7.0",
+  "description": "Spec-driven development with a session journal and nine focused workflow skills.",
   "author": {
     "name": "dmytro-rudenko",
     "email": "ph.dmitry.rudenko@gmail.com",
@@ -16,13 +16,16 @@
     "planning",
     "tdd",
     "prototyping",
-    "codex"
+    "codex",
+    "debugging",
+    "e2e",
+    "visual-testing"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Pasadena",
     "shortDescription": "Spec-driven development with a session journal",
-    "longDescription": "A six-skill development workflow that preserves task context in a branch journal.",
+    "longDescription": "A nine-skill development workflow that preserves task context in a branch journal and backs every claim with tests.",
     "developerName": "dmytro-rudenko",
     "category": "Development",
     "capabilities": ["Read", "Write"],

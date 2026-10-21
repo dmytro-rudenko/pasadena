@@ -14,7 +14,7 @@ ok() { echo "  ok  — $1"; }
 
 # Routing skills invoke another skill in the same turn, where a disallowed-tools
 # entry would still be in force and would restrict the skill they route into.
-routers="pasadena journal leonard amy"
+routers="pasadena journal leonard amy leslie bernie"
 
 for dir in "$SKILLS"/*/; do
   name="$(basename "$dir")"
@@ -54,6 +54,41 @@ for dir in "$SKILLS"/*/; do
     esac
   fi
 done
+
+ROOT="$(cd "$SKILLS/.." && pwd)"
+entrypoints="pasadena journal"
+adapted="leslie bernie stuart"
+
+echo "README tables"
+for dir in "$SKILLS"/*/; do
+  name="$(basename "$dir")"
+  case " $entrypoints " in *" $name "*) continue ;; esac
+  for readme in README.md README.uk.md; do
+    grep -q "^| \`$name\` |" "$ROOT/$readme" ||
+      fail "$name: no row in $readme skills table"
+  done
+done
+ok "README tables checked"
+
+echo "Third-party notices"
+for name in $adapted; do
+  grep -q "skills/$name/SKILL.md" "$ROOT/THIRD_PARTY_NOTICES.md" ||
+    fail "$name: not credited in THIRD_PARTY_NOTICES.md"
+done
+ok "notices checked"
+
+echo "Manifest versions"
+manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json .codex-plugin/plugin.json"
+before=$fails
+for manifest in $manifests; do
+  count="$(grep -c '"version"' "$ROOT/$manifest")"
+  [ "$count" -eq 1 ] || fail "$manifest: expected one \"version\" line, found $count"
+done
+versions="$(for manifest in $manifests; do grep -h '"version"' "$ROOT/$manifest"; done | sed 's/[^0-9.]//g' | sort -u)"
+if [ -z "$versions" ] || [ "$(wc -l <<<"$versions")" -ne 1 ]; then
+  fail "manifest versions differ: $(tr '\n' ' ' <<<"$versions")"
+fi
+[ "$fails" -eq "$before" ] && ok "manifest versions checked"
 
 echo
 if [ "$fails" -gt 0 ]; then

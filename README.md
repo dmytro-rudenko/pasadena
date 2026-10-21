@@ -20,7 +20,10 @@ Run `$pasadena` in Codex or `/pasadena` in Claude Code to continue from the bran
 | `penny` | Builds two to four browser prototypes for a UI decision, tests the chosen version with you, and records the decision. |
 | `leonard` | Uses Claude Code plan mode to split the spec into executable tasks and safe parallel waves. |
 | `wolowitz` | Runs each wave, verifies it, reviews the diff, commits every task, and records progress on the PR. |
-| `amy` | Requires a failing test before production code for features, fixes, and refactors. |
+| `amy` | Requires a failing test before production code for features, fixes, and refactors, and proof from a fresh run before anything is called done. |
+| `leslie` | Finds the root cause of a bug or unexpected failure in four phases before any fix, then fixes it through amy. |
+| `bernie` | Checks a feature end-to-end in the browser with evidence, or adds a lasting Playwright e2e test. |
+| `stuart` | Screenshots a page at several breakpoints, reports layout defects, and fixes them after your approval. |
 | `raj` | Starts, updates, resumes, hands off, and closes the session journal. |
 
 The journal front matter and the plan's checkboxes are the pipeline state. Pasadena does not maintain a second status file.
@@ -36,7 +39,7 @@ codex plugin add pasadena@pasadena
 
 Open a new task after installing. Review and trust the bundled hooks through
 `/hooks`; until then Codex loads the skills but skips automatic journal context,
-commit tracking, and session-end pause markers. Update with:
+commit tracking, session-end pause markers, and skill reminders. Update with:
 
 ```bash
 codex plugin marketplace upgrade pasadena
@@ -103,16 +106,17 @@ Keep `## Goal`, `## Now`, and `## Timeline` in English. Hooks parse those headin
 
 `## Now` is the only section that changes. It records the current phase, the blocker if there is one, and a concrete next step with a verification command. `## Timeline` only grows.
 
-Codex uses three hooks; Claude Code adds `StopFailure`:
+Codex uses four hooks; Claude Code adds `StopFailure`:
 
 | Event | Codex | Claude Code |
 | --- | --- | --- |
 | `SessionStart` | Restores the journal context and offers to start one on a task branch. | Same |
+| `UserPromptSubmit` | Reminds the agent to invoke leslie for a bug or amy for new behaviour; silent outside a Git repo. | Same |
 | `PostToolUse` | Adds commits that appeared since the last journal entry. | Same |
 | `SessionEnd` | Adds a pause marker with HEAD and dirty files. | Same |
 | `StopFailure` | — | Adds the failure type. |
 
-Hooks read Git state and append to the journal. They do not modify Git history or the index.
+Hooks read Git state and append to the journal; `UserPromptSubmit` only adds context to the prompt. They do not modify Git history or the index.
 
 > The session journal (`.pasadena/journal/<branch>.md`) lives only on the task
 > branch. Before the merge: the summary moves into the PR description and the file
@@ -133,6 +137,8 @@ Set it in your shell profile or in `.claude/settings.json`:
 { "env": { "PASADENA_TRUNK": "main staging" } }
 ```
 
+`PASADENA_NUDGE=0` turns off the `UserPromptSubmit` reminder.
+
 ## Browser prototypes
 
 `penny` starts a dependency-free local Node server only while a prototype is under review. It binds to loopback, requires a per-session key for the first request, and keeps runtime state in the ignored `.sdd/` directory. Prototype files and decisions stay in `docs/sdd/proto/` for review.
@@ -142,11 +148,13 @@ The server uses `fetch` for choice events and a one-second poll for updates. Tha
 ## Checks
 
 ```bash
+bash skills/skills.test.sh
 bash hooks/journal.test.sh
 bash proto/server.test.sh
+bash hooks/nudge.test.sh
 ```
 
-The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown.
+The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration.
 
 For the full design, read [docs/design.md](docs/design.md).
 

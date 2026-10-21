@@ -133,12 +133,40 @@ with the test.
 | The test is complicated | The design is complicated. Simplify the interface. |
 | The test requires mocks for every dependency | The code is too coupled. Inject the dependency. |
 | The setup is enormous | Extract helpers. If it stays enormous, simplify the design. |
+| The test fails for a reason you did not predict | Stop changing code and invoke `leslie` with the Skill tool, as `pasadena:leslie` (plain `leslie` where the host does not prefix plugin skills). |
 
 ## Bug fixes
+
+When the cause is not yet known, invoke `leslie` with the Skill tool, as
+`pasadena:leslie` (plain `leslie` where the host does not prefix plugin
+skills), first; the reproducing test below is leslie's Phase 4.
 
 Every bug fix begins with a test that reproduces it. Watch it fail — that
 failure proves you found the actual bug rather than a neighbouring one — then
 fix it. The test now also prevents the regression.
+
+## Verify before claiming
+
+Every claim that something passes, is fixed or is done rests on a command run
+**in this same message**, with its output shown rather than paraphrased.
+
+```
+IDENTIFY the command that proves the claim → RUN it in full → READ the output and exit code → only then STATE the claim, with the evidence
+```
+
+If the output contradicts the claim, state the actual status with that output
+instead.
+
+These are not evidence: "should work", "probably", "looks right", the result of
+an earlier run, and a subagent's report that carries no output. A delegated
+task is checked through its diff and a fresh run of its verification.
+
+| Claim | Requires | Not sufficient |
+|---|---|---|
+| Tests pass | Test output with 0 failures | A previous run, "should pass" |
+| Bug fixed | The reproducing test now passes | Code changed, assumed fixed |
+| Build succeeds | Build exit 0 | Linter passing |
+| Delegated task done | The diff and its verification output | The agent's "success" report |
 
 ## Before calling the work done
 
@@ -147,6 +175,7 @@ fix it. The test now also prevents the regression.
 - [ ] You wrote the minimum that passed
 - [ ] Everything is green and the output is clean
 - [ ] Tests assert on real behaviour
+- [ ] The output of the latest run is shown, not summarised
 - [ ] Edge cases and error paths are covered
 
 Completion begins after every box is ticked. Otherwise, restart with the test.

@@ -55,10 +55,10 @@ resolve small ambiguities yourself and record them in your report.
 
 ## Report back
 
-Under fifteen lines:
+Under twenty-five lines:
 
 - **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED
 - Files you wrote
-- One line on what your verification command printed
+- The last lines (up to 10) of your verification command's output and its exit code, pasted, not summarised
 - Anything you decided that the task did not specify
 - Concerns, if any
