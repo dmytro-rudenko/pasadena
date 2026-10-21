@@ -219,7 +219,7 @@
 **Interfaces:**
 - Produces: подія `UserPromptSubmit` → `hooks/nudge.sh`; вимикач `PASADENA_NUDGE=0`.
 
-- [ ] **Step 1: write the failing test.** Створити `hooks/nudge.test.sh`:
+- [x] **Step 1: write the failing test.** Створити `hooks/nudge.test.sh`:
 
   ```bash
   #!/usr/bin/env bash
@@ -292,8 +292,8 @@
   fi
   echo "All checks passed."
   ```
-- [ ] **Step 2: run it, watch it fail.** `bash hooks/nudge.test.sh` → `FAILED: 7`: чотири assert на leslie/amy, event name і дві реєстрації. Assert-и на мовчання проходять, бо скрипту ще немає і вивід порожній.
-- [ ] **Step 3: implement.**
+- [x] **Step 2: run it, watch it fail.** `bash hooks/nudge.test.sh` → `FAILED: 7`: чотири assert на leslie/amy, event name і дві реєстрації. Assert-и на мовчання проходять, бо скрипту ще немає і вивід порожній.
+- [x] **Step 3: implement.**
   - `hooks/nudge.sh` (виконуваний не обов'язково, викликається через `bash`):
 
     ```bash
@@ -357,7 +357,7 @@
     ],
     ```
   - Обидва JSON мають лишитися валідними: `jq . hooks/claude-hooks.json hooks/hooks.json >/dev/null && echo JSON_OK`.
-- [ ] **Step 4: run it, watch it pass.** `bash hooks/nudge.test.sh` → `All checks passed.`; `bash hooks/journal.test.sh` → `All checks passed.` (Codex-реєстрацію там теж перевіряють, і вона має лишитися зеленою).
+- [x] **Step 4: run it, watch it pass.** `bash hooks/nudge.test.sh` → `All checks passed.`; `bash hooks/journal.test.sh` → `All checks passed.` (Codex-реєстрацію там теж перевіряють, і вона має лишитися зеленою).
 
 ### Task 8: README — хук nudge
 
@@ -367,9 +367,9 @@
 **Interfaces:**
 - Consumes: подія `UserPromptSubmit`, вимикач `PASADENA_NUDGE=0`, тест `hooks/nudge.test.sh` (імена з Task 7, зафіксовані тут).
 
-- [ ] **Step 1: write the failing test.** `grep -q 'Codex uses four hooks' README.md && grep -q '^| `UserPromptSubmit` |' README.md && grep -q 'PASADENA_NUDGE=0' README.md && grep -q '^bash hooks/nudge.test.sh$' README.md && grep -q 'Codex використовує чотири hooks' README.uk.md && grep -q '^| `UserPromptSubmit` |' README.uk.md && grep -q 'PASADENA_NUDGE=0' README.uk.md && grep -q '^bash hooks/nudge.test.sh$' README.uk.md && echo OK`
-- [ ] **Step 2: run it, watch it fail.** Порожній вивід, exit 1.
-- [ ] **Step 3: implement.**
+- [x] **Step 1: write the failing test.** `grep -q 'Codex uses four hooks' README.md && grep -q '^| `UserPromptSubmit` |' README.md && grep -q 'PASADENA_NUDGE=0' README.md && grep -q '^bash hooks/nudge.test.sh$' README.md && grep -q 'Codex використовує чотири hooks' README.uk.md && grep -q '^| `UserPromptSubmit` |' README.uk.md && grep -q 'PASADENA_NUDGE=0' README.uk.md && grep -q '^bash hooks/nudge.test.sh$' README.uk.md && echo OK`
+- [x] **Step 2: run it, watch it fail.** Порожній вивід, exit 1.
+- [x] **Step 3: implement.**
   - `README.md`:
     - `Codex uses three hooks; Claude Code adds \`StopFailure\`:` → `Codex uses four hooks; Claude Code adds \`StopFailure\`:`;
     - у таблицю хуків після рядка `SessionStart` додати: `` | `UserPromptSubmit` | Reminds the agent to invoke leslie for a bug or amy for new behaviour; silent outside a Git repo. | Same | ``;
@@ -382,7 +382,7 @@
     - `Хуки читають Git-стан і дописують журнал. Git-історію та індекс вони не змінюють.` → `Хуки читають Git-стан і дописують журнал; \`UserPromptSubmit\` лише додає контекст до промпту. Git-історію та індекс вони не змінюють.`;
     - у `## Конфігурація` (або відповідний розділ із `PASADENA_TRUNK`) після JSON-прикладу: ``PASADENA_NUDGE=0` вимикає нагадування `UserPromptSubmit`.``;
     - у `## Перевірки` у блок bash третім рядком `bash hooks/nudge.test.sh`, а в абзац: `Третя перевіряє промпти про баги й фічі, випадки мовчання та реєстрацію хука.`
-- [ ] **Step 4: run it, watch it pass.** Команда з Step 1 → `OK`; `bash skills/skills.test.sh` → `All checks passed.`
+- [x] **Step 4: run it, watch it pass.** Команда з Step 1 → `OK`; `bash skills/skills.test.sh` → `All checks passed.`
 
 ---
 

@@ -10,7 +10,7 @@ started: 2026-10-21
 Посилити тестування в pasadena: зробити amy надійнішою (включно з випадком, коли wolowitz працює без субагентів) і додати навички для тестування, взявши корисне з зовнішніх skills (superpowers, trailofbits, webapp-testing тощо). Готово, коли є погоджена спека, план і реалізація в цьому плагіні.
 
 ## Now
-Building хвиля 2 (wolowitz): Task 7 (hooks/nudge.sh, nudge.test.sh, реєстрація) і Task 8 (README). Верифікація: `bash skills/skills.test.sh && bash hooks/journal.test.sh && bash proto/server.test.sh && bash hooks/nudge.test.sh`. Потім whole-branch review, security pass, повторний headless-сценарій 2 ×3 (запускає користувач), journal finish, ready.
+Хвиля 2/2 закрита (1d0d7ad, fcdb83f; curl-фікс 44cb8b3). Усі 4 набори зелені. Далі Finish: whole-branch review → повторний headless-сценарій 2 ×3 (користувач запускає behave-setup.sh, behave-run.sh) → journal finish → `gh pr ready 12`.
 
 ## Timeline
 
@@ -34,3 +34,9 @@ Building хвиля 2 (wolowitz): Task 7 (hooks/nudge.sh, nudge.test.sh, реє�
 - 13:42 ✎ Headless-прогони 0.7.0: фолбек wolowitz кличе amy до першої правки (PASS); на «полагодь» leslie/amy не тригеряться (FAIL, n=1) → хук
 - 13:52 ✎ Спека 3.7: nudge-хук на ключові слова uk/en, бо description-тригер не ловить «полагодь»
 - 13:52 ● 2117b23 docs(spec): add nudge hook so leslie and amy fire on casual requests
+- 14:00 ✎ План хвилі 2 затверджено: Task 7 (хук) і Task 8 (README) паралельно
+- 14:00 ● d485c3f docs(plan): wave 2 — nudge hook and README
+- 14:08 ● 1d0d7ad feat(hooks): nudge agents to invoke leslie for bugs and amy for features
+- 14:08 ● fcdb83f docs(readme): document the UserPromptSubmit nudge hook
+- 14:08 ● 44cb8b3 fix(skills): drop pre-approved curl from bernie and stuart
+- 14:08 ● db47dce docs(spec): whole-word nudge regex and UTF-8 locale fallback
