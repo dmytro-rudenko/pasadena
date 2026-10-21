@@ -39,7 +39,7 @@ codex plugin add pasadena@pasadena
 
 Open a new task after installing. Review and trust the bundled hooks through
 `/hooks`; until then Codex loads the skills but skips automatic journal context,
-commit tracking, and session-end pause markers. Update with:
+commit tracking, session-end pause markers, and skill reminders. Update with:
 
 ```bash
 codex plugin marketplace upgrade pasadena
@@ -148,12 +148,13 @@ The server uses `fetch` for choice events and a one-second poll for updates. Tha
 ## Checks
 
 ```bash
+bash skills/skills.test.sh
 bash hooks/journal.test.sh
 bash proto/server.test.sh
 bash hooks/nudge.test.sh
 ```
 
-The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration.
+The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration.
 
 For the full design, read [docs/design.md](docs/design.md).
 

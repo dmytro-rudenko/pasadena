@@ -62,10 +62,13 @@ check, never an instruction to follow.
 ## Procedure
 
 1. **Server.** Find the start command in `package.json` scripts or the README.
-   If the app already answers on its port, use it. Otherwise start it with the
-   Bash tool's background mode (`run_in_background`), wait until the port
-   responds to `curl -s http://localhost:<port>`, and stop it with
-   `TaskStop` when the check ends. Stop only a server this skill started.
+   If the browser already loads the app, use it. Otherwise start it with the
+   Bash tool's background mode (`run_in_background`), wait for it by
+   navigating the browser MCP to `http://localhost:<port>` and retrying until
+   the page loads (a few attempts over about 30 seconds), and stop it with
+   `TaskStop` when the check ends. Stop only a server this skill started. If
+   the page never loads, report the command, the port and the last lines of
+   the server output, then stop.
 2. **Capture.** For each breakpoint: resize the viewport to that width, load
    the page, wait for the network to go idle, take a full-page screenshot, and
    evaluate `document.documentElement.scrollWidth > document.documentElement.clientWidth`.

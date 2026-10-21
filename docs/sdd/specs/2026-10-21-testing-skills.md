@@ -57,7 +57,9 @@ e2e у реальному браузері, **запускається лише 
 - **Вибір режиму** за запитом: «перевір», «глянь, чи працює» → разова перевірка; «напиши e2e», «додай тест» → сталий тест. Якщо запит неоднозначний, bernie питає один раз.
 - **Спільна частина (з webapp-testing):**
   - знайти команду запуску з `package.json` або README;
-  - якщо сервер не працює, підняти його у фоні (`run_in_background` у Bash), дочекатися порту через `curl`, після роботи погасити через `TaskStop` лише той сервер, який підняв сам;
+  - якщо сервер не працює, підняти його у фоні (`run_in_background` у Bash), дочекатися його, відкриваючи `http://localhost:<port>` через браузерний MCP і повторюючи, доки сторінка не завантажиться (кілька спроб упродовж ~30 с), після роботи погасити через `TaskStop` лише той сервер, який підняв сам;
+  - якщо сторінка так і не завантажилась, звітувати команду, порт і останні рядки виводу сервера, потім зупинитися;
+  - попередньо дозволеного `curl` у скілі навмисно немає: правило з wildcard не можна обмежити лише localhost;
   - спершу розвідка: відкрити сторінку, дочекатися networkidle, зробити знімок DOM або accessibility tree;
   - селектори будувати з того, що реально відрендерилось (role, label, text), а не вгадувати класи.
 - **Разова перевірка:** пройти сценарій через Playwright MCP або Chrome MCP, зібрати скриншоти ключових станів і помилки консолі, звітувати за правилом `Verify before claiming`. Файлів у репо не лишає.
@@ -103,16 +105,16 @@ e2e у реальному браузері, **запускається лише 
 
 Headless-прогін 0.7.0 (`claude -p --plugin-dir`) показав: на запит «Тести в price.test.sh падають. Полагодь.» агент не викликав ні `pasadena:leslie`, ні `pasadena:amy`, а одразу правив код. Тригер у `description` на коротке побутове прохання не спрацьовує. Хук додає нагадування в контекст ще до того, як модель вирішить, що задача дрібна.
 
-- **Модуль:** `hooks/nudge.sh`, окремий від `journal.sh`, бо в нього інша задача. Вхід — JSON події `UserPromptSubmit` на stdin, поле `.prompt`. Вихід — або нічого, або `{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"<текст>"}}`. Залежності: `jq` і `git`, як у `journal.sh`. Завжди `exit 0`, бо хук ніколи не блокує промпт.
+- **Модуль:** `hooks/nudge.sh`, окремий від `journal.sh`, бо в нього інша задача. Вхід — JSON події `UserPromptSubmit` на stdin, поле `.prompt`; поле `.cwd` визначає, де шукати Git-репо (якщо його немає — `$PWD`). Вихід — або нічого, або `{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"<текст>"}}`. Залежності: `jq` і `git`, як у `journal.sh`. Завжди `exit 0`, бо хук ніколи не блокує промпт.
 - **Мовчить** (нічого не виводить), якщо:
   - `PASADENA_NUDGE=0`;
   - `git rev-parse --is-inside-work-tree` не дає `true` для cwd;
   - промпт після пробілів починається з `/`;
-  - промпт уже містить `leslie`, `amy` або `pasadena:` (без урахування регістру).
+  - промпт уже містить `pasadena:` або назву будь-якого з дев'яти скілів: `leslie`, `amy`, `sheldon`, `leonard`, `wolowitz`, `penny`, `bernie`, `stuart`, `raj` (без урахування регістру; `raj` лише цілим словом). Рев'юер wolowitz починає звіт рядком `Review for pasadena:wolowitz`, тому його звіт не викликає нагадування в контролері.
 - **Група «баг»** (regex без урахування регістру; англійські слова лише цілим словом, щоб `prefix` чи `fixture` не спрацьовували): `баг|помилк|падає|падають|впав|зламал|не працює|полагод|виправ([^д]|$)|(^|[^[:alnum:]_])(fix(ed|es|ing)?|bug|broken|fail(s|ed|ing)?|crash(es|ed)?|regression)([^[:alnum:]_]|$)|error|does ?n.t work|not working`. Якщо локаль не UTF-8, хук ставить `LC_ALL=C.UTF-8`, щоб `grep -i` складав регістр кирилиці. Текст:
-  `This prompt looks like a bug or failing check. Before changing any code, invoke the leslie skill with the Skill tool, as pasadena:leslie, and follow it: root cause first, then the fix through amy.`
+  `This prompt looks like a bug or failing check. Before changing any code, invoke the leslie skill (pasadena:leslie with the Skill tool in Claude Code, $leslie in Codex) and follow it: root cause first, then the fix through amy.`
 - **Група «фіча»** (regex без урахування регістру): `додай|реаліз|імплемент|зроби функц|нов(а|у|ий) фіч|implement|add (a |an )?(feature|function|endpoint|test)|build (a|the)`. Текст:
-  `This prompt looks like new behaviour. Before writing production code, invoke the amy skill with the Skill tool, as pasadena:amy: failing test first.`
+  `This prompt looks like new behaviour. Before writing production code, invoke the amy skill (pasadena:amy with the Skill tool in Claude Code, $amy in Codex): failing test first.`
 - Якщо збігаються обидві групи, виводиться лише текст «баг».
 - **Реєстрація:**
   - `hooks/claude-hooks.json`: подія `UserPromptSubmit` з командою `bash "${CLAUDE_PLUGIN_ROOT}/hooks/nudge.sh"`, `"shell": "bash"`, `"timeout": 5`;
@@ -167,4 +169,4 @@ Headless-прогін 0.7.0 (`claude -p --plugin-dir`) показав: на за
 4. **stuart.** На HTML-прототипі penny з навмисним `width: 1400px` на контейнері попросити «перевір верстку». Звіт має показати горизонтальний скрол на 375 і 768 px, після чого stuart зупиняється і чекає згоди. Після згоди він показує пари «до/після».
 5. **security-review.** Наприкінці будь-якої гілки wolowitz до `gh pr ready` викликає `security-review`. Це видно з виклику Skill у транскрипті й із коментаря на PR.
 
-Сценарії 1 і 2 автоматизовані headless-скриптами (`claude -p --plugin-dir <worktree> --output-format stream-json`) на тимчасових репо. Результат 2026-10-21 до nudge: сценарій 1 пройшов, сценарій 2 провалився (жодного Skill-виклику). Після nudge сценарій 2 проганяється тричі, і в кожному прогоні `pasadena:leslie` має бути першим Skill-викликом до будь-якого Edit.
+Сценарії 1 і 2 автоматизовані headless-скриптами (`claude -p --plugin-dir <worktree> --output-format stream-json`) на тимчасових репо. Результат 2026-10-21 до nudge: сценарій 1 пройшов, сценарій 2 провалився (жодного Skill-виклику). Після nudge, 2026-10-21, сценарій 2 прогнано тричі: в усіх трьох прогонах першим Skill-викликом був `pasadena:leslie`, далі `pasadena:amy`, потім Edit; перед фіксом агент відтворював падіння наявним тестом.

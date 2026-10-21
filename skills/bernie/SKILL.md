@@ -48,15 +48,17 @@ Ask the question once. The answer settles the mode for the rest of the task.
 
 1. Find the dev-server command in `package.json` scripts (`dev`, `start`,
    `preview`) or the README. Note the port it serves on.
-2. If that port already answers, use the running server and leave it alone.
+2. If the browser already loads `http://localhost:<port>`, use the running
+   server and leave it alone.
 3. Otherwise start the command with the Bash tool's background mode
-   (`run_in_background`), wait until `curl -s http://localhost:<port>`
-   answers, and record that bernie started it.
+   (`run_in_background`), wait for it by navigating the browser MCP to
+   `http://localhost:<port>` and retrying until the page loads (a few
+   attempts over about 30 seconds), and record that bernie started it.
 4. When the work is done, stop only the server bernie started, with
    `TaskStop`. A server the user had running stays running.
 
-A server that never comes up is a finding. Report the command, the port and
-the last lines of its output, then stop.
+A server whose page never loads is a finding. Report the command, the port and
+the last lines of the server output, then stop.
 
 ## Reconnaissance first
 
