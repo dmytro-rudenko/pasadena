@@ -14,8 +14,6 @@ allowed-tools:
   - Bash(npm *)
   - Bash(pnpm *)
   - Bash(yarn *)
-  - Bash(curl -s http://localhost:*)
-  - Bash(curl -s http://127.0.0.1:*)
   - Bash(git status *)
   - Bash(git diff *)
   - TaskStop
