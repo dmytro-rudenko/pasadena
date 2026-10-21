@@ -33,7 +33,7 @@
 **Interfaces:**
 - Produces: `routers="pasadena journal leonard amy leslie bernie"`, `entrypoints="pasadena journal"`, `adapted="leslie bernie stuart"` у `skills/skills.test.sh`.
 
-- [ ] **Step 1: write the failing test.** У `skills/skills.test.sh`:
+- [x] **Step 1: write the failing test.** У `skills/skills.test.sh`:
   - змінити `routers=` на `"pasadena journal leonard amy leslie bernie"`;
   - після циклу по скілах і до фінального `echo` додати три блоки з тими самими `fail`/`ok`:
 
@@ -65,8 +65,8 @@
   [ "$(wc -l <<<"$versions")" -eq 1 ] || fail "manifest versions differ: $(tr '\n' ' ' <<<"$versions")"
   ok "manifest versions checked"
   ```
-- [ ] **Step 2: run it, watch it fail.** `bash skills/skills.test.sh`. Очікується `FAILED: 3`: три рядки `not credited in THIRD_PARTY_NOTICES.md`.
-- [ ] **Step 3: implement.**
+- [x] **Step 2: run it, watch it fail.** `bash skills/skills.test.sh`. Очікується `FAILED: 3`: три рядки `not credited in THIRD_PARTY_NOTICES.md`.
+- [x] **Step 3: implement.**
   - `README.md` — після рядка `amy` додати:
     - `` | `leslie` | Finds the root cause of a bug or unexpected failure in four phases before any fix, then fixes it through amy. | ``
     - `` | `bernie` | Checks a feature end-to-end in the browser with evidence, or adds a lasting Playwright e2e test. | ``
@@ -94,7 +94,7 @@
     - `description` = `"Spec-driven development with a session journal and nine focused workflow skills."`;
     - `longDescription` = `"A nine-skill development workflow that preserves task context in a branch journal and backs every claim with tests."`;
     - до `keywords` додати `"debugging"`, `"e2e"`, `"visual-testing"`.
-- [ ] **Step 4: run it, watch it pass.** `bash skills/skills.test.sh`, очікується `All checks passed.` Якщо каталоги leslie, bernie, stuart ще не створені іншими задачами хвилі, перевірка README для них просто не спрацює, і це нормально.
+- [x] **Step 4: run it, watch it pass.** `bash skills/skills.test.sh`, очікується `All checks passed.` Якщо каталоги leslie, bernie, stuart ще не створені іншими задачами хвилі, перевірка README для них просто не спрацює, і це нормально.
 
 ### Task 2: amy — Verify before claiming
 
@@ -105,9 +105,9 @@
 - Consumes: ім'я `pasadena:leslie` (Task 3 створює скіл, тут лише посилання).
 - Produces: заголовок `## Verify before claiming`, на який посилаються Task 3, 4, 5, 6.
 
-- [ ] **Step 1: write the failing test.** `grep -q '^## Verify before claiming$' skills/amy/SKILL.md && grep -q 'pasadena:leslie' skills/amy/SKILL.md && grep -q 'The output of the latest run is shown, not summarised' skills/amy/SKILL.md && echo OK`
-- [ ] **Step 2: run it, watch it fail.** Порожній вивід, exit 1.
-- [ ] **Step 3: implement.**
+- [x] **Step 1: write the failing test.** `grep -q '^## Verify before claiming$' skills/amy/SKILL.md && grep -q 'pasadena:leslie' skills/amy/SKILL.md && grep -q 'The output of the latest run is shown, not summarised' skills/amy/SKILL.md && echo OK`
+- [x] **Step 2: run it, watch it fail.** Порожній вивід, exit 1.
+- [x] **Step 3: implement.**
   1. Перед `## Before calling the work done` вставити розділ `## Verify before claiming` з такими положеннями:
      - кожне твердження «passes», «fixed», «done» спирається на команду, запущену **в цьому ж повідомленні**, а її вивід показано, не переказано;
      - доказом **не** є: «should work», «probably», «looks right», результат попереднього прогону, звіт субагента без виводу;
@@ -115,7 +115,7 @@
      - міні-таблиця `| Claim | Requires | Not sufficient |` з рядками: tests pass / test output with 0 failures / a previous run, "should pass"; bug fixed / the reproducing test now passes / code changed, assumed fixed; build succeeds / build exit 0 / linter passing; delegated task done / the diff and its verification output / the agent's "success" report.
   2. У таблицю `## When stuck` додати рядок: `| The test fails for a reason you did not predict | Stop changing code and invoke \`leslie\` with the Skill tool, as \`pasadena:leslie\` (plain \`leslie\` where the host does not prefix plugin skills). |`
   3. У чекліст `## Before calling the work done` перед останнім пунктом додати `- [ ] The output of the latest run is shown, not summarised`.
-- [ ] **Step 4: run it, watch it pass.** Команда з Step 1 → `OK`. Потім `bash skills/skills.test.sh` → без FAIL щодо `amy`.
+- [x] **Step 4: run it, watch it pass.** Команда з Step 1 → `OK`. Потім `bash skills/skills.test.sh` → без FAIL щодо `amy`.
 
 ### Task 3: leslie — системний дебаг
 
@@ -126,9 +126,9 @@
 - Consumes: `pasadena:amy` і її розділ `## Verify before claiming` (Task 2).
 - Produces: скіл `pasadena:leslie`.
 
-- [ ] **Step 1: write the failing test.** `test -f skills/leslie/SKILL.md && grep -q '^name: leslie$' skills/leslie/SKILL.md && grep -q 'NO FIX WITHOUT A ROOT CAUSE' skills/leslie/SKILL.md && grep -q 'pasadena:amy' skills/leslie/SKILL.md && grep -q '^## Decision rules' skills/leslie/SKILL.md && echo OK`
-- [ ] **Step 2: run it, watch it fail.** Порожній вивід і exit 1, бо файлу немає.
-- [ ] **Step 3: implement.** Створити `skills/leslie/SKILL.md`:
+- [x] **Step 1: write the failing test.** `test -f skills/leslie/SKILL.md && grep -q '^name: leslie$' skills/leslie/SKILL.md && grep -q 'NO FIX WITHOUT A ROOT CAUSE' skills/leslie/SKILL.md && grep -q 'pasadena:amy' skills/leslie/SKILL.md && grep -q '^## Decision rules' skills/leslie/SKILL.md && echo OK`
+- [x] **Step 2: run it, watch it fail.** Порожній вивід і exit 1, бо файлу немає.
+- [x] **Step 3: implement.** Створити `skills/leslie/SKILL.md`:
   - frontmatter: `name: leslie`; `description: Use when the user reports a bug, a test fails for an unexpected reason, a build or verification is red, or behaviour differs from what was expected. Finds the root cause in four phases before any fix`; без `allowed-tools` і без `disallowed-tools`;
   - `# Systematic debugging`, core principle: випадкові фікси марнують час і породжують нові баги, тож спершу першопричина;
   - абзац, як в amy: «This skill declares no tool rules…» (скіл — техніка всередині того, хто його викликав, і передає роботу в amy в тому ж ході);
@@ -141,7 +141,7 @@
   - `## The rule of three`: після трьох невдалих фіксів зупинитися, сказати, що проблема, ймовірно, в архітектурі, і запитати користувача перед четвертою спробою;
   - `## Decision rules`: щонайменше 6 рядків (наприклад: «the cause looks obvious» → Phase 1 still runs, it is fast for an obvious cause; «several fixes at once would save time» → one variable per change; «the error message is long» → read it in full, the answer is often in it; «it cannot be reproduced» → gather data, no guessing; «one more fix attempt» after 3 → stop and ask; «the fix works but the cause is unclear» → not done, return to Phase 1);
   - `## Before calling it fixed` — чекліст: root cause stated in one sentence; reproduction test failed for the predicted reason; one fix addressed that cause; full suite green with output shown.
-- [ ] **Step 4: run it, watch it pass.** Команда з Step 1 → `OK`. `bash skills/skills.test.sh` → для `leslie` лише `ok`, без FAIL. FAIL щодо README чи notices можливий, лише якщо Task 1 ще не завершена.
+- [x] **Step 4: run it, watch it pass.** Команда з Step 1 → `OK`. `bash skills/skills.test.sh` → для `leslie` лише `ok`, без FAIL. FAIL щодо README чи notices можливий, лише якщо Task 1 ще не завершена.
 
 ### Task 4: bernie — e2e у браузері
 
@@ -152,9 +152,9 @@
 - Consumes: `pasadena:amy` і `## Verify before claiming` (Task 2).
 - Produces: скіл `pasadena:bernie`.
 
-- [ ] **Step 1: write the failing test.** `test -f skills/bernie/SKILL.md && grep -q '^name: bernie$' skills/bernie/SKILL.md && grep -q 'mcp__playwright' skills/bernie/SKILL.md && grep -q '^## One-off check' skills/bernie/SKILL.md && grep -q '^## Lasting e2e test' skills/bernie/SKILL.md && grep -q 'pasadena:amy' skills/bernie/SKILL.md && ! grep -q '^disallowed-tools:' skills/bernie/SKILL.md && echo OK`
-- [ ] **Step 2: run it, watch it fail.** Порожній вивід, exit 1.
-- [ ] **Step 3: implement.** Створити `skills/bernie/SKILL.md`:
+- [x] **Step 1: write the failing test.** `test -f skills/bernie/SKILL.md && grep -q '^name: bernie$' skills/bernie/SKILL.md && grep -q 'mcp__playwright' skills/bernie/SKILL.md && grep -q '^## One-off check' skills/bernie/SKILL.md && grep -q '^## Lasting e2e test' skills/bernie/SKILL.md && grep -q 'pasadena:amy' skills/bernie/SKILL.md && ! grep -q '^disallowed-tools:' skills/bernie/SKILL.md && echo OK`
+- [x] **Step 2: run it, watch it fail.** Порожній вивід, exit 1.
+- [x] **Step 3: implement.** Створити `skills/bernie/SKILL.md`:
   - frontmatter: `name: bernie`; `description: Use when the user asks to check a feature in the browser, run an end-to-end check, or write e2e tests. Drives the running app through Playwright and either reports evidence or adds a lasting e2e test`; `allowed-tools`: `Read`, `Grep`, `Glob`, `Edit`, `Write`, `Skill`, `AskUserQuestion`, `TodoWrite`, `mcp__playwright`, `mcp__claude-in-chrome`, `Bash(npm *)`, `Bash(pnpm *)`, `Bash(yarn *)`, `Bash(npx playwright *)`, `Bash(git status *)`, `Bash(git diff *)`; без `disallowed-tools`;
   - `# End-to-end in the browser`: запускається лише на запит користувача, сам пайплайн його не викликає;
   - `## Pick the mode`: «check / does it work / глянь» → one-off; «write / add an e2e test» → lasting; неоднозначно → одне питання через AskUserQuestion;
@@ -164,7 +164,7 @@
   - `## Lasting e2e test`: раннер проєкту (Playwright Test, `@playwright/test` у `package.json`); якщо раннера немає, зупинитися й запропонувати рішення щодо залежності, нічого не встановлювати; invoke amy with the Skill tool, as `pasadena:amy` (plain `amy` …), і пройти red → green; правила тесту — локатори `getByRole`/`getByLabel`/`getByText`, web-first assertions (`await expect(locator).toBeVisible()`), без `waitForTimeout`, ізольований стан на тест, авторизація через збережений `storageState`, один сценарій поведінки на тест;
   - `## No browser`: якщо немає ні `mcp__playwright`, ні `mcp__claude-in-chrome`, один раз сказати про це і зупинитися;
   - `## Decision rules` (≥5 рядків) і `## Before reporting` (чекліст: server state restored; evidence shown — screenshots/console; for a lasting test, the red run was seen).
-- [ ] **Step 4: run it, watch it pass.** Команда з Step 1 → `OK`. `bash skills/skills.test.sh` → без FAIL щодо `bernie` (якщо Task 1 уже додала `bernie` в `routers`, перевірка `disallowed-tools` для нього обов'язкова).
+- [x] **Step 4: run it, watch it pass.** Команда з Step 1 → `OK`. `bash skills/skills.test.sh` → без FAIL щодо `bernie` (якщо Task 1 уже додала `bernie` в `routers`, перевірка `disallowed-tools` для нього обов'язкова).
 
 ### Task 5: stuart — візуальна перевірка верстки
 
@@ -175,9 +175,9 @@
 - Consumes: `## Verify before claiming` (Task 2), запуск сервера, як у bernie: та сама процедура, описана в цьому файлі заново.
 - Produces: скіл `pasadena:stuart`.
 
-- [ ] **Step 1: write the failing test.** `test -f skills/stuart/SKILL.md && grep -q '^name: stuart$' skills/stuart/SKILL.md && grep -q '375, 768, 1280, 1920' skills/stuart/SKILL.md && grep -q 'mcp__playwright' skills/stuart/SKILL.md && grep -qi 'approval' skills/stuart/SKILL.md && echo OK`
-- [ ] **Step 2: run it, watch it fail.** Порожній вивід, exit 1.
-- [ ] **Step 3: implement.** Створити `skills/stuart/SKILL.md`:
+- [x] **Step 1: write the failing test.** `test -f skills/stuart/SKILL.md && grep -q '^name: stuart$' skills/stuart/SKILL.md && grep -q '375, 768, 1280, 1920' skills/stuart/SKILL.md && grep -q 'mcp__playwright' skills/stuart/SKILL.md && grep -qi 'approval' skills/stuart/SKILL.md && echo OK`
+- [x] **Step 2: run it, watch it fail.** Порожній вивід, exit 1.
+- [x] **Step 3: implement.** Створити `skills/stuart/SKILL.md`:
   - frontmatter: `name: stuart`; `description: Use when the user says the layout is broken, asks to check responsiveness, or wants a visual check of a page. Screenshots the page at several breakpoints, reports defects with evidence, and fixes them only after approval`; `allowed-tools`: `Read`, `Grep`, `Glob`, `Edit`, `Write`, `AskUserQuestion`, `TodoWrite`, `mcp__playwright`, `mcp__claude-in-chrome`, `Bash(npm *)`, `Bash(pnpm *)`, `Bash(yarn *)`, `Bash(git status *)`, `Bash(git diff *)`; без `disallowed-tools`;
   - `# Visual layout check`: запускається лише на запит;
   - `## Breakpoints`: за замовчуванням `375, 768, 1280, 1920` px завширшки (саме цей рядок), користувач може задати свої;
@@ -186,7 +186,7 @@
   - `## Comparison`: before/after порівнює модель за скриншотами, піксельного diff немає, тож про зсув на 1–2 px так і сказати;
   - `## No browser` — як у bernie;
   - `## Decision rules` (≥5 рядків, зокрема «a fix looks obvious» → still report and wait for approval; «the defect appears only at one breakpoint» → fix with a media query scoped to it) і `## Before reporting` (чекліст: every breakpoint captured; each defect has a screenshot; no CSS changed without approval; after-screens shown).
-- [ ] **Step 4: run it, watch it pass.** Команда з Step 1 → `OK`. `bash skills/skills.test.sh` → без FAIL щодо `stuart`.
+- [x] **Step 4: run it, watch it pass.** Команда з Step 1 → `OK`. `bash skills/skills.test.sh` → без FAIL щодо `stuart`.
 
 ### Task 6: wolowitz — фолбек, leslie, security-review, доказ у звіті
 
@@ -196,9 +196,9 @@
 **Interfaces:**
 - Consumes: `pasadena:amy`, `pasadena:leslie`, скіл `security-review`, amy `## Verify before claiming`.
 
-- [ ] **Step 1: write the failing test.** `grep -q '^## Without subagents' skills/wolowitz/SKILL.md && grep -q 'pasadena:leslie' skills/wolowitz/SKILL.md && grep -q 'security-review' skills/wolowitz/SKILL.md && grep -q 'exit code' skills/wolowitz/implementer-prompt.md && echo OK`
-- [ ] **Step 2: run it, watch it fail.** Порожній вивід, exit 1.
-- [ ] **Step 3: implement.**
+- [x] **Step 1: write the failing test.** `grep -q '^## Without subagents' skills/wolowitz/SKILL.md && grep -q 'pasadena:leslie' skills/wolowitz/SKILL.md && grep -q 'security-review' skills/wolowitz/SKILL.md && grep -q 'exit code' skills/wolowitz/implementer-prompt.md && echo OK`
+- [x] **Step 2: run it, watch it fail.** Порожній вивід, exit 1.
+- [x] **Step 3: implement.**
   - `skills/wolowitz/SKILL.md`:
     1. Після `## Models` додати розділ `## Without subagents`. Якщо інструмента Agent немає в сесії, контролер сам виконує задачі хвилі, по одній, у порядку задач. Перед першою задачею він викликає amy через Skill tool, як `pasadena:amy` (plain `amy` …), і проходить кожну задачу за її циклом. Згадка amy в тексті не завантажує її. Рев'ю хвилі в цьому режимі контролер робить сам по `BASE..HEAD`, а коментар хвилі на PR зазначає «no subagents». Решта циклу — verify, commit, comment, close — без змін.
     2. У `### 3. Verify the wave yourself` додати абзац: якщо прогін червоний і причину не видно з одного рядка помилки, не латати навздогад, а викликати `leslie` через Skill tool, як `pasadena:leslie` (plain `leslie` …). Фікс іде через імплементера задачі (у режимі без субагентів — через amy), перевірка повторюється.
@@ -206,7 +206,7 @@
     4. У `## Decision rules` додати два рядки: `| The Agent tool is unavailable | Run the wave yourself, invoking \`pasadena:amy\` before the first task. |` і `| Wave verification is red for an unclear reason | Invoke \`pasadena:leslie\` before any fix. |`.
     5. У `## Tools`: речення «Edit code directly only for a change small enough to state in one line» доповнити посиланням «— or for every task when the session has no subagents, see **Without subagents**».
   - `skills/wolowitz/implementer-prompt.md`: у `## Report back` замінити `- One line on what your verification command printed` на `- The last lines (up to 10) of your verification command's output and its exit code, pasted, not summarised`.
-- [ ] **Step 4: run it, watch it pass.** Команда з Step 1 → `OK`. `bash skills/skills.test.sh` → без FAIL щодо `wolowitz`.
+- [x] **Step 4: run it, watch it pass.** Команда з Step 1 → `OK`. `bash skills/skills.test.sh` → без FAIL щодо `wolowitz`.
 
 ---
 
