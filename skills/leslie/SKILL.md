@@ -2,6 +2,7 @@
 name: leslie
 description: Use when the user reports a bug, a test fails for an unexpected reason, a build or verification is red, or behaviour differs from what was expected. Finds the root cause in four phases before any fix
 ---
+<!-- Adapted from obra/superpowers systematic-debugging (MIT); modified. See THIRD_PARTY_NOTICES.md. -->
 
 # Systematic debugging
 
@@ -84,9 +85,14 @@ to know produces a guess with a confident label.
 
 When a `wolowitz` controller that dispatches implementers invokes you, stop
 after Phase 3. Hand back the root cause in one sentence, the evidence that
-confirmed it, and the fix the implementer should make. Phase 4 then runs inside that implementer,
-who has amy loaded, so the fix goes through review. When the session has no
-subagents, the controller is the implementer and Phase 4 runs as written.
+confirmed it, and the fix the implementer should make. Phase 4 then runs
+inside that implementer, who has amy loaded, so the fix goes through review.
+When the session has no subagents, the controller is the implementer and
+Phase 4 runs as written.
+
+Under a controller, Phases 1–3 stay read-only: read, run commands, and add a
+temporary diagnostic only if it is removed before handing back. The
+hypothesis is tested by evidence, not by a code change.
 
 ## Phase 4 — Fix
 

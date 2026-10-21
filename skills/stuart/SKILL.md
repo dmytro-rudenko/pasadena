@@ -14,9 +14,12 @@ allowed-tools:
   - Bash(npm *)
   - Bash(pnpm *)
   - Bash(yarn *)
+  - Bash(curl *)
   - Bash(git status *)
   - Bash(git diff *)
+  - TaskStop
 ---
+<!-- Adapted from nikolasdehor/visual-eyes (MIT); modified. See THIRD_PARTY_NOTICES.md. -->
 
 # Visual layout check
 
@@ -57,9 +60,10 @@ in the report, never a defect to fix.
 ## Procedure
 
 1. **Server.** Find the start command in `package.json` scripts or the README.
-   If the app already answers on its port, use it. Otherwise start it in the
-   background, wait until the port responds, and stop it when the check ends.
-   Stop only a server this skill started.
+   If the app already answers on its port, use it. Otherwise start it with the
+   Bash tool's background mode (`run_in_background`), wait until the port
+   responds to `curl`, and stop it with `TaskStop` when the check ends. Stop
+   only a server this skill started.
 2. **Capture.** For each breakpoint: resize the viewport to that width, load
    the page, wait for the network to go idle, take a full-page screenshot, and
    evaluate `document.documentElement.scrollWidth > document.documentElement.clientWidth`.

@@ -230,7 +230,8 @@ in the wave's PR comment.
 Execution pauses only for these four gates:
 
 - an irreversible or destructive operation;
-- anything security-sensitive;
+- anything security-sensitive beyond a code fix in this branch — see
+  **Finish**;
 - a side effect outside this worktree — a merge, a push to a shared branch, a
   publish;
 - a plan so broken that every path forward is a guess.
@@ -244,7 +245,11 @@ When the last wave is closed:
    together; this is the single whole-branch fix wave.
 2. **Security review.** Invoke the `security-review` skill with the Skill tool
    on the branch diff. Findings go to one fix dispatch under the same rules as
-   review findings. When the skill is unavailable (for example in Codex), say
+   review findings. A finding fixable inside the branch's own code goes to
+   that fix dispatch; a finding that needs a decision beyond the code —
+   credentials or secrets to rotate, permissions or access policy, data
+   already exposed — is the security-sensitive stop gate: pause and put it to
+   the user. When the skill is unavailable (for example in Codex), say
    so once and note the skip in the PR comment.
 3. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
    `git rm` the journal, commit `chore(journal): close <task>`.

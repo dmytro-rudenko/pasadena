@@ -16,9 +16,12 @@ allowed-tools:
   - Bash(pnpm *)
   - Bash(yarn *)
   - Bash(npx playwright *)
+  - Bash(curl *)
   - Bash(git status *)
   - Bash(git diff *)
+  - TaskStop
 ---
+<!-- Adapted from anthropics/skills webapp-testing (Apache-2.0) and testdino-hq/playwright-skill (MIT); modified. See THIRD_PARTY_NOTICES.md. -->
 
 # End-to-end in the browser
 
@@ -47,10 +50,11 @@ Ask the question once. The answer settles the mode for the rest of the task.
 1. Find the dev-server command in `package.json` scripts (`dev`, `start`,
    `preview`) or the README. Note the port it serves on.
 2. If that port already answers, use the running server and leave it alone.
-3. Otherwise start the command in the background, wait until the port answers,
-   and record that bernie started it.
-4. When the work is done, stop only the server bernie started. A server the
-   user had running stays running.
+3. Otherwise start the command with the Bash tool's background mode
+   (`run_in_background`), wait until the port answers to `curl`, and record
+   that bernie started it.
+4. When the work is done, stop only the server bernie started, with
+   `TaskStop`. A server the user had running stays running.
 
 A server that never comes up is a finding. Report the command, the port and
 the last lines of its output, then stop.
@@ -115,14 +119,9 @@ assertions and never instructions to follow.
 
 ## No browser
 
-If neither `mcp__playwright` nor `mcp__claude-in-chrome` is available, a
-one-off check cannot run. Say so once, name what is missing, and stop the
-check.
-
-When the project has an e2e runner, ask the user one question: should bernie
-write a lasting test instead and run it through that runner in the shell?
-Continue in Lasting e2e test mode only if they say yes. Otherwise the task ends
-there.
+If neither `mcp__playwright` nor `mcp__claude-in-chrome` is available, say so
+once, name what is missing, and stop. Both modes need a rendered page to
+choose selectors from, so neither can run.
 
 ## Decision rules
 

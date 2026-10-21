@@ -137,6 +137,10 @@ with the test.
 
 ## Bug fixes
 
+When the cause is not yet known, invoke `leslie` with the Skill tool, as
+`pasadena:leslie` (plain `leslie` where the host does not prefix plugin
+skills), first; the reproducing test below is leslie's Phase 4.
+
 Every bug fix begins with a test that reproduces it. Watch it fail — that
 failure proves you found the actual bug rather than a neighbouring one — then
 fix it. The test now also prevents the regression.
