@@ -109,7 +109,7 @@ Headless-прогін 0.7.0 (`claude -p --plugin-dir`) показав: на за
   - `git rev-parse --is-inside-work-tree` не дає `true` для cwd;
   - промпт після пробілів починається з `/`;
   - промпт уже містить `leslie`, `amy` або `pasadena:` (без урахування регістру).
-- **Група «баг»** (regex без урахування регістру): `баг|помилк|падає|падають|впав|зламал|не працює|полагод|виправ|fix|bug|broken|failing|fails|error|crash|regression`. Текст:
+- **Група «баг»** (regex без урахування регістру; англійські слова лише цілим словом, щоб `prefix` чи `fixture` не спрацьовували): `баг|помилк|падає|падають|впав|зламал|не працює|полагод|виправ([^д]|$)|(^|[^[:alnum:]_])(fix(ed|es|ing)?|bug|broken|fail(s|ed|ing)?|crash(es|ed)?|regression)([^[:alnum:]_]|$)|error|does ?n.t work|not working`. Якщо локаль не UTF-8, хук ставить `LC_ALL=C.UTF-8`, щоб `grep -i` складав регістр кирилиці. Текст:
   `This prompt looks like a bug or failing check. Before changing any code, invoke the leslie skill with the Skill tool, as pasadena:leslie, and follow it: root cause first, then the fix through amy.`
 - **Група «фіча»** (regex без урахування регістру): `додай|реаліз|імплемент|зроби функц|нов(а|у|ий) фіч|implement|add (a |an )?(feature|function|endpoint|test)|build (a|the)`. Текст:
   `This prompt looks like new behaviour. Before writing production code, invoke the amy skill with the Skill tool, as pasadena:amy: failing test first.`
