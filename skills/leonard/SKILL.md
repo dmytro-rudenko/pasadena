@@ -129,6 +129,24 @@ both key on it. Each task writes only the files it declares.
 `**Interfaces:**` exists because an implementer sees only their own task. It is
 how they learn the names and signatures their neighbours produce.
 
+**Task 0 is always the acceptance tests** — the outer loop of `amy`, one test
+per completion criterion in the spec's Verification section:
+
+```markdown
+### Task 0: acceptance tests
+
+**Writes:** `<the acceptance test files only>`
+**Covers:** <each completion criterion, quoted from the spec>
+
+- [ ] **Step 1: write the acceptance tests** — <the actual test code>
+- [ ] **Step 2: run them, watch them fail** — `<command>`, expect `<line>`:
+      the behaviour is missing
+```
+
+Task 0 writes no production code and has no green step. Every later task names
+the acceptance tests it turns green in a `**Satisfies:**` line, and together
+those lines cover every test Task 0 wrote.
+
 Steps follow `amy`: failing test, watch it fail, minimum that passes, watch it
 pass. One action per step, with the literal command and its expected output.
 
@@ -152,10 +170,13 @@ at the top of the plan:
 ## Waves
 | Wave | Tasks | Why together |
 |---|---|---|
+| 0 | 0 | alone — acceptance tests, red until the last wave |
 | 1 | 1 | alone — everything reads its output |
 | 2 | 2, 7 | disjoint: proto/ vs skills/amy/ |
 | 3 | 3, 5, 9 | disjoint: three separate files |
 ```
+
+Wave 0 holds Task 0 alone, and every other task depends on it.
 
 A wave of one is normal and is exactly the old sequential flow. Group tasks
 only when the dependency rules above prove that they can run together.
@@ -189,7 +210,7 @@ steps:
 3. commit both;
 4. `✎` note: the execution state enabled by the decomposition.
 
-Then invoke `wolowitz` and start wave 1. `wolowitz` runs every wave through to
+Then invoke `wolowitz` and start Wave 0. `wolowitz` runs every wave through to
 the finish in this session — its code work is in subagents, so it does not stop
 at wave boundaries; the user's next say is the finished branch or a genuine
 ruling that forces a halt.

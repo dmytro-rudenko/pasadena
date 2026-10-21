@@ -1,6 +1,6 @@
 ---
 name: amy
-description: Use when the user asks to run a failing test first, write the failing test first, use TDD, implement a feature, or fix a bug. Before implementation, write one test, watch it fail, then write the minimum that passes
+description: Use when the user asks to run a failing test first, write the failing test first, use TDD, implement a feature, fix a bug, or cover existing code with tests. Writes the task's acceptance tests first and watches them fail, then takes each step through its own failing test and the minimum that passes
 ---
 
 # Test-driven development
@@ -29,7 +29,8 @@ implementation and preserves the tests-first sequence.
 
 ## When it applies
 
-**Always:** new features, bug fixes, refactors, behaviour changes.
+**Always:** new features, bug fixes, refactors, behaviour changes, and tests
+added to code that already exists.
 
 **Exceptions are always stated out loud:**
 
@@ -50,6 +51,29 @@ a failed assertion is a test — `hooks/journal.test.sh` in this repo is exactly
 that, and it counts equally. The repository's existing runner remains in use;
 a new test framework enters through an explicit dependency decision in the
 plan.
+
+## Two loops
+
+TDD runs at two scales: an outer loop over the whole task and an inner loop
+over each step inside it.
+
+1. **Outer — acceptance tests first.** Before the first step, write the
+   acceptance tests for the whole task: one per completion criterion, taken
+   from the spec's Verification section, the bounded design approved in chat,
+   or the issue's acceptance criteria. Test what is observable at the task's
+   boundary — a public function, an endpoint, a rendered component — rather
+   than the steps. Run them and watch each fail for the predicted reason: the
+   behaviour is missing.
+2. **Inner — one cycle per step.** Each step takes its own failing test and
+   the minimum that passes, as below. After each step, run the acceptance
+   tests again: the number failing never grows, and only the ones this step
+   was meant to satisfy turn green.
+3. **Done when the outer loop is green.** The task ends when every acceptance
+   test passes. One still red after the last step means a step is missing; add
+   it through its own cycle.
+
+Under `wolowitz`, `leonard` plans the outer loop as Task 0 in Wave 0 and each
+implementer runs the inner loops of its task. Working alone, you run both.
 
 ## Red → Green → Refactor
 
@@ -82,6 +106,12 @@ Three more rules that keep a test honest:
 - The failure message must be the one you predicted.
 - An initial pass proves that the behaviour already exists. Choose a test that
   exposes the missing behaviour while production code remains unchanged.
+- **Tests for existing code.** When the task is to cover behaviour that
+  already exists, the test passes on arrival, so prove it by mutation: make
+  the production change you named, watch the test fail with the predicted
+  message, revert the change, and watch it pass. A test that survives the
+  mutation checks nothing and is rewritten. The mutation never reaches the
+  diff.
 
 ### GREEN — the minimum that passes
 
@@ -170,6 +200,7 @@ task is checked through its diff and a fresh run of its verification.
 
 ## Before calling the work done
 
+- [ ] The task's acceptance tests were written first, watched failing, and now pass
 - [ ] Every new behaviour has a test
 - [ ] You watched each one fail, and the failure was the expected one
 - [ ] You wrote the minimum that passed

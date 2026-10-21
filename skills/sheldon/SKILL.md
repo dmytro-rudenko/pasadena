@@ -62,7 +62,10 @@ Before the first question, name the path you have selected so the user can corre
   design *in chat*, and complete the shaping phase. For this path, the shaping
   outcome is the design in chat; a separate specification file and planning
   document remain outside its scope. Implementation begins after explicit user
-  approval.
+  approval, through `amy`: invoke it with the Skill tool, as `pasadena:amy`
+  (plain `amy` where the host does not prefix plugin skills), before the first
+  test or line of code, and turn the approved design into its acceptance
+  tests.
 
 * **Architectural** — a new project, a new subsystem, a change that restructures
   how parts fit together, or a change to an interface that other components

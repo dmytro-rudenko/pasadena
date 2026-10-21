@@ -20,7 +20,7 @@ Run `$pasadena` in Codex or `/pasadena` in Claude Code to continue from the bran
 | `penny` | Builds two to four browser prototypes for a UI decision, tests the chosen version with you, and records the decision. |
 | `leonard` | Uses Claude Code plan mode to split the spec into executable tasks and safe parallel waves. |
 | `wolowitz` | Runs each wave, verifies it, reviews the diff, commits every task, and records progress on the PR. |
-| `amy` | Requires a failing test before production code for features, fixes, and refactors, and proof from a fresh run before anything is called done. |
+| `amy` | Writes the task's acceptance tests first, then a failing test before production code for every step of a feature, fix, refactor, or test-only task, and demands proof from a fresh run before anything is called done. |
 | `leslie` | Finds the root cause of a bug or unexpected failure in four phases before any fix, then fixes it through amy. |
 | `bernie` | Checks a feature end-to-end in the browser with evidence, or adds a lasting Playwright e2e test. |
 | `stuart` | Screenshots a page at several breakpoints, reports layout defects, and fixes them after your approval. |

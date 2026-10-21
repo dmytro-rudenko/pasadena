@@ -77,6 +77,22 @@ for name in $adapted; do
 done
 ok "notices checked"
 
+echo "Workflow rules"
+require() {
+  grep -qF -- "$2" "$SKILLS/$1/SKILL.md" || fail "$1: missing \"$2\""
+}
+before=$fails
+require amy "## Two loops"
+require amy "acceptance tests"
+require amy "**Tests for existing code.**"
+require amy "mutation"
+require leonard "### Task 0: acceptance tests"
+require leonard "Wave 0"
+require wolowitz "Wave 0"
+require wolowitz "never grows"
+require sheldon "pasadena:amy"
+[ "$fails" -eq "$before" ] && ok "workflow rules checked"
+
 echo "Manifest versions"
 manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json .codex-plugin/plugin.json"
 before=$fails
