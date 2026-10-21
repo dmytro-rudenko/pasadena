@@ -106,16 +106,17 @@ Keep `## Goal`, `## Now`, and `## Timeline` in English. Hooks parse those headin
 
 `## Now` is the only section that changes. It records the current phase, the blocker if there is one, and a concrete next step with a verification command. `## Timeline` only grows.
 
-Codex uses three hooks; Claude Code adds `StopFailure`:
+Codex uses four hooks; Claude Code adds `StopFailure`:
 
 | Event | Codex | Claude Code |
 | --- | --- | --- |
 | `SessionStart` | Restores the journal context and offers to start one on a task branch. | Same |
+| `UserPromptSubmit` | Reminds the agent to invoke leslie for a bug or amy for new behaviour; silent outside a Git repo. | Same |
 | `PostToolUse` | Adds commits that appeared since the last journal entry. | Same |
 | `SessionEnd` | Adds a pause marker with HEAD and dirty files. | Same |
 | `StopFailure` | — | Adds the failure type. |
 
-Hooks read Git state and append to the journal. They do not modify Git history or the index.
+Hooks read Git state and append to the journal; `UserPromptSubmit` only adds context to the prompt. They do not modify Git history or the index.
 
 > The session journal (`.pasadena/journal/<branch>.md`) lives only on the task
 > branch. Before the merge: the summary moves into the PR description and the file
@@ -136,6 +137,8 @@ Set it in your shell profile or in `.claude/settings.json`:
 { "env": { "PASADENA_TRUNK": "main staging" } }
 ```
 
+`PASADENA_NUDGE=0` turns off the `UserPromptSubmit` reminder.
+
 ## Browser prototypes
 
 `penny` starts a dependency-free local Node server only while a prototype is under review. It binds to loopback, requires a per-session key for the first request, and keeps runtime state in the ignored `.sdd/` directory. Prototype files and decisions stay in `docs/sdd/proto/` for review.
@@ -147,9 +150,10 @@ The server uses `fetch` for choice events and a one-second poll for updates. Tha
 ```bash
 bash hooks/journal.test.sh
 bash proto/server.test.sh
+bash hooks/nudge.test.sh
 ```
 
-The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown.
+The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration.
 
 For the full design, read [docs/design.md](docs/design.md).
 
