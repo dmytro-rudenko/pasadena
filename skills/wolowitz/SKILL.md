@@ -40,14 +40,16 @@ Execute an approved plan wave by wave, in one session. Independent tasks run at
 the same time as subagents, you verify and commit them, and every wave leaves a
 short comment on the PR before the next wave begins.
 
-You are the controller. **All code edits live in the wave's subagents** — your
-context stays clean across every wave, and every fix receives review.
+You are the controller. **All code edits live in the wave's subagents** — unless
+the session has none; see **Without subagents** — your context stays clean
+across every wave, and every fix receives review.
 
 ## Tools
 
 This is the only skill in the workflow whose writes are not scoped to a
 directory: the plan sends it anywhere in the tree. Edit code directly only for
-a change small enough to state in one line; anything larger goes to the wave's
+a change small enough to state in one line — or for every task when the session
+has no subagents, see **Without subagents**; anything larger goes to the wave's
 implementers, whose contexts are discarded, which is what lets one session run
 every wave.
 
@@ -69,6 +71,20 @@ pick a cheaper one to save cost:
 
 `sonnet` and `haiku` never write code and never review. On a host without these
 names, use its closest equivalent.
+
+## Without subagents
+
+When the session has no Agent tool, you run the wave's tasks yourself, one at a
+time, in task order. Before the first task, invoke the `amy` skill with the
+Skill tool, as `pasadena:amy` (plain `amy` where the host does not prefix
+plugin skills), and take every task through her cycle. Naming amy in the text
+does not load her.
+
+The wave review in this mode is yours: read the `BASE..HEAD` diff against the
+spec and the plan yourself, and say "no subagents" in the wave's PR comment.
+The rest of the loop — verify, commit, comment, close — stays the same. At
+**Finish**, you do the whole-branch review yourself over the branch diff, and
+you apply its findings and the security-review findings yourself through amy.
 
 ## Setup
 
@@ -129,6 +145,13 @@ one task's `**Writes:**`. A changed file outside those claims is a defect in the
 plan: record a ruling assigning its owner and explaining why, then carry on.
 Overlapping write claims require a ruling and serialized execution for the
 remaining work.
+
+When the run is red and one line of the error does not show the cause, do not
+patch by guesswork: invoke the `leslie` skill with the Skill tool, as
+`pasadena:leslie` (plain `leslie` where the host does not prefix plugin
+skills). Leslie diagnoses: she returns the root cause and the fix to make. The
+implementer fixes: the fix goes to the task's implementer — through amy when
+the session has no subagents — and the verification runs again.
 
 ### 4. Review the wave
 
@@ -219,9 +242,13 @@ When the last wave is closed:
 1. **Whole-branch review** over `git merge-base <trunk> HEAD..HEAD`, on
    `fable` like every review. One combined fix dispatch receives all findings
    together; this is the single whole-branch fix wave.
-2. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
+2. **Security review.** Invoke the `security-review` skill with the Skill tool
+   on the branch diff. Findings go to one fix dispatch under the same rules as
+   review findings. When the skill is unavailable (for example in Codex), say
+   so once and note the skip in the PR comment.
+3. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
    `git rm` the journal, commit `chore(journal): close <task>`.
-3. `gh pr ready` — the draft becomes a real PR.
+4. `gh pr ready` — the draft becomes a real PR.
 
 ## Decision rules
 
@@ -235,3 +262,5 @@ When the last wave is closed:
 | The context feels long | The code work stays in subagents and the main context holds compact reports; loop the waves and hand off only when a genuine ruling forces a stop. |
 | A resumed task appears complete | Treat the plan's checkboxes and `git log` as the authoritative record. |
 | The wave suite has already run | The reviewer uses that result and focuses on spec compliance and quality. |
+| The Agent tool is unavailable | Run the wave yourself, invoking `pasadena:amy` before the first task. |
+| Wave verification is red for an unclear reason | Invoke `pasadena:leslie` before any fix. |
