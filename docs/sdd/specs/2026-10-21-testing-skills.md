@@ -99,6 +99,31 @@ e2e у реальному браузері, **запускається лише 
   - до розділу obra/superpowers додаються `skills/amy/SKILL.md` (розділ Verify before claiming, з `skills/verification-before-completion`) і `skills/leslie/SKILL.md` (з `skills/systematic-debugging`);
   - нові розділи для anthropics/skills `skills/webapp-testing` (Apache-2.0, з повідомленням про зміни) → `skills/bernie/SKILL.md`, testdino-hq/playwright-skill (MIT) → `skills/bernie/SKILL.md`, nikolasdehor/visual-eyes (MIT) → `skills/stuart/SKILL.md`.
 
+### 3.7 Хук-нагадування `nudge`
+
+Headless-прогін 0.7.0 (`claude -p --plugin-dir`) показав: на запит «Тести в price.test.sh падають. Полагодь.» агент не викликав ні `pasadena:leslie`, ні `pasadena:amy`, а одразу правив код. Тригер у `description` на коротке побутове прохання не спрацьовує. Хук додає нагадування в контекст ще до того, як модель вирішить, що задача дрібна.
+
+- **Модуль:** `hooks/nudge.sh`, окремий від `journal.sh`, бо в нього інша задача. Вхід — JSON події `UserPromptSubmit` на stdin, поле `.prompt`. Вихід — або нічого, або `{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"<текст>"}}`. Залежності: `jq` і `git`, як у `journal.sh`. Завжди `exit 0`, бо хук ніколи не блокує промпт.
+- **Мовчить** (нічого не виводить), якщо:
+  - `PASADENA_NUDGE=0`;
+  - `git rev-parse --is-inside-work-tree` не дає `true` для cwd;
+  - промпт після пробілів починається з `/`;
+  - промпт уже містить `leslie`, `amy` або `pasadena:` (без урахування регістру).
+- **Група «баг»** (regex без урахування регістру): `баг|помилк|падає|падають|впав|зламал|не працює|полагод|виправ|fix|bug|broken|failing|fails|error|crash|regression`. Текст:
+  `This prompt looks like a bug or failing check. Before changing any code, invoke the leslie skill with the Skill tool, as pasadena:leslie, and follow it: root cause first, then the fix through amy.`
+- **Група «фіча»** (regex без урахування регістру): `додай|реаліз|імплемент|зроби функц|нов(а|у|ий) фіч|implement|add (a |an )?(feature|function|endpoint|test)|build (a|the)`. Текст:
+  `This prompt looks like new behaviour. Before writing production code, invoke the amy skill with the Skill tool, as pasadena:amy: failing test first.`
+- Якщо збігаються обидві групи, виводиться лише текст «баг».
+- **Реєстрація:**
+  - `hooks/claude-hooks.json`: подія `UserPromptSubmit` з командою `bash "${CLAUDE_PLUGIN_ROOT}/hooks/nudge.sh"`, `"shell": "bash"`, `"timeout": 5`;
+  - `hooks/hooks.json` (Codex): та сама подія з guard `[ -n "${CLAUDE_PLUGIN_ROOT:-}" ] || bash "${PLUGIN_ROOT}/hooks/nudge.sh"`, `"timeout": 5`, як у наявних хуках.
+- `README.md` і `README.uk.md`:
+  - речення перед таблицею хуків змінюється на «Codex uses four hooks; Claude Code adds `StopFailure`» (і відповідно в uk);
+  - у таблицю додається рядок `` | `UserPromptSubmit` | Reminds the agent to invoke leslie for a bug or amy for new behaviour; silent outside a Git repo. | Same | `` (і переклад в uk);
+  - речення «Hooks read Git state and append to the journal» доповнюється: «; `UserPromptSubmit` only adds context to the prompt»;
+  - у `## Configuration` додається абзац: `PASADENA_NUDGE=0` вимикає хук-нагадування;
+  - у `## Checks` додається рядок `bash hooks/nudge.test.sh`.
+
 ## 4. Out of scope
 
 - Semgrep, CodeQL, variant-analysis, fp-check і будь-який текст із trailofbits/skills.
@@ -108,6 +133,7 @@ e2e у реальному браузері, **запускається лише 
 - Піксельний diff-рушій і збережені візуальні бейзлайни.
 - Python, Playwright for Python і `with_server.py`.
 - Окремий скіл для verification-before-completion.
+- Класифікація промпту через LLM, налаштовуваний список ключових слів у nudge, нагадування nudge для bernie і stuart.
 
 ## 5. Trade-offs accepted
 
@@ -116,6 +142,7 @@ e2e у реальному браузері, **запускається лише 
 - **Порівняння «до/після» в stuart суб'єктивне.** Модель порівнює скриншоти без піксельної точності, тож дрібні зсуви на 1–2 px може пропустити.
 - **bernie і stuart самі не запускаються.** Без явного запиту e2e і візуальна перевірка не відбуваються, але й не витрачають час і токени на задачах без UI.
 - **Без браузерного MCP bernie і stuart недоступні**, наприклад у Codex без Playwright MCP.
+- **nudge помиляється на ключових словах.** Наприклад, «виправ опечатку в README» нагадає про leslie. Це лише нагадування, а не блокування, тож агент може його відкинути. Вимикач `PASADENA_NUDGE=0` прибирає його повністю.
 
 ## 6. Verification
 
@@ -130,6 +157,8 @@ e2e у реальному браузері, **запускається лише 
 
 Також проходять наявні `bash hooks/journal.test.sh` і `bash proto/server.test.sh`.
 
+`bash hooks/nudge.test.sh` подає промпти на stdin і перевіряє вивід. Для «Тести падають. Полагодь.» і для «the build is failing» має бути текст «баг». Для «Додай функцію mul» — текст «фіча». Для «полагодь і додай тест» — лише «баг». Порожній вивід має бути для `/pasadena`, для «виклич pasadena:leslie», для «що таке монада?», з `PASADENA_NUDGE=0` і поза git-репо (тимчасовий каталог із `mktemp -d`). Вихід скрипту — валідний JSON із `hookEventName` = `UserPromptSubmit`.
+
 ### 6.2 Вручну: поведінка
 
 1. **Фолбек wolowitz.** У тестовому репо з одним маленьким планом запустити wolowitz із забороненим Agent. Перший Skill-виклик контролера має бути `pasadena:amy`, перший записаний файл — тест.
@@ -137,3 +166,5 @@ e2e у реальному браузері, **запускається лише 
 3. **bernie, разова перевірка.** Запустити `proto/start.sh` і попросити «перевір у браузері, що прототип відкривається». У звіті мають бути скриншот і вивід консолі, а в репо — жодних нових файлів.
 4. **stuart.** На HTML-прототипі penny з навмисним `width: 1400px` на контейнері попросити «перевір верстку». Звіт має показати горизонтальний скрол на 375 і 768 px, після чого stuart зупиняється і чекає згоди. Після згоди він показує пари «до/після».
 5. **security-review.** Наприкінці будь-якої гілки wolowitz до `gh pr ready` викликає `security-review`. Це видно з виклику Skill у транскрипті й із коментаря на PR.
+
+Сценарії 1 і 2 автоматизовані headless-скриптами (`claude -p --plugin-dir <worktree> --output-format stream-json`) на тимчасових репо. Результат 2026-10-21 до nudge: сценарій 1 пройшов, сценарій 2 провалився (жодного Skill-виклику). Після nudge сценарій 2 проганяється тричі, і в кожному прогоні `pasadena:leslie` має бути першим Skill-викликом до будь-якого Edit.
