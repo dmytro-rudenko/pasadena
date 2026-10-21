@@ -1,5 +1,5 @@
 {
-  "description": "Codex lifecycle hooks for the Pasadena session journal.",
+  "description": "Codex lifecycle hooks for the Pasadena session journal and skill reminders.",
   "hooks": {
     "SessionStart": [
       {
@@ -10,6 +10,17 @@
             "command": "[ -n \"${CLAUDE_PLUGIN_ROOT:-}\" ] || bash \"${PLUGIN_ROOT}/hooks/journal.sh\" session-start",
             "timeout": 10,
             "additionalContextLimit": 5000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${CLAUDE_PLUGIN_ROOT:-}\" ] || bash \"${PLUGIN_ROOT}/hooks/nudge.sh\"",
+            "timeout": 5
           }
         ]
       }
