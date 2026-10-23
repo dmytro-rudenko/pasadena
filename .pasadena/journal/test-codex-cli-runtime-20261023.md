@@ -11,7 +11,7 @@ Disposable CLI acceptance: two independent arithmetic shell functions, real para
 
 ## Now
 
-Spec explicitly approved and persisted at docs/sdd/specs/2026-10-23-cli-runtime.md:1. Preparing disposable draft PR and Leonard plan for approval; no tests or implementation authorized yet. Next: present decomposition; persist docs/sdd/plans/2026-10-23-cli-runtime.md only after plan approval, then verify with node tests/cli-runtime/acceptance.cjs. Preserve unchanged: Pasadena implementation, fixture branch, permitted remote; no merge/publish; PR stays draft.
+Planning: agreed spec committed at e013f01; disposable draft PR https://github.com/dmytro-rudenko/pasadena/pull/19 opened. Installed Leonard and Codex adapter fully loaded; chat plan awaiting explicit approval; plan pointer intentionally unset. Next: approve chat plan, persist docs/sdd/plans/2026-10-23-cli-runtime.md:1, then Task0 RED via node tests/cli-runtime/acceptance.cjs. Preserve unchanged: existing Pasadena implementation; this branch/remote only; no merge/publish; PR stays draft.
 
 ## Timeline
 
@@ -23,3 +23,5 @@ Spec explicitly approved and persisted at docs/sdd/specs/2026-10-23-cli-runtime.
 - 15:56 ⏸ pause · other · HEAD=70ca24f · dirty: .pasadena/
 - 15:59 ▶ start · test/codex-cli-runtime-20261023 @ 70ca24f
 - 16:00 ✎ User explicitly approved arithmetic specification; agreed spec persisted and journal spec pointer set; planning approval still pending.
+- 16:00 ● e013f01 docs(cli-runtime): record agreed acceptance fixture spec
+- 16:01 ✎ Draft PR #19 opened from approved spec commit e013f01; installed Leonard loaded; Wave0 RED and concurrent Wave1 plan presented for explicit approval; no tests or implementation written.
