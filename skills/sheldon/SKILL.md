@@ -98,6 +98,11 @@ First, inspect the current state — files, documentation, and recent commits.
 Good questions about code are based on code that has already been read and on
 the existing repository context.
 
+When `codex.sh available` exits 0 (`codex.sh` lives beside `journal.sh`), hand
+the survey of a large repository to `codex.sh explore <prompt-file>` and ask
+for facts with `file:line`. The questions and the design stay yours; confirm
+with one `Read` or `grep` each fact a question or the spec rests on.
+
 **Check the scope before moving into details.** If the request describes several
 independent subsystems ("a platform with chat, storage, billing, and analytics"),
 state that immediately and help decompose the work. Each part then goes through

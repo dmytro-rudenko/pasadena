@@ -69,6 +69,13 @@ A simple-looking bug still has a root cause, and Phase 1 finds it quickly.
 3. When the code follows a reference implementation, read the reference
    completely rather than skimming it.
 
+In both phases, when `codex.sh available` exits 0 (`codex.sh` lives beside
+`journal.sh`), hand the bulk reading — where the code lives, the call chain,
+working analogues and their differences — to `codex.sh explore <prompt-file>`,
+asking for facts with `file:line`. Reproducing and instrumenting stay yours,
+and so does the hypothesis: confirm each fact it rests on with one `Read` or
+`grep`.
+
 ## Phase 3 — Hypothesis
 
 1. **Write one hypothesis down:** "X is the cause because Y". Say it before
