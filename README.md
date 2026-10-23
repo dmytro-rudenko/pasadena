@@ -127,6 +127,23 @@ Set it in your shell profile or in `.claude/settings.json`:
 
 The server uses `fetch` for choice events and a one-second poll for updates. That keeps the prototype server small and avoids a WebSocket dependency.
 
+## Codex delegation
+
+When the Codex CLI is installed and logged in, the skills hand part of the work to `codex exec` to save Claude usage. Claude stays the orchestrator and checks every result itself. Codex runs here as a worker, not as a plugin host.
+
+- **explore** — `leonard`, `leslie`, `sheldon` and `wolowitz` send bulk read-only lookups to Codex and get back facts with `file:line`.
+- **review** — `wolowitz` runs a Codex review of the local diff beside the `fable` reviewer; only findings Claude confirms count.
+- **implement** — plan tasks marked `**Executor:** codex` are written by Codex in two calls, tests first and then code, with Claude running the tests between them.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `PASADENA_CODEX` | `1` | `0` turns delegation off |
+| `PASADENA_CODEX_IDLE` | `120` | seconds without a Codex event before the call is stopped |
+| `PASADENA_CODEX_CMD_IDLE` | `600` | the same limit while Codex runs a command |
+| `PASADENA_CODEX_MODEL` | — | passed to Codex as `-m` |
+
+Codex spends your ChatGPT plan's usage. When it runs out, `hooks/codex.sh` exits `75`, the skills tell you once, and delegation stays off for six hours or until you delete `~/.local/state/pasadena/codex-exhausted`.
+
 ## Checks
 
 ```bash
@@ -134,9 +151,10 @@ bash skills/skills.test.sh
 bash hooks/journal.test.sh
 bash proto/server.test.sh
 bash hooks/nudge.test.sh
+bash hooks/codex.test.sh
 ```
 
-The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration.
+The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration. The Codex checks run `hooks/codex.sh` against a fake `codex` and cover availability, each subcommand's flags, the idle stop and the usage-limit marker.
 
 For the full design, read [docs/design.md](docs/design.md).
 
