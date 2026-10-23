@@ -80,6 +80,21 @@ case "${FAKE_MODE:-ok}" in
     sleep 3
     ev '{"type":"item.completed","item":{"id":"item_0","type":"command_execution","command":"sleep 3"}}'
     ;;
+  log)
+    ev '{"type":"turn.started"}'
+    ev '{"type":"item.completed","item":{"id":"item_2","type":"reasoning","text":"thinking\nabout it"}}'
+    ev '{"type":"item.started","item":{"id":"item_3","type":"command_execution","command":"rg -n foo","status":"in_progress"}}'
+    ev '{"type":"item.completed","item":{"id":"item_3","type":"command_execution","command":"rg -n foo","exit_code":2,"status":"failed"}}'
+    ev '{"type":"item.started","item":{"id":"item_4","type":"command_execution","command":"ls","status":"in_progress"}}'
+    ev '{"type":"item.completed","item":{"id":"item_4","type":"command_execution","command":"ls","exit_code":0,"status":"completed"}}'
+    ev '{"type":"item.completed","item":{"id":"item_5","type":"file_change","changes":[{"path":"a.ts","kind":"update"},{"path":"b.ts","kind":"add"}],"status":"completed"}}'
+    ev "{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"$(printf 'x%.0s' $(seq 250))\"}}"
+    ev '{"type":"error","message":"boom"}'
+    ;;
+  live)
+    ev '{"type":"item.started","item":{"id":"item_7","type":"command_execution","command":"live-marker","status":"in_progress"}}'
+    sleep 4
+    ;;
 esac
 ev '{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"final answer"}}'
 [ "${FAKE_MODE:-ok}" = nothread ] || ev '{"type":"thread.started","thread_id":"fake-thread-2"}'
@@ -140,7 +155,7 @@ assert_contains "$(cat "$FAKE_LOG.stdin")" "PROMPT-MARKER" "explore passes the p
 assert_contains "$(cat "$tmp/err")" "codex usage: input=100 cached=40 output=7" "usage line on stderr"
 
 out="$(cx explore "$prompt" 2>&1)"
-assert_eq "$(sed -n 1p <<<"$out")" "final answer" "explore final message is its own line with stderr merged"
+grep -qx "final answer" <<<"$out"; assert_eq "$?" 0 "explore final message is its own line with stderr merged"
 assert_contains "$(tail -n 1 <<<"$out")" "codex usage:" "explore usage line is its own last line"
 
 : >"$FAKE_LOG"
@@ -183,9 +198,13 @@ assert_eq "${line: -2}" " -" "red reads the prompt from stdin (-)"
 out="$(cx red "$prompt" 2>&1)"
 assert_eq "$(sed -n 1p <<<"$out")" "fake-thread-1" "red prints the thread id first even with stderr merged"
 assert_contains "$(tail -n 1 <<<"$out")" "codex usage:" "usage line comes last"
-assert_eq "$(sed -n 2p <<<"$out")" "final answer" "red final message is its own line with stderr merged"
-assert_eq "$(sed -n 3p <<<"$out")" "codex changed:" "red that changes nothing reports an empty change list"
-assert_eq "$(wc -l <<<"$out" | tr -d ' ')" 4 "red merged output is thread id, final answer, change list, usage line"
+assert_eq "$(sed -n 2p <<<"$out")" "codex › final answer" "red logs the agent message after the thread id"
+assert_eq "$(sed -n 3p <<<"$out")" "final answer" "red final message is its own line with stderr merged"
+assert_eq "$(sed -n 4p <<<"$out")" "codex changed:" "red that changes nothing reports an empty change list"
+assert_eq "$(wc -l <<<"$out" | tr -d ' ')" 5 "red merged output is thread id, log, final answer, change list, usage line"
+out="$(cx FAKE_MODE=log red "$prompt" 2>&1)"
+assert_eq "$(sed -n 1p <<<"$out")" "fake-thread-1" "red prints the thread id before the session log"
+assert_eq "$(grep -c '^fake-thread' <<<"$out")" 1 "red prints the thread id once"
 cx FAKE_MODE=nothread red "$prompt" >/dev/null 2>&1; assert_eq "$?" 1 "red without a thread id is a failure"
 err="$(cx FAKE_MODE=writes red "$prompt" 2>&1 >/dev/null)"
 changed="$(grep '^codex changed:' <<<"$err")"
@@ -206,6 +225,32 @@ assert_contains "$(cat "$FAKE_LOG")" 'exec resume fake-thread-1 -c sandbox_mode=
 line="$(cat "$FAKE_LOG")"
 assert_eq "${line: -2}" " -" "green reads the prompt from stdin (-)"
 assert_contains "$(cat "$FAKE_LOG.stdin")" "PROMPT-MARKER" "green passes the prompt file on stdin"
+
+echo "== session log =="
+out="$(cx FAKE_MODE=log explore "$prompt" 2>"$tmp/err")"
+err="$(cat "$tmp/err")"
+assert_eq "$out" "final answer" "session log stays off stdout"
+assert_contains "$err" "codex › · thinking about it" "reasoning is logged on one line"
+assert_contains "$err" "codex › \$ rg -n foo" "started command is logged"
+assert_contains "$err" "codex › exit 2" "failed command logs its exit code"
+assert_eq "$(grep -c '^codex › exit' <<<"$err")" 1 "successful command logs no exit line"
+assert_contains "$err" "codex › edit: a.ts b.ts" "file change lists its paths"
+assert_contains "$err" "codex › $(printf 'x%.0s' $(seq 200))…" "long agent message is cut to 200 characters"
+[[ "$err" != *"$(printf 'x%.0s' $(seq 201))"* ]]; assert_eq "$?" 0 "long agent message is not logged in full"
+assert_contains "$err" "codex › error: boom" "error is logged"
+[[ "$err" != *"turn.started"* && "$err" != *"usage\":"* ]]; assert_eq "$?" 0 "unknown and turn events are not logged raw"
+
+rm -f "$tmp/live.err"
+(cd "$repo" && exec env PATH="$bin:$PATH" FAKE_MODE=live bash "$CODEX_SH" explore "$prompt") >/dev/null 2>"$tmp/live.err" &
+cxpid=$!
+for _ in $(seq 30); do
+  grep -q "live-marker" "$tmp/live.err" 2>/dev/null && break
+  sleep 0.1
+done
+seen=no
+grep -q "codex › \$ live-marker" "$tmp/live.err" 2>/dev/null && kill -0 "$cxpid" 2>/dev/null && seen=yes
+assert_eq "$seen" yes "session log appears while codex is still running"
+wait "$cxpid"
 
 echo "== idle =="
 start="$(date +%s)"

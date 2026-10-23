@@ -75,16 +75,47 @@ changed_line() {
   echo "codex changed:${paths:+ ${paths% }}"
 }
 
+log_format='
+def short: gsub("\\s+"; " ") | ltrimstr(" ") | rtrimstr(" ") | if length > 200 then .[:200] + "…" else . end;
+fromjson? |
+if .type == "item.started" and .item.type == "command_execution" then "$ " + (.item.command // "" | short)
+elif .type == "item.completed" then
+  .item as $i |
+  if $i.type == "command_execution" then (if ($i.exit_code // 0) != 0 then "exit \($i.exit_code)" else empty end)
+  elif $i.type == "reasoning" then "· " + ($i.text // "" | short)
+  elif $i.type == "agent_message" then $i.text // "" | short
+  elif $i.type == "file_change" then "edit: " + ([$i.changes[]?.path] | join(" "))
+  else empty end
+elif .type == "error" then "error: " + (.message // "" | short)
+elif .type == "turn.failed" then "error: " + (.error.message // "" | short)
+else empty end
+| "codex › " + .'
+
+stream() {
+  local total chunk
+  total="$(wc -l <"$events" | tr -d ' ')"
+  [ "$total" -gt "$shown" ] || return 0
+  chunk="$(sed -n "$((shown + 1)),${total}p" "$events")"
+  shown="$total"
+  if [ "$sub" = red ] && [ -z "$thread" ]; then
+    thread="$(jq -rR 'fromjson? | select(.type == "thread.started") | .thread_id' <<<"$chunk" 2>/dev/null | head -1)"
+    [ -z "$thread" ] || echo "$thread"
+  fi
+  jq -rR "$log_format" <<<"$chunk" >&2 2>/dev/null
+}
+
 run() {
   local input="$1" status open limit
   shift
   : >"$events"
+  shown=0
   set -m
   codex "$@" <"$input" >"$events" 2>"$work/stderr" &
   codex_pid=$!
   set +m
   while kill -0 "$codex_pid" 2>/dev/null; do
     sleep 1
+    stream
     open="$(jq -s '[.[] | select(.item.type? == "command_execution") | if .type == "item.started" then 1 elif .type == "item.completed" then -1 else 0 end] | add // 0' "$events" 2>/dev/null || echo 0)"
     limit="$PASADENA_CODEX_IDLE"
     [ "${open:-0}" -gt 0 ] && limit="$PASADENA_CODEX_CMD_IDLE"
@@ -97,6 +128,7 @@ run() {
   done
   wait "$codex_pid"
   status=$?
+  stream
   usage_line="$(jq -r 'select(.type == "turn.completed") | .usage | "codex usage: input=\(.input_tokens) cached=\(.cached_input_tokens) output=\(.output_tokens)"' "$events" 2>/dev/null | tail -1)"
   if jq -r 'select(.type == "error" or .type == "turn.failed") | (.message // .error.message // "")' "$events" 2>/dev/null | grep -qiE 'usage limit|insufficient_quota'; then
     mkdir -p "$(dirname "$marker")"
@@ -126,6 +158,8 @@ esac
 work="$(mktemp -d)"
 usage_line=""
 track=""
+thread=""
+shown=0
 top="$(git rev-parse --show-toplevel 2>/dev/null)"
 trap 'stop_codex; [ -z "$track" ] || changed_line >&2; rm -rf "$work"; [ -z "$usage_line" ] || echo "$usage_line" >&2' EXIT
 trap 'stop_codex; exit 130' INT
@@ -159,12 +193,10 @@ case "$sub" in
     snapshot "$work/before"
     track=1
     run "$2" exec -s workspace-write -C "$PWD" ${model_args[@]+"${model_args[@]}"} --json -o "$last" - || exit $?
-    thread="$(jq -r 'select(.type == "thread.started") | .thread_id' "$events" 2>/dev/null | head -1)"
     if [ -z "$thread" ]; then
       echo "codex: no thread id" >&2
       exit 1
     fi
-    echo "$thread"
     print_last
     ;;
   green)

@@ -135,6 +135,8 @@ When the Codex CLI is installed and logged in, the skills hand part of the work 
 - **review** — `wolowitz` runs a Codex review of the local diff beside the `fable` reviewer; only findings Claude confirms count.
 - **implement** — plan tasks marked `**Executor:** codex` are written by Codex in two calls, tests first and then code, with Claude running the tests between them.
 
+While Codex works, `hooks/codex.sh` streams a compact session log to stderr, one `codex › ` line per command, failed exit code, file change, reasoning summary, message or error, cut to 200 characters. It shows up in the background task's output panel. The final answer stays on stdout.
+
 | Variable | Default | Effect |
 |---|---|---|
 | `PASADENA_CODEX` | `1` | `0` turns delegation off |
@@ -154,7 +156,7 @@ bash hooks/nudge.test.sh
 bash hooks/codex.test.sh
 ```
 
-The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration. The Codex checks run `hooks/codex.sh` against a fake `codex` and cover availability, each subcommand's flags, the idle stop and the usage-limit marker.
+The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration. The Codex checks run `hooks/codex.sh` against a fake `codex` and cover availability, each subcommand's flags, the session log, the idle stop and the usage-limit marker.
 
 For the full design, read [docs/design.md](docs/design.md).
 
