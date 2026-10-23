@@ -11,7 +11,7 @@ Disposable CLI acceptance: two independent arithmetic shell functions, real para
 
 ## Now
 
-PAUSED at user-requested recovery checkpoint after Wave0. Task0 runner committed by controller as f5a5bb3 after full RED verification and separate-context pre-commit review (spec/quality PASS, including untracked contents). Full acceptance exits 1: missing sum.js and double.js, FAILED: 2 suite(s); focused suites each exit 1; syntax check exits 0. Task0 checkboxes complete; first incomplete tasks are Task1 and Task2 in Wave1, already approved for concurrent disjoint Writes. Next on user continuation: read plan docs/sdd/plans/2026-10-23-cli-runtime.md:29 and git log, capture BASE, dispatch both implementers concurrently after installed Amy/adapter loading; verify node tests/cli-runtime/acceptance.cjs. Preserve unchanged until continuation: no sum.js or double.js production files; existing Pasadena implementation; this fixture branch/remote only; PR #19 draft; no merge/publish.
+PAUSED at user-requested second recovery checkpoint BEFORE journal finish. Wave1 complete: controller committed Task1 bb41f17 and Task2 92a8ee0 after full acceptance GREEN (PASS sum, PASS double, All checks passed.; exit 0), diff check exit 0, and separate-context wave plus whole-branch review spec/quality PASS including both untracked modules. Actual implementer overlap 2026-10-23 13:17:47.380804900–13:17:56.211084009 UTC; both loaded installed Amy/adapter and observed focused RED then GREEN. All plan task checkboxes checked; journal closure explicitly deferred as lifecycle work, security-review unavailable. Next on user's finish entry: route all-complete docs/sdd/plans/2026-10-23-cli-runtime.md to installed journal finish, summarize PR evidence and remove active journal; verification command node tests/cli-runtime/acceptance.cjs already GREEN. Preserve existing Pasadena implementation, fixture branch/authorized remote only, PR #19 draft, no merge/publish; do not replay tasks or ask approval.
 
 ## Timeline
 
@@ -35,3 +35,13 @@ PAUSED at user-requested recovery checkpoint after Wave0. Task0 runner committed
 - 16:03 ● 11f5b29 docs(cli-runtime): persist approved execution plan
 - 16:06 ● f5a5bb3 test(cli-runtime): add arithmetic acceptance runner before implementation to establish independent sum and double contracts, reject invalid operands, support focused verification, and preserve genuine red evidence for the disposable workflow recovery fixture
 - 16:06 ✎ Wave0 complete: Task0 f5a5bb3 controller-committed after actual missing-module RED and independent untracked-content review; Task0 boxes checked; deliberate user-requested recovery pause before approved concurrent Tasks1/2; PR19 draft.
+- 16:06 ● ddc4a69 docs(cli-runtime): record Wave0 recovery checkpoint
+- 16:06 ⏸ pause · other · HEAD=ddc4a69
+- 16:10 ▶ start · test/codex-cli-runtime-20261023 @ ddc4a69
+- 16:12 ⏸ pause · other · HEAD=ddc4a69
+  ↳ PAUSED at user-requested recovery checkpoint after Wave0. Task0 runner committed by controller as f5a5bb3 after full RED verification and separate-context pre-commit review (spec/quality PASS, includi
+- 16:17 ▶ start · test/codex-cli-runtime-20261023 @ ddc4a69
+- 16:17 ✎ Wave1 resumed from ddc4a69: baseline expected RED; Task1 and Task2 dispatched concurrently with disjoint Writes; requested second pause before journal finish.
+- 16:19 ● bb41f17 feat(cli-runtime): implement independent sum function with integer operand validation and direct Number addition so the focused acceptance contract passes while preserving isolated file ownership for concurrent workflow verification in the disposable fixture
+- 16:19 ● 92a8ee0 feat(cli-runtime): implement independent double function with integer operand validation and direct Number multiplication so the focused acceptance contract passes while preserving isolated file ownership for concurrent workflow verification in the disposable fixture
+- 16:19 ✎ Wave1 complete: bb41f17 sum and 92a8ee0 double controller commits; actual overlapping Amy agents, full GREEN and independent wave/branch PASS; all task boxes checked; user-requested pause BEFORE journal finish, PR19 draft.

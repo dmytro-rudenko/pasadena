@@ -30,9 +30,9 @@ Use only test/codex-cli-runtime-20261023 and dmytro-rudenko/pasadena. Keep PR #1
 **Depends on:** Task 0
 **Interfaces:** Produces `module.exports = sum`; `sum(a,b)` validates both operands with Number.isInteger, throws TypeError for invalid input, returns `a + b`. No module dependencies.
 **Satisfies:** sum suite from Task0.
-- [ ] Run `node tests/cli-runtime/acceptance.cjs sum`; observe RED before writing sum.js.
-- [ ] Implement only sum.js with the specified direct export and behavior.
-- [ ] Run `node tests/cli-runtime/acceptance.cjs sum`; expect `All checks passed.`, exit 0; return uncommitted changes and exact output.
+- [x] Run `node tests/cli-runtime/acceptance.cjs sum`; observe RED before writing sum.js.
+- [x] Implement only sum.js with the specified direct export and behavior.
+- [x] Run `node tests/cli-runtime/acceptance.cjs sum`; expect `All checks passed.`, exit 0; return uncommitted changes and exact output.
 **Commit:** feat(cli-runtime): implement independent sum function with integer operand validation and direct Number addition so the focused acceptance contract passes while preserving isolated file ownership for concurrent workflow verification in the disposable fixture
 
 ### Task 2: double
@@ -41,12 +41,15 @@ Use only test/codex-cli-runtime-20261023 and dmytro-rudenko/pasadena. Keep PR #1
 **Depends on:** Task 0
 **Interfaces:** Produces `module.exports = double`; `double(n)` validates Number.isInteger, throws TypeError for invalid input, returns `n * 2`. No module dependencies.
 **Satisfies:** double suite from Task0.
-- [ ] Run `node tests/cli-runtime/acceptance.cjs double`; observe RED before writing double.js.
-- [ ] Implement only double.js with the specified direct export and behavior.
-- [ ] Run `node tests/cli-runtime/acceptance.cjs double`; expect `All checks passed.`, exit 0; return uncommitted changes and exact output.
+- [x] Run `node tests/cli-runtime/acceptance.cjs double`; observe RED before writing double.js.
+- [x] Implement only double.js with the specified direct export and behavior.
+- [x] Run `node tests/cli-runtime/acceptance.cjs double`; expect `All checks passed.`, exit 0; return uncommitted changes and exact output.
 **Commit:** feat(cli-runtime): implement independent double function with integer operand validation and direct Number multiplication so the focused acceptance contract passes while preserving isolated file ownership for concurrent workflow verification in the disposable fixture
 
 ## Controller verification, review and finish
-- [ ] Verify full runner, reconcile Writes and record actual overlapping Wave1 execution; independently review before sequential Task1 and Task2 commits.
-- [ ] Whole-branch review in a separate context with spec, plan, diff and verification evidence; resolve findings and repeat affected checks.
-- [ ] Reconcile journal Now, plan checkboxes and git log for recovery; summarize evidence and any unavailable security-review skill in PR; close journal while leaving PR draft.
+- [x] Verify full runner, reconcile Writes and record actual overlapping Wave1 execution; independently review before sequential Task1 and Task2 commits.
+- [x] Whole-branch review in a separate context with spec, plan, diff and verification evidence; resolve findings and repeat affected checks.
+- [x] Reconcile journal Now, plan checkboxes and git log for recovery; summarize evidence and unavailable security-review skill in PR.
+
+## Requested pre-finish checkpoint
+All implementation and review tasks are complete. Per the user's second explicit checkpoint, journal closure is a deferred lifecycle action, not an incomplete implementation task: pause before journal finish; the next fresh Pasadena entry routes all-checked state to journal finish. Keep the active journal in-progress and PR #19 draft until that entry. Security-review skill is unavailable; no substitute security review is claimed.
