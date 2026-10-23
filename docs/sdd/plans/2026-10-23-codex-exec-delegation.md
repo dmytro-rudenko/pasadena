@@ -264,8 +264,8 @@ grep -q '"version": "0.10.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin
 **Interfaces:**
 - Produces: the subcommands, exit codes, env vars, marker path and usage line listed in Global constraints.
 
-- [ ] **Step 1: run the acceptance tests, watch them fail** — `bash hooks/codex.test.sh`, expect `FAILED:` (script missing).
-- [ ] **Step 2: write `hooks/codex.sh`:**
+- [x] **Step 1: run the acceptance tests, watch them fail** — `bash hooks/codex.test.sh`, expect `FAILED:` (script missing).
+- [x] **Step 2: write `hooks/codex.sh`:**
 
 ```bash
 #!/usr/bin/env bash
@@ -381,7 +381,7 @@ case "$sub" in
 esac
 ```
 
-- [ ] **Step 3: run them, watch them pass** — `bash hooks/codex.test.sh`, expect `All checks passed.`
+- [x] **Step 3: run them, watch them pass** — `bash hooks/codex.test.sh`, expect `All checks passed.`
 
 ---
 
@@ -393,8 +393,8 @@ esac
 **Executor:** claude
 **Satisfies:** `skills.test.sh` → `require wolowitz …` (8 checks) and the `implementer-prompt-codex.md` checks
 
-- [ ] **Step 1: watch them fail** — `bash skills/skills.test.sh`, expect `FAIL — wolowitz: missing "codex.sh red"` among the failures.
-- [ ] **Step 2: edit `skills/wolowitz/SKILL.md`:**
+- [x] **Step 1: watch them fail** — `bash skills/skills.test.sh`, expect `FAIL — wolowitz: missing "codex.sh red"` among the failures.
+- [x] **Step 2: edit `skills/wolowitz/SKILL.md`:**
   1. In `## Models`, replace the row `| Read-only \`Explore\` lookup | \`sonnet\` is allowed |` with
      `| Read-only lookup | \`codex.sh explore <prompt-file>\` when \`codex.sh available\` exits 0; otherwise \`Explore\` on \`sonnet\` |`
   2. Insert a new section directly after `## Without subagents` (before `## Setup`):
@@ -443,7 +443,7 @@ comment sums the `codex usage:` lines its Codex calls printed on stderr.
      `When \`codex.sh available\` exits 0, run \`codex.sh review <BASE> skills/wolowitz/reviewer-prompt.md\` in the background in the same message as the \`fable\` dispatch. Every \`fable\` finding goes to the fix loop. A Codex finding goes there only after you confirm it yourself at its \`file:line\`; drop the unconfirmed ones with a one-line note in the wave's PR comment. The \`fable\` verdict stays the verdict.`
   5. In `## Finish`, item 1, append the sentence:
      `With \`codex.sh available\`, run \`codex.sh review $(git merge-base <trunk> HEAD) skills/wolowitz/reviewer-prompt.md\` beside it and merge its findings by the rule in step 4.`
-- [ ] **Step 3: write `skills/wolowitz/implementer-prompt-codex.md`:**
+- [x] **Step 3: write `skills/wolowitz/implementer-prompt-codex.md`:**
 
 ~~~markdown
 # Codex implementer prompt
@@ -499,7 +499,7 @@ Under twenty-five lines:
 - Anything you decided that the task did not specify
 ~~~
 
-- [ ] **Step 4: watch them pass** — `bash skills/skills.test.sh`: no `FAIL — wolowitz` and no `implementer-prompt-codex.md` line remains.
+- [x] **Step 4: watch them pass** — `bash skills/skills.test.sh`: no `FAIL — wolowitz` and no `implementer-prompt-codex.md` line remains.
 
 ---
 
@@ -510,8 +510,8 @@ Under twenty-five lines:
 **Executor:** claude
 **Satisfies:** `require leonard "**Executor:** codex | claude"`, `require leonard "codex.sh available"`, `require leonard "codex.sh explore"`
 
-- [ ] **Step 1: watch them fail** — `bash skills/skills.test.sh`, expect `FAIL — leonard: missing "codex.sh explore"`.
-- [ ] **Step 2: edit `skills/leonard/SKILL.md`:**
+- [x] **Step 1: watch them fail** — `bash skills/skills.test.sh`, expect `FAIL — leonard: missing "codex.sh explore"`.
+- [x] **Step 2: edit `skills/leonard/SKILL.md`:**
   1. After the bullet list under `Explore before decomposing` (it ends with the `**Enumerate every file**` bullet), add:
      `When \`codex.sh available\` exits 0 (\`codex.sh\` lives beside \`journal.sh\`), hand the bulk reading to \`codex.sh explore <prompt-file>\`: ask for the stack, conventions, reusable helpers and the files each task touches, as facts with \`file:line\`. You draw the conclusions. Confirm with one \`Read\` or \`grep\` every fact a task will rely on — a signature, a name, a path — before it goes into the plan.`
   2. In the example task block, add the line `**Executor:** codex` directly after `**Depends on:** Task 1`.
@@ -531,7 +531,7 @@ Otherwise write `claude`. Task 0 is always `**Executor:** claude`. The user
 sees the split when approving the plan.
 ~~~
 
-- [ ] **Step 3: watch them pass** — `bash skills/skills.test.sh`: no `FAIL — leonard` line remains.
+- [x] **Step 3: watch them pass** — `bash skills/skills.test.sh`: no `FAIL — leonard` line remains.
 
 ---
 
@@ -542,12 +542,12 @@ sees the split when approving the plan.
 **Executor:** claude
 **Satisfies:** `require leslie "codex.sh explore"`, `require sheldon "codex.sh explore"`
 
-- [ ] **Step 1: watch them fail** — `bash skills/skills.test.sh`, expect `FAIL — leslie: missing "codex.sh explore"` and the same for sheldon.
-- [ ] **Step 2: edit `skills/leslie/SKILL.md`** — at the end of `## Phase 2 — Pattern` (after item 3), add:
+- [x] **Step 1: watch them fail** — `bash skills/skills.test.sh`, expect `FAIL — leslie: missing "codex.sh explore"` and the same for sheldon.
+- [x] **Step 2: edit `skills/leslie/SKILL.md`** — at the end of `## Phase 2 — Pattern` (after item 3), add:
   `In both phases, when \`codex.sh available\` exits 0 (\`codex.sh\` lives beside \`journal.sh\`), hand the bulk reading — where the code lives, the call chain, working analogues and their differences — to \`codex.sh explore <prompt-file>\`, asking for facts with \`file:line\`. Reproducing and instrumenting stay yours, and so does the hypothesis: confirm each fact it rests on with one \`Read\` or \`grep\`.`
-- [ ] **Step 3: edit `skills/sheldon/SKILL.md`** — in `## Understand the idea`, after the first paragraph (ends `the existing repository context.`), add:
+- [x] **Step 3: edit `skills/sheldon/SKILL.md`** — in `## Understand the idea`, after the first paragraph (ends `the existing repository context.`), add:
   `When \`codex.sh available\` exits 0 (\`codex.sh\` lives beside \`journal.sh\`), hand the survey of a large repository to \`codex.sh explore <prompt-file>\` and ask for facts with \`file:line\`. The questions and the design stay yours; confirm with one \`Read\` or \`grep\` each fact a question or the spec rests on.`
-- [ ] **Step 4: watch them pass** — `bash skills/skills.test.sh`: no `FAIL — leslie` or `FAIL — sheldon` line remains.
+- [x] **Step 4: watch them pass** — `bash skills/skills.test.sh`: no `FAIL — leslie` or `FAIL — sheldon` line remains.
 
 ---
 
@@ -558,8 +558,8 @@ sees the split when approving the plan.
 **Executor:** claude
 **Satisfies:** the 8 README needles and the `0.10.0` version check in `skills.test.sh`
 
-- [ ] **Step 1: watch them fail** — `bash skills/skills.test.sh`, expect `FAIL — README.md: missing "PASADENA_CODEX_IDLE"` and `FAIL — plugin.json: version is not 0.10.0`.
-- [ ] **Step 2: `README.md`** — insert before `## Checks`:
+- [x] **Step 1: watch them fail** — `bash skills/skills.test.sh`, expect `FAIL — README.md: missing "PASADENA_CODEX_IDLE"` and `FAIL — plugin.json: version is not 0.10.0`.
+- [x] **Step 2: `README.md`** — insert before `## Checks`:
 
 ~~~markdown
 ## Codex delegation
@@ -581,7 +581,7 @@ Codex spends your ChatGPT plan's usage. When it runs out, `hooks/codex.sh` exits
 ~~~
 
   In `## Checks`, add `bash hooks/codex.test.sh` as the last line of the code block, and append to the paragraph below it: `The Codex checks run \`hooks/codex.sh\` against a fake \`codex\` and cover availability, each subcommand's flags, the idle stop and the usage-limit marker.`
-- [ ] **Step 3: `README.uk.md`** — insert before `## Перевірки`:
+- [x] **Step 3: `README.uk.md`** — insert before `## Перевірки`:
 
 ~~~markdown
 ## Делегування в Codex
@@ -603,8 +603,8 @@ Codex витрачає ліміти вашого ChatGPT-плану. Коли в
 ~~~
 
   In `## Перевірки`, add `bash hooks/codex.test.sh` as the last line of the code block, and append: `Перевірки Codex запускають \`hooks/codex.sh\` з фейковим \`codex\` і покривають доступність, прапорці кожної підкоманди, зупинку за простоєм і маркер вичерпаного ліміту.`
-- [ ] **Step 4: versions** — in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` change `"version": "0.9.0"` to `"version": "0.10.0"`.
-- [ ] **Step 5: watch them pass** — `bash skills/skills.test.sh`, expect `All checks passed.` once Tasks 2–4 are in; at minimum no README or version `FAIL` line remains.
+- [x] **Step 4: versions** — in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` change `"version": "0.9.0"` to `"version": "0.10.0"`.
+- [x] **Step 5: watch them pass** — `bash skills/skills.test.sh`, expect `All checks passed.` once Tasks 2–4 are in; at minimum no README or version `FAIL` line remains.
 
 ---
 
