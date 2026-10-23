@@ -140,7 +140,7 @@ git commit -m "chore(journal): close <task>"
 | `PASADENA_CODEX_CMD_IDLE` | `600` | той самий ліміт, поки Codex виконує команду |
 | `PASADENA_CODEX_MODEL` | — | передається в Codex як `-m` |
 
-Codex витрачає ліміти вашого ChatGPT-плану. Коли вони закінчуються, `hooks/codex.sh` завершується з кодом `75`, skills один раз про це кажуть, і делегування вимикається на шість годин або доки ви не видалите `~/.local/state/pasadena/codex-exhausted`.
+Codex витрачає ліміти вашого ChatGPT-плану. Коли вони закінчуються, `hooks/codex.sh` завершується з кодом `75`, skills один раз про це кажуть, і делегування вимикається на шість годин або доки ви не видалите `pasadena/codex-exhausted` у `${XDG_STATE_HOME:-~/.local/state}`.
 
 ## Перевірки
 

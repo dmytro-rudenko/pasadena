@@ -26,6 +26,11 @@ non-test file. Run the task's verification command and confirm every new test
 fails for the reason the task predicts. The controller runs it again and
 checks.
 
+Amy's cycle is split across two calls here: write the test of every red step
+now and watch each fail; the controller asks for the code in the next message.
+Where amy tells you to invoke another skill or use the skill-invocation tool,
+you have neither: stop and report `BLOCKED` with the failing output.
+
 The next message, in this same session, asks for the implementation.
 
 ## Rules

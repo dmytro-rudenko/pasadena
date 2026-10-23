@@ -25,6 +25,8 @@ allowed-tools:
   - Bash(gh pr edit *)
   - Bash(gh pr ready *)
   - Bash(bash *)
+  - Bash(sha256sum *)
+  - Bash(cp *)
   - Bash(npm *)
   - Bash(pnpm *)
   - Bash(yarn *)
@@ -83,6 +85,9 @@ spec and the plan yourself, and say "no subagents" in the wave's PR comment.
 The rest of the loop — verify, commit, comment, close — stays the same. At
 **Finish**, you do the whole-branch review yourself over the branch diff, and
 you apply its findings and the security-review findings yourself through amy.
+`**Executor:** codex` tasks still run through **Codex tasks** when
+`codex.sh available` exits 0; otherwise you implement them yourself through
+amy.
 
 ## Codex tasks
 
@@ -91,15 +96,22 @@ directory. A task with `**Executor:** codex` runs as two Codex calls with your
 own gates between them, because Codex cannot load amy and its report is not
 evidence. Start every `codex.sh` call through Bash with `run_in_background`.
 
+Start a wave's Codex tasks only after all of the wave's Claude implementers
+have reported, and run Codex calls one at a time. No other writer is active
+during a Codex call, so the `codex changed:` line that `red` and `green` print
+on stderr attributes every change it lists to that call.
+
 1. **Red.** Write a prompt file in the scratchpad: the full text of
    `skills/amy/SKILL.md`, then `implementer-prompt-codex.md` filled in for the
    task. Run `codex.sh red <prompt-file>`. Line 1 of its stdout is the thread
    id; keep it.
 2. **Gate red.** Check it yourself:
-   - of the task's `**Writes:**` files, only test files changed;
+   - the `codex changed:` paths are all test files from the task's
+     `**Writes:**`;
    - the task's verification command is red, and each failure is the reason
      the plan predicts — a syntax or import error does not count;
-   - record `sha256sum` of the task's test files.
+   - record `sha256sum` of the task's test files and copy those files into
+     the scratchpad.
    When the gate fails, run `codex.sh green <thread-id> <prompt-file>` with a
    prompt that names the problem and says to fix the tests only, then run Gate
    red again. At most two such retries; after that the task goes to a fresh
@@ -109,17 +121,25 @@ evidence. Start every `codex.sh` call through Bash with `run_in_background`.
    tests.
 4. **Gate green.**
    - `sha256sum` of the test files matches the recorded one;
-   - every file the task changed is in its `**Writes:**`;
+   - the `codex changed:` paths are all in the task's `**Writes:**`, and no
+     test file is among them;
    - the task's verification command is green.
 5. The rest of the wave — suite, review, commit, PR comment — is unchanged.
 
-Fix loop: rounds 1–2 go to `codex.sh green <thread-id> <prompt-file>`, the
-prompt file holding the findings verbatim; round 3 goes to a fresh Claude
-implementer on the session's model. After each round sent to `codex.sh green`,
-run Gate green again before the wave goes on. A Gate green failure of any kind
-— checksum, `**Writes:**` set or verification — consumes that round; after
-round 2 the task goes to a fresh Claude implementer. When `codex.sh` exits non-zero, the task goes to a Claude
-implementer at once and the wave's PR comment names the exit code. Exit `75`
+When any gate after Gate red finds a checksum mismatch, first restore the test
+files from the scratchpad copy, then tell the next implementer — the Codex
+round or the fresh Claude implementer — that the tests were edited and
+restored.
+
+Fix loop: a Gate green failure right after step 3 counts as round 1, and its
+findings are the gate's output. Rounds 1–2 go to
+`codex.sh green <thread-id> <prompt-file>`, the prompt file holding the
+findings verbatim; round 3 goes to a fresh Claude implementer on the session's
+model. After each round sent to `codex.sh green`, run Gate green again before
+the wave goes on. A Gate green failure of any kind — checksum, `**Writes:**`
+set or verification — consumes that round; after round 2 the task goes to a
+fresh Claude implementer. When `codex.sh` exits non-zero, the task goes to a
+Claude implementer at once and the wave's PR comment names the exit code. Exit `75`
 means the ChatGPT plan's usage limit: tell the user in one line that Codex is
 off for the rest of the session and Claude usage is no longer being saved.
 Exit `1` from `codex.sh review` with `codex: nothing to review` means an empty
@@ -172,8 +192,8 @@ plan stays the single source of requirements:
 - `model` set to the session's model, per **Models**.
 
 A task whose block says `**Executor:** codex` is not dispatched through the
-Agent tool: run it through **Codex tasks**, started in the same message as the
-wave's Claude dispatches. When `codex.sh available` exits non-zero at build
+Agent tool: run it through **Codex tasks**, started only after all of the
+wave's Claude implementers have reported, one Codex call at a time. When `codex.sh available` exits non-zero at build
 time, dispatch it as a Claude task and say so in the wave's PR comment.
 
 A dispatch describes one task and its required context. The plan and journal

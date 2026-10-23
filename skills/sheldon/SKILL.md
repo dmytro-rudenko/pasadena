@@ -23,6 +23,7 @@ allowed-tools:
   - Bash(ls *)
   - Bash(rg *)
   - Bash(wc *)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/codex.sh *)
 disallowed-tools:
   - NotebookEdit
 ---
@@ -101,7 +102,10 @@ the existing repository context.
 When `codex.sh available` exits 0 (`codex.sh` lives beside `journal.sh`), hand
 the survey of a large repository to `codex.sh explore <prompt-file>` and ask
 for facts with `file:line`. The questions and the design stay yours; confirm
-with one `Read` or `grep` each fact a question or the spec rests on.
+with one `Read` or `grep` each fact a question or the spec rests on. When
+`codex.sh explore` exits non-zero, do the survey yourself; on exit `75` also
+tell the user once that Codex is off and Claude usage is no longer being
+saved.
 
 **Check the scope before moving into details.** If the request describes several
 independent subsystems ("a platform with chat, storage, billing, and analytics"),

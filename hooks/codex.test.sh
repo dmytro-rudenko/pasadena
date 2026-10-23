@@ -57,6 +57,15 @@ case "${FAKE_MODE:-ok}" in
     wait
     exit 0
     ;;
+  stubborn)
+    echo "$$" >"$FAKE_LOG.stubborn"
+    trap '' TERM
+    while :; do sleep 1; done
+    ;;
+  writes)
+    echo made >"$PWD/made-by-codex.txt"
+    echo by-codex >>"$PWD/f.txt"
+    ;;
   ratelimit) ev '{"type":"error","message":"rate limit exceeded, retrying"}' ;;
   diskquota)
     ev '{"type":"error","message":"Disk quota exceeded"}'
@@ -155,6 +164,11 @@ assert_contains "$(cat "$FAKE_LOG.stdin")" "+second" "review pipes the local dif
 assert_contains "$(cat "$FAKE_LOG.stdin")" "+third" "review includes uncommitted changes"
 assert_contains "$(cat "$FAKE_LOG.stdin")" "+brand-new" "review includes untracked files"
 assert_contains "$(cat "$FAKE_LOG.stdin")" "+cyrillic-name" "review includes untracked files with non-ASCII names"
+mkdir -p "$repo/sub"
+: >"$FAKE_LOG.stdin"
+(cd "$repo/sub" && env PATH="$bin:$PATH" bash "$CODEX_SH" review "$base" "$prompt") >/dev/null 2>&1; st=$?
+assert_eq "$st" 0 "review from a subdirectory exits 0"
+assert_contains "$(cat "$FAKE_LOG.stdin")" "+brand-new" "review from a subdirectory includes untracked files at the top"
 cx review not-a-ref "$prompt" >/dev/null 2>&1; assert_eq "$?" 2 "unknown base is a usage error"
 
 echo "== red / green =="
@@ -170,8 +184,19 @@ out="$(cx red "$prompt" 2>&1)"
 assert_eq "$(sed -n 1p <<<"$out")" "fake-thread-1" "red prints the thread id first even with stderr merged"
 assert_contains "$(tail -n 1 <<<"$out")" "codex usage:" "usage line comes last"
 assert_eq "$(sed -n 2p <<<"$out")" "final answer" "red final message is its own line with stderr merged"
-assert_eq "$(wc -l <<<"$out" | tr -d ' ')" 3 "red merged output is thread id, final answer, usage line"
+assert_eq "$(sed -n 3p <<<"$out")" "codex changed:" "red that changes nothing reports an empty change list"
+assert_eq "$(wc -l <<<"$out" | tr -d ' ')" 4 "red merged output is thread id, final answer, change list, usage line"
 cx FAKE_MODE=nothread red "$prompt" >/dev/null 2>&1; assert_eq "$?" 1 "red without a thread id is a failure"
+err="$(cx FAKE_MODE=writes red "$prompt" 2>&1 >/dev/null)"
+changed="$(grep '^codex changed:' <<<"$err")"
+assert_contains "$changed" " f.txt" "change list names a modified tracked file"
+assert_contains "$changed" " made-by-codex.txt" "change list names a new file"
+[[ -n "$changed" && "$changed" != *" new.txt"* ]]; assert_eq "$?" 0 "change list leaves out untouched untracked files"
+rm -f "$repo/made-by-codex.txt"
+
+: >"$FAKE_LOG"
+cx green --dangerously-bypass-approvals-and-sandbox "$prompt" >/dev/null 2>&1; assert_eq "$?" 2 "green rejects a thread id that looks like a flag"
+assert_eq "$(cat "$FAKE_LOG")" "" "green with a bad thread id does not call codex"
 
 : >"$FAKE_LOG"
 out="$(cx green fake-thread-1 "$prompt" 2>/dev/null)"; st=$?
@@ -201,6 +226,22 @@ kill -TERM "$cxpid"
 wait "$cxpid"; assert_eq "$?" 143 "TERM to codex.sh exits 143"
 sleep 1
 kill -0 "$(cat "$FAKE_LOG.child")" 2>/dev/null; assert_eq "$?" 1 "TERM to codex.sh stops the command codex is running"
+rm -f "$FAKE_LOG.stubborn"
+start="$(date +%s)"
+(cd "$repo" && exec env PATH="$bin:$PATH" FAKE_MODE=stubborn PASADENA_CODEX_IDLE=1 bash "$CODEX_SH" explore "$prompt") >/dev/null 2>&1 &
+cxpid=$!
+while kill -0 "$cxpid" 2>/dev/null && [ $(($(date +%s) - start)) -lt 15 ]; do sleep 0.2; done
+if kill -0 "$cxpid" 2>/dev/null; then
+  kill -KILL "$cxpid" 2>/dev/null
+  st=timeout
+else
+  wait "$cxpid"; st=$?
+fi
+assert_eq "$st" 124 "codex that ignores TERM is killed and stopped with 124 within 15s"
+stubborn_pid="$(cat "$FAKE_LOG.stubborn" 2>/dev/null)"
+kill -0 "$stubborn_pid" 2>/dev/null; st=$?
+[ -n "$stubborn_pid" ] && kill -KILL -- "-$stubborn_pid" "$stubborn_pid" 2>/dev/null
+assert_eq "$st" 1 "codex that ignores TERM is gone after the stop"
 cx FAKE_MODE=cmd PASADENA_CODEX_IDLE=1 PASADENA_CODEX_CMD_IDLE=10 explore "$prompt" >/dev/null 2>&1
 assert_eq "$?" 0 "a running command gets the command idle limit"
 

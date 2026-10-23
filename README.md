@@ -142,7 +142,7 @@ When the Codex CLI is installed and logged in, the skills hand part of the work 
 | `PASADENA_CODEX_CMD_IDLE` | `600` | the same limit while Codex runs a command |
 | `PASADENA_CODEX_MODEL` | — | passed to Codex as `-m` |
 
-Codex spends your ChatGPT plan's usage. When it runs out, `hooks/codex.sh` exits `75`, the skills tell you once, and delegation stays off for six hours or until you delete `~/.local/state/pasadena/codex-exhausted`.
+Codex spends your ChatGPT plan's usage. When it runs out, `hooks/codex.sh` exits `75`, the skills tell you once, and delegation stays off for six hours or until you delete `pasadena/codex-exhausted` under `${XDG_STATE_HOME:-~/.local/state}`.
 
 ## Checks
 

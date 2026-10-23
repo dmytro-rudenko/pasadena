@@ -23,6 +23,7 @@ allowed-tools:
   - Bash(ls *)
   - Bash(rg *)
   - Bash(wc *)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/codex.sh *)
 ---
 
 # Planning
@@ -81,7 +82,9 @@ the bulk reading to `codex.sh explore <prompt-file>`: ask for the stack,
 conventions, reusable helpers and the files each task touches, as facts with
 `file:line`. You draw the conclusions. Confirm with one `Read` or `grep` every
 fact a task will rely on — a signature, a name, a path — before it goes into
-the plan.
+the plan. When `codex.sh explore` exits non-zero, do the reading yourself; on
+exit `75` also tell the user once that Codex is off and Claude usage is no
+longer being saved.
 
 ## 2. Write the plan into the native plan file
 

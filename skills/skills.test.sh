@@ -130,7 +130,6 @@ for readme in README.md README.uk.md; do
     grep -qF -- "$needle" "$ROOT/$readme" || fail "$readme: missing \"$needle\""
   done
 done
-grep -q '"version": "0.10.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: version is not 0.10.0"
 [ "$fails" -eq "$before" ] && ok "codex delegation documented"
 
 echo "Manifest versions"
