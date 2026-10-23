@@ -1,7 +1,7 @@
 ---
 branch: test/codex-cli-runtime-20261023
 spec: docs/sdd/specs/2026-10-23-cli-runtime.md
-plan: -
+plan: docs/sdd/plans/2026-10-23-cli-runtime.md
 status: in-progress
 started: 2026-10-23
 ---
@@ -11,7 +11,7 @@ Disposable CLI acceptance: two independent arithmetic shell functions, real para
 
 ## Now
 
-Planning: agreed spec committed at e013f01; disposable draft PR https://github.com/dmytro-rudenko/pasadena/pull/19 opened. Installed Leonard and Codex adapter fully loaded; chat plan awaiting explicit approval; plan pointer intentionally unset. Next: approve chat plan, persist docs/sdd/plans/2026-10-23-cli-runtime.md:1, then Task0 RED via node tests/cli-runtime/acceptance.cjs. Preserve unchanged: existing Pasadena implementation; this branch/remote only; no merge/publish; PR stays draft.
+Building: plan explicitly approved and persisted; installed Wolowitz, Amy and Codex adapter loaded. Execute Task0 RED only, review and controller commit, then deliberately pause before Wave1. Next: tests/cli-runtime/acceptance.cjs via node tests/cli-runtime/acceptance.cjs. Preserve unchanged: no sum.js/double.js yet, existing Pasadena files, fixture branch/remote only; PR #19 stays draft; no merge/publish.
 
 ## Timeline
 
@@ -25,3 +25,10 @@ Planning: agreed spec committed at e013f01; disposable draft PR https://github.c
 - 16:00 ✎ User explicitly approved arithmetic specification; agreed spec persisted and journal spec pointer set; planning approval still pending.
 - 16:00 ● e013f01 docs(cli-runtime): record agreed acceptance fixture spec
 - 16:01 ✎ Draft PR #19 opened from approved spec commit e013f01; installed Leonard loaded; Wave0 RED and concurrent Wave1 plan presented for explicit approval; no tests or implementation written.
+- 16:01 ● df8af5d docs(journal): record draft PR and planning approval checkpoint
+- 16:01 ⏸ pause · other · HEAD=df8af5d
+- 16:02 ▶ start · test/codex-cli-runtime-20261023 @ df8af5d
+- 16:02 ▶ start · test/codex-cli-runtime-20261023 @ df8af5d
+- 16:02 ⏸ pause · other · HEAD=df8af5d
+  ↳ Planning: agreed spec committed at e013f01; disposable draft PR https://github.com/dmytro-rudenko/pasadena/pull/19 opened. Installed Leonard and Codex adapter fully loaded; chat plan awaiting explicit
+- 16:03 ✎ Approved plan persisted and plan pointer set; Wave0 execution authorized with deliberate recovery pause before Wave1.
