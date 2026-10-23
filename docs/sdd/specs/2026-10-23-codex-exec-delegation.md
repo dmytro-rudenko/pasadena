@@ -53,7 +53,7 @@ Claude-субагентів, хоча Codex не може викликати `pa
 |---|---|---|
 | `available` | exit 0, коли делегування можливе; інакше 1, без виводу | перевіряє `PASADENA_CODEX` ≠ `0`, `command -v codex`, `codex login status` з exit 0 |
 | `explore <prompt-file>` | stdout — фінальна відповідь агента | `codex exec -s read-only -C "$PWD" --json -o <tmp> - < <prompt-file>` |
-| `review <base-sha> <prompt-file>` | stdout — звіт ревʼюера | `git diff <base-sha>..HEAD \| codex exec -s read-only -C "$PWD" --json -o <tmp> "$(cat <prompt-file>)"`; diff потрапляє в промпт як блок `<stdin>` |
+| `review <base-sha> <prompt-file>` | stdout — звіт ревʼюера | `git diff <base-sha>` (робоче дерево проти base, бо review хвилі йде до коміту) плюс кожен untracked файл як `git diff --no-index /dev/null <file>` → stdin `codex exec -s read-only -C "$PWD" --json -o <tmp> "$(cat <prompt-file>)"`; порожній diff → exit 1 без виклику Codex |
 | `red <prompt-file>` | рядок 1 stdout — `thread_id`, далі фінальне повідомлення | `codex exec -s workspace-write -C "$PWD" --json -o <tmp> - < <prompt-file>` |
 | `green <thread-id> <prompt-file>` | stdout — фінальне повідомлення | `codex exec resume <thread-id> -c sandbox_mode="workspace-write" --json -o <tmp> - < <prompt-file>` |
 
@@ -77,7 +77,9 @@ Claude-субагентів, хоча Codex не може викликати `pa
   причину в stderr. Скрипт нічого не повторює сам: це рішення контролера.
 - **Вичерпаний ліміт ChatGPT-плану.** Якщо в потоці є подія `error` або
   `turn.failed`, повідомлення якої відповідає регулярному виразу
-  `usage limit|rate limit|quota` без урахування регістру, скрипт виходить з
+  `usage limit|insufficient_quota` без урахування регістру (тимчасовий
+  `rate limit` Codex повторює сам, а голе `quota` ловило б і
+  `Disk quota exceeded`), скрипт виходить з
   кодом `75` і створює маркер
   `${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex-exhausted`. Маркер
   лежить поза репозиторієм, бо ліміт належить акаунту, а не проєкту. Поки маркер
@@ -117,8 +119,11 @@ Claude-субагентів, хоча Codex не може викликати `pa
 5. Далі звичайний цикл хвилі без змін: suite, review, commit, PR-коментар.
 
 **Fix loop і фолбек.** Fix loop має ті самі три раунди, що й зараз. Раунди 1–2 —
-це `codex.sh green` у ту саму сесію з дослівними знахідками. Раунд 3 —
-свіжий Claude-implementer на моделі сесії, тобто задачу забирають у Codex.
+це `codex.sh green <thread-id> <prompt-file>` у ту саму сесію з дослівними
+знахідками, і після кожного раунду Gate green проходить знову: будь-який його
+провал забирає раунд. Раунд 3 — свіжий Claude-implementer на моделі сесії,
+тобто задачу забирають у Codex. Gate red має не більше двох повторів, після
+чого задача теж переходить до Claude.
 Якщо `codex.sh` повертає ≠ 0 (зокрема `124`), задача одразу переходить до
 Claude-implementer'а, і PR-коментар хвилі називає причину. Код `75` (ліміт)
 контролер ще й **одним рядком у чаті** повідомляє користувачу, бо з цього
@@ -145,8 +150,10 @@ Claude. Факт, на який спирається план або фікс (�
 ### 3.4. Review (друга думка)
 
 У `wolowitz`, крок 4 «Review the wave», `codex.sh review <BASE>
-skills/wolowitz/reviewer-prompt.md` запускається паралельно з
-`fable`-ревʼюером. Те саме робиться для whole-branch review у Finish з
+<prompt-file>` запускається паралельно з `fable`-ревʼюером. `<prompt-file>` —
+заповнена копія `skills/wolowitz/reviewer-prompt.md` у scratchpad, де рядок
+про diff замінено на «diff надходить через stdin як блок `<stdin>`», бо
+review хвилі йде до її коміту. Те саме робиться для whole-branch review у Finish з
 `git merge-base <trunk> HEAD`.
 
 Як контролер зводить знахідки:
