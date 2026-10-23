@@ -51,6 +51,17 @@ ev() { printf '%s\n' "$1"; }
 case "${FAKE_MODE:-ok}" in
   hang) exec sleep 30 ;;
   fail) exit 3 ;;
+  child)
+    sleep 30 &
+    echo "$!" >"$FAKE_LOG.child"
+    wait
+    exit 0
+    ;;
+  ratelimit) ev '{"type":"error","message":"rate limit exceeded, retrying"}' ;;
+  diskquota)
+    ev '{"type":"error","message":"Disk quota exceeded"}'
+    exit 1
+    ;;
   quota)
     ev '{"type":"turn.failed","error":{"message":"You have hit your usage limit. Try again later."}}'
     exit 1
@@ -125,6 +136,11 @@ assert_contains "$(cat "$FAKE_LOG")" "-m gpt-test" "PASADENA_CODEX_MODEL adds -m
 
 echo "== review =="
 : >"$FAKE_LOG"
+cx review HEAD "$prompt" >/dev/null 2>&1; assert_eq "$?" 1 "review with nothing to review is a failure"
+assert_eq "$(cat "$FAKE_LOG")" "" "review with nothing to review does not call codex"
+echo third >>"$repo/f.txt"
+echo brand-new >"$repo/new.txt"
+echo cyrillic-name >"$repo/файл.txt"
 cx review "$base" "$prompt" >/dev/null 2>&1; st=$?
 assert_eq "$st" 0 "review exits 0"
 assert_contains "$(cat "$FAKE_LOG")" "exec -s read-only -C $repo --json -o" "review runs read-only"
@@ -132,6 +148,9 @@ assert_contains "$(cat "$FAKE_LOG")" "PROMPT-MARKER" "review passes the prompt a
 line="$(cat "$FAKE_LOG")"
 [ -n "$line" ] && [ "${line: -2}" != " -" ]; assert_eq "$?" 0 "review does not read the prompt from stdin (-)"
 assert_contains "$(cat "$FAKE_LOG.stdin")" "+second" "review pipes the local diff on stdin"
+assert_contains "$(cat "$FAKE_LOG.stdin")" "+third" "review includes uncommitted changes"
+assert_contains "$(cat "$FAKE_LOG.stdin")" "+brand-new" "review includes untracked files"
+assert_contains "$(cat "$FAKE_LOG.stdin")" "+cyrillic-name" "review includes untracked files with non-ASCII names"
 cx review not-a-ref "$prompt" >/dev/null 2>&1; assert_eq "$?" 2 "unknown base is a usage error"
 
 echo "== red / green =="
@@ -143,6 +162,9 @@ assert_eq "$(sed -n 2p <<<"$out")" "final answer" "red prints the final message 
 assert_contains "$(cat "$FAKE_LOG")" "exec -s workspace-write -C $repo --json -o" "red runs workspace-write"
 line="$(cat "$FAKE_LOG")"
 assert_eq "${line: -2}" " -" "red reads the prompt from stdin (-)"
+out="$(cx red "$prompt" 2>&1)"
+assert_eq "$(sed -n 1p <<<"$out")" "fake-thread-1" "red prints the thread id first even with stderr merged"
+assert_contains "$(tail -n 1 <<<"$out")" "codex usage:" "usage line comes last"
 cx FAKE_MODE=nothread red "$prompt" >/dev/null 2>&1; assert_eq "$?" 1 "red without a thread id is a failure"
 
 : >"$FAKE_LOG"
@@ -159,6 +181,20 @@ start="$(date +%s)"
 cx FAKE_MODE=hang PASADENA_CODEX_IDLE=1 explore "$prompt" >/dev/null 2>&1; st=$?
 assert_eq "$st" 124 "silent codex is stopped with 124"
 assert_eq "$(( $(date +%s) - start < 10 ))" 1 "idle stop happens within seconds"
+cx FAKE_MODE=child PASADENA_CODEX_IDLE=1 explore "$prompt" >/dev/null 2>&1; assert_eq "$?" 124 "silent codex with a child is stopped with 124"
+sleep 1
+kill -0 "$(cat "$FAKE_LOG.child")" 2>/dev/null; assert_eq "$?" 1 "idle stop kills the command codex is running"
+rm -f "$FAKE_LOG.child"
+(cd "$repo" && exec env PATH="$bin:$PATH" FAKE_MODE=child PASADENA_CODEX_IDLE=30 bash "$CODEX_SH" explore "$prompt") >/dev/null 2>&1 &
+cxpid=$!
+for _ in $(seq 50); do
+  [ -s "$FAKE_LOG.child" ] && break
+  sleep 0.1
+done
+kill -TERM "$cxpid"
+wait "$cxpid"; assert_eq "$?" 143 "TERM to codex.sh exits 143"
+sleep 1
+kill -0 "$(cat "$FAKE_LOG.child")" 2>/dev/null; assert_eq "$?" 1 "TERM to codex.sh stops the command codex is running"
 cx FAKE_MODE=cmd PASADENA_CODEX_IDLE=1 PASADENA_CODEX_CMD_IDLE=10 explore "$prompt" >/dev/null 2>&1
 assert_eq "$?" 0 "a running command gets the command idle limit"
 
@@ -168,6 +204,10 @@ cx FAKE_MODE=quota explore "$prompt" >/dev/null 2>&1; assert_eq "$?" 75 "usage l
 assert_eq "$([ -e "$marker" ] && echo present || echo gone)" present "usage limit leaves the marker"
 cx available; assert_eq "$?" 1 "available is off after the usage limit"
 rm -f "$marker"
+cx FAKE_MODE=ratelimit explore "$prompt" >/dev/null 2>&1; assert_eq "$?" 0 "transient rate limit is not a usage limit"
+assert_eq "$([ -e "$marker" ] && echo present || echo gone)" gone "transient rate limit leaves no marker"
+cx FAKE_MODE=diskquota explore "$prompt" >/dev/null 2>&1; assert_eq "$?" 1 "disk quota is a plain failure"
+assert_eq "$([ -e "$marker" ] && echo present || echo gone)" gone "disk quota leaves no marker"
 cx FAKE_MODE=nofile explore "$prompt" >/dev/null 2>&1; assert_eq "$?" 1 "missing final message file is a failure"
 cx FAKE_MODE=empty explore "$prompt" >/dev/null 2>&1; assert_eq "$?" 1 "empty final message file is a failure"
 cx FAKE_MODE=fail explore "$prompt" >/dev/null 2>&1; assert_eq "$?" 1 "codex exit != 0 is a failure"
