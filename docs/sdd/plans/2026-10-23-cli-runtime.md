@@ -19,9 +19,9 @@ Use only test/codex-cli-runtime-20261023 and dmytro-rudenko/pasadena. Keep PR #1
 **Depends on:** none
 **Interfaces:** Produces selected `sum` and `double` suites; no argument runs both. Uses node:assert/strict. Reports failure for each missing module; full success ends `All checks passed.`.
 **Covers:** positive, negative and zero results for both functions; TypeError for fractions, NaN, infinities, strings, null, undefined, booleans, objects and BigInt; sum validates either operand. Direct exports and Number arithmetic.
-- [ ] Write acceptance runner with independent selected suites and explicit behavioral assertions.
-- [ ] Run `node tests/cli-runtime/acceptance.cjs` before either production module exists; expect nonzero and missing-module evidence for both suites.
-- [ ] Controller verifies RED, reviewer inspects all task-owned untracked contents, controller commits Task0.
+- [x] Write acceptance runner with independent selected suites and explicit behavioral assertions.
+- [x] Run `node tests/cli-runtime/acceptance.cjs` before either production module exists; expect nonzero and missing-module evidence for both suites.
+- [x] Controller verifies RED, reviewer inspects all task-owned untracked contents, controller commits Task0.
 **Commit:** test(cli-runtime): add arithmetic acceptance runner before implementation to establish independent sum and double contracts, reject invalid operands, support focused verification, and preserve genuine red evidence for the disposable workflow recovery fixture
 
 ### Task 1: sum
