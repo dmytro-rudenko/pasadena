@@ -130,6 +130,10 @@ assert_eq "${line: -2}" " -" "explore reads the prompt from stdin (-)"
 assert_contains "$(cat "$FAKE_LOG.stdin")" "PROMPT-MARKER" "explore passes the prompt file on stdin"
 assert_contains "$(cat "$tmp/err")" "codex usage: input=100 cached=40 output=7" "usage line on stderr"
 
+out="$(cx explore "$prompt" 2>&1)"
+assert_eq "$(sed -n 1p <<<"$out")" "final answer" "explore final message is its own line with stderr merged"
+assert_contains "$(tail -n 1 <<<"$out")" "codex usage:" "explore usage line is its own last line"
+
 : >"$FAKE_LOG"
 cx PASADENA_CODEX_MODEL=gpt-test explore "$prompt" >/dev/null 2>&1
 assert_contains "$(cat "$FAKE_LOG")" "-m gpt-test" "PASADENA_CODEX_MODEL adds -m"
@@ -165,6 +169,8 @@ assert_eq "${line: -2}" " -" "red reads the prompt from stdin (-)"
 out="$(cx red "$prompt" 2>&1)"
 assert_eq "$(sed -n 1p <<<"$out")" "fake-thread-1" "red prints the thread id first even with stderr merged"
 assert_contains "$(tail -n 1 <<<"$out")" "codex usage:" "usage line comes last"
+assert_eq "$(sed -n 2p <<<"$out")" "final answer" "red final message is its own line with stderr merged"
+assert_eq "$(wc -l <<<"$out" | tr -d ' ')" 3 "red merged output is thread id, final answer, usage line"
 cx FAKE_MODE=nothread red "$prompt" >/dev/null 2>&1; assert_eq "$?" 1 "red without a thread id is a failure"
 
 : >"$FAKE_LOG"

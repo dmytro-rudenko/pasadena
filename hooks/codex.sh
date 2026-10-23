@@ -29,6 +29,11 @@ model_args=()
 
 codex_pid=""
 
+print_last() {
+  cat "$last"
+  [ -z "$(tail -c 1 "$last")" ] || echo
+}
+
 stop_codex() {
   [ -n "$codex_pid" ] || return 0
   kill -0 -- "-$codex_pid" 2>/dev/null || kill -0 "$codex_pid" 2>/dev/null || return 0
@@ -96,7 +101,7 @@ case "$sub" in
   explore)
     [ -f "${2:-}" ] || usage
     run "$2" exec -s read-only -C "$PWD" ${model_args[@]+"${model_args[@]}"} --json -o "$last" - || exit $?
-    cat "$last"
+    print_last
     ;;
   review)
     [ -f "${3:-}" ] || usage
@@ -110,7 +115,7 @@ case "$sub" in
       exit 1
     fi
     run "$work/diff" exec -s read-only -C "$PWD" ${model_args[@]+"${model_args[@]}"} --json -o "$last" "$(cat "$3")" || exit $?
-    cat "$last"
+    print_last
     ;;
   red)
     [ -f "${2:-}" ] || usage
@@ -121,11 +126,11 @@ case "$sub" in
       exit 1
     fi
     echo "$thread"
-    cat "$last"
+    print_last
     ;;
   green)
     [ -n "${2:-}" ] && [ -f "${3:-}" ] || usage
     run "$3" exec resume "$2" -c 'sandbox_mode="workspace-write"' ${model_args[@]+"${model_args[@]}"} --json -o "$last" - || exit $?
-    cat "$last"
+    print_last
     ;;
 esac
