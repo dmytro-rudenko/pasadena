@@ -615,8 +615,8 @@ Codex витрачає ліміти вашого ChatGPT-плану. Коли в
 **Executor:** claude (run by the controller itself, not dispatched)
 **Covers:** spec §6 item 4
 
-- [ ] **Step 1:** `bash hooks/codex.sh available; echo $?` → `0`; `PASADENA_CODEX=0 bash hooks/codex.sh available; echo $?` → `1` (a `codex` task then runs as a Claude task).
-- [ ] **Step 2:** in `<scratchpad>/e2e`, `git init` and commit an empty base; write `plan.md` with one task: **Writes:** `sum.sh`, `sum.test.sh`; `sum.sh` prints the sum of its two integer arguments; verification `bash sum.test.sh`, expect `All checks passed.`; red reason: `sum.sh: No such file`.
-- [ ] **Step 3: red** — build the prompt file per `## Codex tasks` in `skills/wolowitz/SKILL.md`, run `bash <repo>/hooks/codex.sh red <prompt>` from `<scratchpad>/e2e`; Gate red: only `sum.test.sh` exists, `bash sum.test.sh` fails with `No such file`; record `sha256sum sum.test.sh`.
-- [ ] **Step 4: green** — `bash <repo>/hooks/codex.sh green <thread-id> <prompt>`; Gate green: `sha256sum sum.test.sh` unchanged, `bash sum.test.sh` → `All checks passed.`
-- [ ] **Step 5:** paste both gate outputs and both `codex usage:` lines into the wave's PR comment.
+- [x] **Step 1:** `bash hooks/codex.sh available; echo $?` → `0`; `PASADENA_CODEX=0 bash hooks/codex.sh available; echo $?` → `1` (a `codex` task then runs as a Claude task).
+- [x] **Step 2:** in `<scratchpad>/e2e`, `git init` and commit an empty base; write `plan.md` with one task: **Writes:** `sum.sh`, `sum.test.sh`; `sum.sh` prints the sum of its two integer arguments; verification `bash sum.test.sh`, expect `All checks passed.`; red reason: `sum.sh: No such file`.
+- [x] **Step 3: red** — build the prompt file per `## Codex tasks` in `skills/wolowitz/SKILL.md`, run `bash <repo>/hooks/codex.sh red <prompt>` from `<scratchpad>/e2e`; Gate red: only `sum.test.sh` exists, `bash sum.test.sh` fails with `No such file`; record `sha256sum sum.test.sh`.
+- [x] **Step 4: green** — `bash <repo>/hooks/codex.sh green <thread-id> <prompt>`; Gate green: `sha256sum sum.test.sh` unchanged, `bash sum.test.sh` → `All checks passed.`
+- [x] **Step 5:** paste both gate outputs and both `codex usage:` lines into the wave's PR comment.

@@ -12,9 +12,9 @@ started: 2026-10-23
 Готово, коли є погоджена специфікація, реалізація за планом і перевірка.
 
 ## Now
-1. Building: Waves 0–1 закриті, усі 5 тестових скриптів зелені; codex.sh пройшов 2 fix-раунди (див. PR-коментар Wave 1).
-2. Зупинились на: Wave 2 — Task 6, E2E зі справжнім codex у scratchpad.
-3. Далі: Task 6 у docs/sdd/plans/2026-10-23-codex-exec-delegation.md (red → gate → green → gate на sum.sh), потім Finish: whole-branch review на fable, security-review, journal finish, `gh pr ready`. Зберегти: перевірка «Claude Code only» тепер ловить лише артефакти хоста (список шаблонів — у skills/skills.test.sh).
+1. Building: усі хвилі закриті; E2E зі справжнім codex пройшов red → gate → green → gate.
+2. Зупинились на: Finish.
+3. Далі: whole-branch review на fable, security-review, journal finish, `gh pr ready`. Зберегти: перевірка «Claude Code only» тепер ловить лише артефакти хоста (список шаблонів — у skills/skills.test.sh).
 
 ## Timeline
 
@@ -33,3 +33,6 @@ started: 2026-10-23
 - 14:06 ● 7aa744a feat(leslie,sheldon): delegate bulk reading to codex.sh explore
 - 14:06 ● f5bdb55 docs: document Codex delegation and bump to 0.10.0
 - 14:06 ● 6b3515d docs(spec): record wave 1 review rulings
+- 14:07 ● 48cfc77 docs(plan): close wave 1
+- 14:07 ✎ Wave 1: codex.sh + 4 skills + README зелені; ревʼю довело, що review мусить читати незакомічене дерево, а idle/TERM мають вбивати групу процесів Codex
+- 14:10 ● 0e8e9ec fix(hooks): end codex.sh output with a newline
