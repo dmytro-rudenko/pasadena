@@ -71,9 +71,11 @@ A simple-looking bug still has a root cause, and Phase 1 finds it quickly.
 3. When the code follows a reference implementation, read the reference
    completely rather than skimming it.
 
-In both phases, when `codex.sh available` exits 0 (`codex.sh` lives beside
-`journal.sh`), hand the bulk reading — where the code lives, the call chain,
-working analogues and their differences — to `codex.sh explore <prompt-file>`,
+In both phases, when the session-start digest says `Codex: available` (no
+digest: run `codex.sh available` beside `journal.sh` once), hand the reading
+past two or three pinpoint lookups — where the code lives, the call chain,
+working analogues and their differences, anything you would otherwise send to
+`Explore` or a read-only fork — to `codex.sh explore <prompt-file>`,
 asking for facts with `file:line`. Reproducing and instrumenting stay yours,
 and so does the hypothesis: confirm each fact it rests on with one `Read` or
 `grep`. When `codex.sh explore` exits non-zero, do the reading yourself; on

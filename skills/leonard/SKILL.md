@@ -77,8 +77,10 @@ Gather context deliberately, so every task carries what an implementer needs:
   wave computation keys on — so getting it exact here is what makes the parallel
   waves safe.
 
-When `codex.sh available` exits 0 (`codex.sh` lives beside `journal.sh`), hand
-the bulk reading to `codex.sh explore <prompt-file>`: ask for the stack,
+When the session-start digest says `Codex: available` (no digest: run
+`codex.sh available` beside `journal.sh` once), the reading past two or three
+pinpoint lookups — everything you would otherwise read file by file or send to
+`Explore` or a read-only fork — goes to `codex.sh explore <prompt-file>`: ask for the stack,
 conventions, reusable helpers and the files each task touches, as facts with
 `file:line`. You draw the conclusions. Confirm with one `Read` or `grep` every
 fact a task will rely on — a signature, a name, a path — before it goes into
