@@ -97,8 +97,8 @@ confirm; say so in the report instead of claiming it fixed.
 
 ## No browser
 
-The skill needs Playwright MCP or Chrome MCP. If neither is available, for
-example in a host without MCP, say so once and stop. Do not fall back to
+The skill needs Playwright MCP or Chrome MCP. If neither is available, say
+so once and stop. Do not fall back to
 guessing layout from the CSS source.
 
 ## Decision rules

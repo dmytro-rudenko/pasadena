@@ -2,7 +2,7 @@
 
 # pasadena
 
-`pasadena`: плагін для Claude Code і Codex, що тримає контекст задачі в гілці, перетворює узгоджений дизайн на план і виконує незалежні задачі паралельно.
+`pasadena`: плагін для Claude Code, що тримає контекст задачі в гілці, перетворює узгоджений дизайн на план і виконує незалежні задачі паралельно.
 
 ## Яку проблему він вирішує
 
@@ -12,7 +12,7 @@ Pasadena зберігає цей контекст у `.pasadena/journal/<гіл�
 
 ## Процес
 
-У Codex запустіть `$pasadena`, у Claude Code — `/pasadena`, щоб продовжити з поточного етапу гілки. `/bazinga` лишається Claude Code-аліасом.
+Запустіть `/pasadena`, щоб продовжити з поточного етапу гілки. `/bazinga` лишається аліасом.
 
 | Скіл | Робота |
 | --- | --- |
@@ -28,25 +28,7 @@ Pasadena зберігає цей контекст у `.pasadena/journal/<гіл�
 
 Front matter журналу та чекбокси плану містять стан процесу. Pasadena не веде окремий файл статусу.
 
-## Встановлення в Codex
-
-З GitHub додай marketplace і встанови Pasadena:
-
-```bash
-codex plugin marketplace add dmytro-rudenko/pasadena
-codex plugin add pasadena@pasadena
-```
-
-Після встановлення відкрий нову задачу. У `/hooks` переглянь і довір hooks
-Pasadena: до цього Codex бачить скіли, але не запускає автоматичне відновлення
-журналу, облік commit, pause-marker чи нагадування про скіли. Оновлення:
-
-```bash
-codex plugin marketplace upgrade pasadena
-codex plugin add pasadena@pasadena
-```
-
-## Встановлення в Claude Code
+## Встановлення
 
 Запуск із локального checkout:
 
@@ -78,7 +60,7 @@ claude plugin validate .
 
 ## Журнал сесії
 
-У Codex керуйте журналом через `$journal start`, `$journal note`, `$journal pause` або `$journal finish`; у Claude Code лишається `/journal`.
+Керуйте журналом через `/journal start`, `/journal note`, `/journal pause` або `/journal finish`.
 
 ```markdown
 ---
@@ -106,15 +88,15 @@ started: 2026-08-10
 
 Змінюється лише `## Now`. Там мають бути поточна фаза, блокер за наявності та конкретний наступний крок із командою перевірки. `## Timeline` лише доповнюється.
 
-Codex використовує чотири hooks; Claude Code додає `StopFailure`:
+Pasadena використовує п'ять hooks:
 
-| Подія | Codex | Claude Code |
-| --- | --- | --- |
-| `SessionStart` | Відновлює контекст журналу й пропонує його завести в гілці задачі. | Те саме |
-| `UserPromptSubmit` | Нагадує агенту викликати leslie для бага або amy для нової поведінки; поза Git-репозиторієм мовчить. | Те саме |
-| `PostToolUse` | Додає коміти, що з'явилися після останнього запису. | Те саме |
-| `SessionEnd` | Додає паузу з HEAD і брудними файлами. | Те саме |
-| `StopFailure` | — | Додає тип помилки. |
+| Подія | Що робить |
+| --- | --- |
+| `SessionStart` | Відновлює контекст журналу й пропонує його завести в гілці задачі. |
+| `UserPromptSubmit` | Нагадує агенту викликати leslie для бага або amy для нової поведінки; поза Git-репозиторієм мовчить. |
+| `PostToolUse` | Додає коміти, що з'явилися після останнього запису. |
+| `SessionEnd` | Додає паузу з HEAD і брудними файлами. |
+| `StopFailure` | Додає тип помилки. |
 
 Хуки читають Git-стан і дописують журнал; `UserPromptSubmit` лише додає контекст до промпту. Git-історію та індекс вони не змінюють.
 

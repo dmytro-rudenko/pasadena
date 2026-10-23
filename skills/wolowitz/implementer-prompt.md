@@ -39,8 +39,7 @@ ambiguity you spotted in the task; nothing else>
    from the controller after your report.
 
 5. **Invoke the `amy` skill before writing any code** — with the Skill tool,
-   as `pasadena:amy` (plain `amy` where the host does not prefix plugin
-   skills) — and follow it for every step. The plan orders its steps red →
+   as `pasadena:amy` — and follow it for every step. The plan orders its steps red →
    green, but that order alone is not amy: her rules on discarding code
    written before its test, checking the failure reason, and the done
    checklist apply on top of it. Say in your report that you invoked it.

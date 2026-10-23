@@ -3,7 +3,6 @@
 set -uo pipefail
 
 HOOK="$(cd "$(dirname "$0")" && pwd)/journal.sh"
-CODEX_HOOKS="$(cd "$(dirname "$0")" && pwd)/hooks.json"
 fails=0
 
 assert_contains() {
@@ -70,19 +69,6 @@ make_canonical_journal() {
     "$d/.claude/journal/$slug.md" >"$d/.pasadena/journal/$slug.md"
 }
 
-echo "== Task 0: Codex hook registration =="
-assert_contains "$(jq -r '.hooks.SessionStart[0].matcher' "$CODEX_HOOKS")" \
-  "startup|resume|clear|compact" "Codex SessionStart events are registered"
-assert_contains "$(jq -r '.hooks.SessionEnd[0].hooks[0].command' "$CODEX_HOOKS")" \
-  '${PLUGIN_ROOT}/hooks/journal.sh" session-end' "Codex hooks use the bundled plugin root"
-assert_empty "$(jq -r '.hooks.StopFailure // empty' "$CODEX_HOOKS")" \
-  "Codex config does not invent StopFailure"
-# Claude Code also auto-discovers hooks/hooks.json — the guard keeps it a no-op there
-for ev in SessionStart PostToolUse SessionEnd; do
-  assert_contains "$(jq -r ".hooks.$ev[0].hooks[0].command" "$CODEX_HOOKS")" \
-    '[ -n "${CLAUDE_PLUGIN_ROOT:-}" ] ||' "$ev is skipped under Claude Code"
-done
-
 echo "== Task 1: path resolution and trunk branches =="
 
 d="$(setup_repo)"
@@ -120,7 +106,7 @@ ctx="$(jq -r '.hookSpecificOutput.additionalContext' <<<"$out")"
 title="$(jq -r '.hookSpecificOutput.sessionTitle // empty' <<<"$out")"
 assert_contains "$ctx" "Stopped at step 2" "context carries the Now section"
 assert_contains "$ctx" "10:00 · seed" "context carries the timeline tail"
-assert_empty "$title" "Codex does not emit a Claude session title"
+assert_empty "$title" "session start does not set a session title"
 assert_contains "$(cat "$d/.claude/journal/feat-x.md")" "▶ start" "start line appended"
 
 # Compact — same session, no second ▶
@@ -132,7 +118,6 @@ printf '{"cwd":"%s","source":"clear"}' "$d" | bash "$HOOK" session-start >/dev/n
 assert_contains "$(grep -c '▶ start' "$d/.claude/journal/feat-x.md")" "2" "clear appends a new ▶"
 rm -rf "$d"
 
-# Codex journals use the provider-neutral path and win over legacy files.
 d="$(setup_repo)"
 git -C "$d" checkout -q -b feat/x
 make_canonical_journal "$d" "feat-x"

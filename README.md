@@ -2,7 +2,7 @@
 
 # pasadena
 
-`pasadena` is a Claude Code and Codex plugin for spec-driven development. It keeps a task journal in the branch, turns an agreed design into a plan, and builds independent plan tasks in parallel.
+`pasadena` is a Claude Code plugin for spec-driven development. It keeps a task journal in the branch, turns an agreed design into a plan, and builds independent plan tasks in parallel.
 
 ## The problem it solves
 
@@ -12,7 +12,7 @@ Pasadena stores that working context in `.pasadena/journal/<branch>.md`. The jou
 
 ## Workflow
 
-Run `$pasadena` in Codex or `/pasadena` in Claude Code to continue from the branch's current stage. `/bazinga` remains a Claude Code alias.
+Run `/pasadena` to continue from the branch's current stage. `/bazinga` remains an alias.
 
 | Skill | Job |
 | --- | --- |
@@ -28,25 +28,7 @@ Run `$pasadena` in Codex or `/pasadena` in Claude Code to continue from the bran
 
 The journal front matter and the plan's checkboxes are the pipeline state. Pasadena does not maintain a second status file.
 
-## Install in Codex
-
-From GitHub, add the repository marketplace and install Pasadena:
-
-```bash
-codex plugin marketplace add dmytro-rudenko/pasadena
-codex plugin add pasadena@pasadena
-```
-
-Open a new task after installing. Review and trust the bundled hooks through
-`/hooks`; until then Codex loads the skills but skips automatic journal context,
-commit tracking, session-end pause markers, and skill reminders. Update with:
-
-```bash
-codex plugin marketplace upgrade pasadena
-codex plugin add pasadena@pasadena
-```
-
-## Install in Claude Code
+## Install
 
 Run the plugin from a local checkout:
 
@@ -78,7 +60,7 @@ claude plugin validate .
 
 ## Session journal
 
-Use `$journal start`, `$journal note`, `$journal pause`, or `$journal finish` in Codex; Claude Code keeps `/journal`.
+Use `/journal start`, `/journal note`, `/journal pause`, or `/journal finish`.
 
 ```markdown
 ---
@@ -106,15 +88,15 @@ Keep `## Goal`, `## Now`, and `## Timeline` in English. Hooks parse those headin
 
 `## Now` is the only section that changes. It records the current phase, the blocker if there is one, and a concrete next step with a verification command. `## Timeline` only grows.
 
-Codex uses four hooks; Claude Code adds `StopFailure`:
+Pasadena uses five hooks:
 
-| Event | Codex | Claude Code |
-| --- | --- | --- |
-| `SessionStart` | Restores the journal context and offers to start one on a task branch. | Same |
-| `UserPromptSubmit` | Reminds the agent to invoke leslie for a bug or amy for new behaviour; silent outside a Git repo. | Same |
-| `PostToolUse` | Adds commits that appeared since the last journal entry. | Same |
-| `SessionEnd` | Adds a pause marker with HEAD and dirty files. | Same |
-| `StopFailure` | — | Adds the failure type. |
+| Event | What it does |
+| --- | --- |
+| `SessionStart` | Restores the journal context and offers to start one on a task branch. |
+| `UserPromptSubmit` | Reminds the agent to invoke leslie for a bug or amy for new behaviour; silent outside a Git repo. |
+| `PostToolUse` | Adds commits that appeared since the last journal entry. |
+| `SessionEnd` | Adds a pause marker with HEAD and dirty files. |
+| `StopFailure` | Adds the failure type. |
 
 Hooks read Git state and append to the journal; `UserPromptSubmit` only adds context to the prompt. They do not modify Git history or the index.
 

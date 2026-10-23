@@ -69,15 +69,13 @@ pick a cheaper one to save cost:
 | Wave reviewer and whole-branch review | `fable` |
 | Read-only `Explore` lookup | `sonnet` is allowed |
 
-`sonnet` and `haiku` never write code and never review. On a host without these
-names, use its closest equivalent.
+`sonnet` and `haiku` never write code and never review.
 
 ## Without subagents
 
 When the session has no Agent tool, you run the wave's tasks yourself, one at a
 time, in task order. Before the first task, invoke the `amy` skill with the
-Skill tool, as `pasadena:amy` (plain `amy` where the host does not prefix
-plugin skills), and take every task through her cycle. Naming amy in the text
+Skill tool, as `pasadena:amy`, and take every task through her cycle. Naming amy in the text
 does not load her.
 
 The wave review in this mode is yours: read the `BASE..HEAD` diff against the
@@ -90,7 +88,7 @@ you apply its findings and the security-review findings yourself through amy.
 
 1. **Isolation.** Implementation always takes place in a worktree while trunk
    stays unchanged. `sheldon` created one; if it is absent, create it with the
-   available Codex worktree control or `git worktree add`, and say so.
+   `EnterWorktree` tool or `git worktree add`, and say so.
 2. **Journal.** It exists with `spec:` and `plan:` set. Building begins after
    `plan:` is set; an empty value routes the task back to planning.
 3. **The plan.** Read it. Read the `## Waves` table and the `## Global
@@ -158,8 +156,7 @@ remaining work.
 
 When the run is red and one line of the error does not show the cause, do not
 patch by guesswork: invoke the `leslie` skill with the Skill tool, as
-`pasadena:leslie` (plain `leslie` where the host does not prefix plugin
-skills). Leslie diagnoses: she returns the root cause and the fix to make. The
+`pasadena:leslie`. Leslie diagnoses: she returns the root cause and the fix to make. The
 implementer fixes: the fix goes to the task's implementer — through amy when
 the session has no subagents — and the verification runs again.
 
@@ -175,7 +172,7 @@ focuses on the diff and skips duplicate test execution.
 ### 5. Fix loop, at most three rounds
 
 - **Rounds 1–2:** send the open findings, verbatim, back to the implementer
-  that wrote the code through the host's follow-up messaging tool — it still
+  that wrote the code through `SendMessage` — it still
   has the context.
 - **Round 3:** a fresh implementer — on the session's model, per **Models** —
   framed honestly: "two prior attempts failed on this task; you own it now,
@@ -259,7 +256,7 @@ When the last wave is closed:
    that fix dispatch; a finding that needs a decision beyond the code —
    credentials or secrets to rotate, permissions or access policy, data
    already exposed — is the security-sensitive stop gate: pause and put it to
-   the user. When the skill is unavailable (for example in Codex), say
+   the user. When the skill is unavailable, say
    so once and note the skip in the PR comment.
 3. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
    `git rm` the journal, commit `chore(journal): close <task>`.
