@@ -37,7 +37,7 @@ Every task has `**Executor:** claude`: `hooks/codex.sh` does not exist in the in
 - «`bash skills/skills.test.sh` отримує нові перевірки: `leonard/SKILL.md` описує `**Executor:**`; `wolowitz/SKILL.md` згадує `codex.sh red`, `codex.sh green`, gate red і gate green; `wolowitz/implementer-prompt-codex.md` існує і не містить «Skill tool»; версії в маніфестах збігаються»
 - «Наявні `journal.test.sh`, `nudge.test.sh`, `proto/server.test.sh` лишаються зеленими» — covered by the Verification command.
 
-- [ ] **Step 1: write `hooks/codex.test.sh`** (new file, `chmod +x` not needed — run with `bash`):
+- [x] **Step 1: write `hooks/codex.test.sh`** (new file, `chmod +x` not needed — run with `bash`):
 
 ```bash
 #!/usr/bin/env bash
@@ -203,7 +203,7 @@ fi
 echo "All checks passed."
 ```
 
-- [ ] **Step 2: edit `skills/skills.test.sh`** — replace the whole `echo "Claude Code only"` block (from `echo "Claude Code only"` through `[ "$fails" -eq "$before" ] && ok "no Codex support left"`) with:
+- [x] **Step 2: edit `skills/skills.test.sh`** — replace the whole `echo "Claude Code only"` block (from `echo "Claude Code only"` through `[ "$fails" -eq "$before" ] && ok "no Codex support left"`) with:
 
 ```bash
 echo "Claude Code only"
@@ -247,7 +247,7 @@ grep -q '"version": "0.10.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin
 [ "$fails" -eq "$before" ] && ok "codex delegation documented"
 ```
 
-- [ ] **Step 3: run them, watch them fail** —
+- [x] **Step 3: run them, watch them fail** —
   `bash skills/skills.test.sh` → last line `FAILED: 22` (12 `require` + missing prompt file + 8 README needles + version); the "Claude Code only" group stays `ok` although `hooks/codex.test.sh` now mentions codex.
   `bash hooks/codex.test.sh` → last line `FAILED: <n>`, every check failing because `hooks/codex.sh` does not exist (bash exits 127), except "idle stop happens within seconds".
   `bash hooks/journal.test.sh`, `bash hooks/nudge.test.sh`, `bash proto/server.test.sh` → `All checks passed.`
