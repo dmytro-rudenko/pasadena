@@ -25,6 +25,8 @@ allowed-tools:
   - Bash(gh pr edit *)
   - Bash(gh pr ready *)
   - Bash(bash *)
+  - Bash(sha256sum *)
+  - Bash(cp *)
   - Bash(npm *)
   - Bash(pnpm *)
   - Bash(yarn *)
@@ -67,7 +69,7 @@ pick a cheaper one to save cost:
 |---|---|
 | Implementer, including a round-3 fresh implementer | The session's model, as your own system prompt names it: `opus` on Opus, `fable` on Fable |
 | Wave reviewer and whole-branch review | `fable` |
-| Read-only `Explore` lookup | `sonnet` is allowed |
+| Read-only lookup | `codex.sh explore <prompt-file>` when `codex.sh available` exits 0; otherwise `Explore` on `sonnet` |
 
 `sonnet` and `haiku` never write code and never review.
 
@@ -83,6 +85,66 @@ spec and the plan yourself, and say "no subagents" in the wave's PR comment.
 The rest of the loop — verify, commit, comment, close — stays the same. At
 **Finish**, you do the whole-branch review yourself over the branch diff, and
 you apply its findings and the security-review findings yourself through amy.
+`**Executor:** codex` tasks still run through **Codex tasks** when
+`codex.sh available` exits 0; otherwise you implement them yourself through
+amy.
+
+## Codex tasks
+
+`codex.sh` lives beside `journal.sh`; the session-start digest names that
+directory. A task with `**Executor:** codex` runs as two Codex calls with your
+own gates between them, because Codex cannot load amy and its report is not
+evidence. Start every `codex.sh` call through Bash with `run_in_background`.
+
+Start a wave's Codex tasks only after all of the wave's Claude implementers
+have reported, and run Codex calls one at a time. No other writer is active
+during a Codex call, so the `codex changed:` line that `red` and `green` print
+on stderr attributes every change it lists to that call.
+
+1. **Red.** Write a prompt file in the scratchpad: the full text of
+   `skills/amy/SKILL.md`, then `implementer-prompt-codex.md` filled in for the
+   task. Run `codex.sh red <prompt-file>`. Line 1 of its stdout is the thread
+   id; keep it.
+2. **Gate red.** Check it yourself:
+   - the `codex changed:` paths are all test files from the task's
+     `**Writes:**`;
+   - the task's verification command is red, and each failure is the reason
+     the plan predicts — a syntax or import error does not count;
+   - record `sha256sum` of the task's test files and copy those files into
+     the scratchpad.
+   When the gate fails, run `codex.sh green <thread-id> <prompt-file>` with a
+   prompt that names the problem and says to fix the tests only, then run Gate
+   red again. At most two such retries; after that the task goes to a fresh
+   Claude implementer.
+3. **Green.** Run `codex.sh green <thread-id> <prompt-file>` with a prompt that
+   says: write the minimum code that makes these tests pass; do not edit the
+   tests.
+4. **Gate green.**
+   - `sha256sum` of the test files matches the recorded one;
+   - the `codex changed:` paths are all in the task's `**Writes:**`, and no
+     test file is among them;
+   - the task's verification command is green.
+5. The rest of the wave — suite, review, commit, PR comment — is unchanged.
+
+When any gate after Gate red finds a checksum mismatch, first restore the test
+files from the scratchpad copy, then tell the next implementer — the Codex
+round or the fresh Claude implementer — that the tests were edited and
+restored.
+
+Fix loop: a Gate green failure right after step 3 counts as round 1, and its
+findings are the gate's output. Rounds 1–2 go to
+`codex.sh green <thread-id> <prompt-file>`, the prompt file holding the
+findings verbatim; round 3 goes to a fresh Claude implementer on the session's
+model. After each round sent to `codex.sh green`, run Gate green again before
+the wave goes on. A Gate green failure of any kind — checksum, `**Writes:**`
+set or verification — consumes that round; after round 2 the task goes to a
+fresh Claude implementer. When `codex.sh` exits non-zero, the task goes to a
+Claude implementer at once and the wave's PR comment names the exit code. Exit `75`
+means the ChatGPT plan's usage limit: tell the user in one line that Codex is
+off for the rest of the session and Claude usage is no longer being saved.
+Exit `1` from `codex.sh review` with `codex: nothing to review` means an empty
+diff; skip the Codex review for that wave. The wave's PR comment sums the
+`codex usage:` lines its Codex calls printed on stderr.
 
 ## Setup
 
@@ -129,6 +191,11 @@ plan stays the single source of requirements:
   does not load her;
 - `model` set to the session's model, per **Models**.
 
+A task whose block says `**Executor:** codex` is not dispatched through the
+Agent tool: run it through **Codex tasks**, started only after all of the
+wave's Claude implementers have reported, one Codex call at a time. When `codex.sh available` exits non-zero at build
+time, dispatch it as a Claude task and say so in the wave's PR comment.
+
 A dispatch describes one task and its required context. The plan and journal
 remain the source for accumulated history from earlier waves.
 
@@ -165,6 +232,19 @@ the session has no subagents — and the verification runs again.
 One reviewer on `fable` examines the `BASE..HEAD` diff with
 `reviewer-prompt.md`. A complete report contains both verdicts: spec compliance
 and quality.
+
+When `codex.sh available` exits 0, write a prompt file in the scratchpad:
+`reviewer-prompt.md` from this skill's directory, filled in exactly as for the
+`fable` reviewer — `BASE`, the plan's path, the task numbers, the spec's path.
+In this Codex copy, replace the `**The diff:**` line with: the diff arrives on
+stdin as a `<stdin>` block — review that diff; read local files only for
+context. Keep "Do not re-run the tests". Run `codex.sh review <BASE> <prompt-file>` in the background in the same
+message as the `fable` dispatch. The wave is still uncommitted at this point;
+`codex.sh review <BASE>` sends the working tree against `BASE`, untracked
+files included. Every `fable` finding goes to the
+fix loop. A Codex finding goes there only after you confirm it yourself at its
+`file:line`; drop the unconfirmed ones with a one-line note in the wave's PR
+comment. The `fable` verdict stays the verdict.
 
 The controller's verification result remains authoritative; the reviewer
 focuses on the diff and skips duplicate test execution.
@@ -249,7 +329,12 @@ When the last wave is closed:
 
 1. **Whole-branch review** over `git merge-base <trunk> HEAD..HEAD`, on
    `fable` like every review. One combined fix dispatch receives all findings
-   together; this is the single whole-branch fix wave.
+   together; this is the single whole-branch fix wave. With
+   `codex.sh available`, run
+   `codex.sh review $(git merge-base <trunk> HEAD) <prompt-file>` beside it,
+   the prompt file being `reviewer-prompt.md` filled in for the whole branch
+   as in step 4, with the same `<stdin>` diff line in place of
+   `**The diff:**`, and merge its findings by the rule in step 4.
 2. **Security review.** Invoke the `security-review` skill with the Skill tool
    on the branch diff. Findings go to one fix dispatch under the same rules as
    review findings. A finding fixable inside the branch's own code goes to

@@ -1,6 +1,8 @@
 ---
 name: leslie
 description: Use when the user reports a bug, a test fails for an unexpected reason, a build or verification is red, or behaviour differs from what was expected. Finds the root cause in four phases before any fix
+allowed-tools:
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/codex.sh *)
 ---
 <!-- Adapted from obra/superpowers systematic-debugging (MIT); modified. See THIRD_PARTY_NOTICES.md. -->
 
@@ -68,6 +70,15 @@ A simple-looking bug still has a root cause, and Phase 1 finds it quickly.
    what this phase exists to remove.
 3. When the code follows a reference implementation, read the reference
    completely rather than skimming it.
+
+In both phases, when `codex.sh available` exits 0 (`codex.sh` lives beside
+`journal.sh`), hand the bulk reading — where the code lives, the call chain,
+working analogues and their differences — to `codex.sh explore <prompt-file>`,
+asking for facts with `file:line`. Reproducing and instrumenting stay yours,
+and so does the hypothesis: confirm each fact it rests on with one `Read` or
+`grep`. When `codex.sh explore` exits non-zero, do the reading yourself; on
+exit `75` also tell the user once that Codex is off and Claude usage is no
+longer being saved.
 
 ## Phase 3 — Hypothesis
 
