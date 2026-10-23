@@ -94,8 +94,7 @@ Use the e2e runner the project already has: Playwright Test, with
 dependency decision to the user with the options and their cost. Installing a
 runner is the user's call and happens outside this skill.
 
-Invoke amy with the Skill tool, as `pasadena:amy` (plain `amy` where the host
-does not prefix plugin skills), and follow her cycle: write the test, run it
+Invoke amy with the Skill tool, as `pasadena:amy`, and follow her cycle: write the test, run it
 with `npx playwright test <file>`, watch it fail for the predicted reason, make
 the minimum change, watch it pass.
 

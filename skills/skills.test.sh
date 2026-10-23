@@ -93,8 +93,19 @@ require wolowitz "never grows"
 require sheldon "pasadena:amy"
 [ "$fails" -eq "$before" ] && ok "workflow rules checked"
 
+echo "Claude Code only"
+before=$fails
+for path in .codex-plugin .agents/plugins/marketplace.json hooks/hooks.json; do
+  [ ! -e "$ROOT/$path" ] || fail "$path: Codex artifact still present"
+done
+mentions="$(git -C "$ROOT" grep -i -l codex -- ':!docs/sdd' ':!skills/skills.test.sh')"
+[ -z "$mentions" ] || fail "Codex still mentioned in: $(tr '\n' ' ' <<<"$mentions")"
+hosts="$(git -C "$ROOT" grep -l 'host does not prefix' -- skills ':!skills/skills.test.sh')"
+[ -z "$hosts" ] || fail "host-neutral skill wording remains in: $(tr '\n' ' ' <<<"$hosts")"
+[ "$fails" -eq "$before" ] && ok "no Codex support left"
+
 echo "Manifest versions"
-manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json .codex-plugin/plugin.json"
+manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json"
 before=$fails
 for manifest in $manifests; do
   count="$(grep -c '"version"' "$ROOT/$manifest")"

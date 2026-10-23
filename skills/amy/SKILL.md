@@ -163,13 +163,12 @@ with the test.
 | The test is complicated | The design is complicated. Simplify the interface. |
 | The test requires mocks for every dependency | The code is too coupled. Inject the dependency. |
 | The setup is enormous | Extract helpers. If it stays enormous, simplify the design. |
-| The test fails for a reason you did not predict | Stop changing code and invoke `leslie` with the Skill tool, as `pasadena:leslie` (plain `leslie` where the host does not prefix plugin skills). |
+| The test fails for a reason you did not predict | Stop changing code and invoke `leslie` with the Skill tool, as `pasadena:leslie`. |
 
 ## Bug fixes
 
 When the cause is not yet known, invoke `leslie` with the Skill tool, as
-`pasadena:leslie` (plain `leslie` where the host does not prefix plugin
-skills), first; the reproducing test below is leslie's Phase 4.
+`pasadena:leslie`, first; the reproducing test below is leslie's Phase 4.
 
 Every bug fix begins with a test that reproduces it. Watch it fail — that
 failure proves you found the actual bug rather than a neighbouring one — then

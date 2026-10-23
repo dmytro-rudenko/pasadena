@@ -19,9 +19,9 @@ bug='баг|помилк|падає|падають|впав|зламал|не п
 feature='додай|реаліз|імплемент|зроби функц|нов(а|у|ий) фіч|implement|add (a |an )?(feature|function|endpoint|test)|build (a|the)'
 
 if grep -qiE "$bug" <<<"$prompt"; then
-  ctx='This prompt looks like a bug or failing check. Before changing any code, invoke the leslie skill (pasadena:leslie with the Skill tool in Claude Code, $leslie in Codex) and follow it: root cause first, then the fix through amy.'
+  ctx='This prompt looks like a bug or failing check. Before changing any code, invoke the leslie skill (pasadena:leslie with the Skill tool) and follow it: root cause first, then the fix through amy.'
 elif grep -qiE "$feature" <<<"$prompt"; then
-  ctx='This prompt looks like new behaviour. Before writing production code, invoke the amy skill (pasadena:amy with the Skill tool in Claude Code, $amy in Codex): failing test first.'
+  ctx='This prompt looks like new behaviour. Before writing production code, invoke the amy skill (pasadena:amy with the Skill tool): failing test first.'
 else
   exit 0
 fi

@@ -99,8 +99,8 @@ hypothesis is tested by evidence, not by a code change.
 Run this phase yourself unless a controller invoked you; see
 `## When a controller invokes you`.
 
-1. **Invoke amy** with the Skill tool, as `pasadena:amy` (plain `amy` where
-   the host does not prefix plugin skills), and follow her for the fix.
+1. **Invoke amy** with the Skill tool, as `pasadena:amy`, and follow her for the
+   fix.
 2. **Write a test that reproduces the bug.** Watch it fail for the reason the
    hypothesis predicts. A different failure means the hypothesis is wrong;
    return to Phase 3.

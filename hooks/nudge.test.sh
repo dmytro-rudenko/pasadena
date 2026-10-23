@@ -39,12 +39,10 @@ assert_contains "$(run 'the build is failing')" "pasadena:leslie" "English bug p
 assert_contains "$(run 'полагодь і додай тест')" "pasadena:leslie" "bug wins over feature"
 assert_contains "$(run 'the test failed')" "pasadena:leslie" "past-tense failure points to leslie"
 assert_contains "$(run 'this does not work')" "pasadena:leslie" "does not work points to leslie"
-assert_contains "$(run 'the build is failing')" '$leslie' "bug prompt names the Codex skill"
 
 echo "== feature prompts =="
 out="$(run 'Додай функцію mul')"
 assert_contains "$out" "pasadena:amy" "feature prompt points to amy"
-assert_contains "$out" '$amy' "feature prompt names the Codex skill"
 assert_empty "$(grep -o leslie <<<"$out")" "feature prompt does not mention leslie"
 
 echo "== output shape =="
@@ -67,13 +65,8 @@ assert_empty "$(run 'полагодь тест' "$plain")" "silent outside a Git
 echo "== registration =="
 assert_contains "$(jq -r '.hooks.UserPromptSubmit[0].hooks[0].command' "$DIR/claude-hooks.json")" \
   'hooks/nudge.sh' "Claude Code registers UserPromptSubmit"
-assert_contains "$(jq -r '.hooks.UserPromptSubmit[0].hooks[0].command' "$DIR/hooks.json")" \
-  '[ -n "${CLAUDE_PLUGIN_ROOT:-}" ] || bash "${PLUGIN_ROOT}/hooks/nudge.sh"' "Codex registers UserPromptSubmit behind the guard"
 assert_contains "$(jq -r '.hooks.UserPromptSubmit[0].hooks[0].timeout' "$DIR/claude-hooks.json")" \
   '5' "Claude Code UserPromptSubmit timeout is 5"
-assert_contains "$(jq -r '.hooks.UserPromptSubmit[0].hooks[0].timeout' "$DIR/hooks.json")" \
-  '5' "Codex UserPromptSubmit timeout is 5"
-
 rm -rf "$repo" "$plain"
 
 echo

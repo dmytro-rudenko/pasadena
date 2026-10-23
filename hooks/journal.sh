@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Session journal mechanics. Invoked by Codex or Claude Code hooks, JSON arrives on stdin.
+# Session journal mechanics. Invoked by Claude Code hooks, JSON arrives on stdin.
 # Design: docs/design.md
 set -uo pipefail
 
@@ -32,8 +32,8 @@ slug="${branch//\//-}"
 canonical_file="$root/.pasadena/journal/$slug.md"
 legacy_file="$root/.claude/journal/$slug.md"
 
-# New journals are provider-neutral. Existing Claude journals remain readable so
-# switching clients never strands an in-progress task.
+# Journals from before the move to .pasadena/ stay readable so an in-progress
+# task is never stranded.
 if [ -f "$canonical_file" ]; then
   file="$canonical_file"
 elif [ -f "$legacy_file" ]; then

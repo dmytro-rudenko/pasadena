@@ -62,9 +62,8 @@ Before the first question, name the path you have selected so the user can corre
   design *in chat*, and complete the shaping phase. For this path, the shaping
   outcome is the design in chat; a separate specification file and planning
   document remain outside its scope. Implementation begins after explicit user
-  approval, through `amy`: invoke it with the Skill tool, as `pasadena:amy`
-  (plain `amy` where the host does not prefix plugin skills), before the first
-  test or line of code, and turn the approved design into its acceptance
+  approval, through `amy`: invoke it with the Skill tool, as `pasadena:amy`,
+  before the first test or line of code, and turn the approved design into its acceptance
   tests.
 
 * **Architectural** — a new project, a new subsystem, a change that restructures
@@ -82,8 +81,8 @@ stay the same or increase.
 
 Before the first question:
 
-1. Create an isolated worktree using the available Codex workflow; when only
-   standard Git is available, use `git worktree add`. All subsequent dialogue
+1. Create an isolated worktree with the `EnterWorktree` tool; when it is
+   unavailable, use `git worktree add`. All subsequent dialogue
    and work take place in the isolated worktree.
 2. Start the journal — `skill raj`. At this stage, `spec:` and `plan:` should
    both be `-`; this tells a resumed session that shaping is still in progress.
