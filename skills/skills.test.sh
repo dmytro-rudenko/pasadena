@@ -98,11 +98,40 @@ before=$fails
 for path in .codex-plugin .agents/plugins/marketplace.json hooks/hooks.json; do
   [ ! -e "$ROOT/$path" ] || fail "$path: Codex artifact still present"
 done
-mentions="$(git -C "$ROOT" grep -i -l codex -- ':!docs/sdd' ':!skills/skills.test.sh')"
-[ -z "$mentions" ] || fail "Codex still mentioned in: $(tr '\n' ' ' <<<"$mentions")"
+hosted="$(git -C "$ROOT" grep -l -E '\.codex-plugin|Codex plan mode|Codex workflow' -- ':!docs/sdd' ':!skills/skills.test.sh')"
+[ -z "$hosted" ] || fail "Codex host support mentioned in: $(tr '\n' ' ' <<<"$hosted")"
 hosts="$(git -C "$ROOT" grep -l 'host does not prefix' -- skills ':!skills/skills.test.sh')"
 [ -z "$hosts" ] || fail "host-neutral skill wording remains in: $(tr '\n' ' ' <<<"$hosts")"
-[ "$fails" -eq "$before" ] && ok "no Codex support left"
+[ "$fails" -eq "$before" ] && ok "no Codex host support left"
+
+echo "Codex delegation"
+before=$fails
+require leonard "**Executor:** codex | claude"
+require leonard "codex.sh available"
+require leonard "codex.sh explore"
+require leslie "codex.sh explore"
+require sheldon "codex.sh explore"
+require wolowitz "codex.sh explore"
+require wolowitz "codex.sh red"
+require wolowitz "codex.sh green"
+require wolowitz "codex.sh review"
+require wolowitz "Gate red"
+require wolowitz "Gate green"
+require wolowitz "implementer-prompt-codex.md"
+codex_prompt="$SKILLS/wolowitz/implementer-prompt-codex.md"
+if [ -f "$codex_prompt" ]; then
+  ! grep -q "Skill tool" "$codex_prompt" || fail "implementer-prompt-codex.md: tells Codex to use the Skill tool"
+  grep -qF "only the tests" "$codex_prompt" || fail "implementer-prompt-codex.md: missing \"only the tests\""
+else
+  fail "skills/wolowitz/implementer-prompt-codex.md: missing"
+fi
+for readme in README.md README.uk.md; do
+  for needle in PASADENA_CODEX_IDLE PASADENA_CODEX_CMD_IDLE PASADENA_CODEX_MODEL "bash hooks/codex.test.sh"; do
+    grep -qF -- "$needle" "$ROOT/$readme" || fail "$readme: missing \"$needle\""
+  done
+done
+grep -q '"version": "0.10.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: version is not 0.10.0"
+[ "$fails" -eq "$before" ] && ok "codex delegation documented"
 
 echo "Manifest versions"
 manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json"
