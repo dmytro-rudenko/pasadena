@@ -144,8 +144,8 @@ Claude implementer at once and the wave's PR comment names the exit code. Exit `
 means the ChatGPT plan's usage limit: tell the user in one line that Codex is
 off for the rest of the session and Claude usage is no longer being saved.
 Exit `1` from `codex.sh review` with `codex: nothing to review` means an empty
-diff; skip the Codex review for that wave. The wave's PR comment sums the
-`codex usage:` lines its Codex calls printed on stderr.
+diff; skip the Codex review. The wave's PR comment sums the `codex usage:`
+lines its Codex calls printed on stderr.
 
 ## Setup
 
@@ -234,18 +234,7 @@ One reviewer on `sonnet` at `effort: "xhigh"` examines the `BASE..HEAD` diff wit
 `reviewer-prompt.md`. A complete report contains both verdicts: spec compliance
 and quality.
 
-When `codex.sh available` exits 0, write a prompt file in the scratchpad:
-`reviewer-prompt.md` from this skill's directory, filled in exactly as for the
-`sonnet` reviewer — `BASE`, the plan's path, the task numbers, the spec's path.
-In this Codex copy, replace the `**The diff:**` line with: the diff arrives on
-stdin as a `<stdin>` block — review that diff; read local files only for
-context. Keep "Do not re-run the tests". Run `codex.sh review <BASE> <prompt-file>` in the background in the same
-message as the `sonnet` dispatch. The wave is still uncommitted at this point;
-`codex.sh review <BASE>` sends the working tree against `BASE`, untracked
-files included. Every `sonnet` finding goes to the
-fix loop. A Codex finding goes there only after you confirm it yourself at its
-`file:line`; drop the unconfirmed ones with a one-line note in the wave's PR
-comment. The `sonnet` verdict stays the verdict.
+Codex does not review waves; it reviews the whole branch once, in **Finish**.
 
 The controller's verification result remains authoritative; the reviewer
 focuses on the diff and skips duplicate test execution.
@@ -330,12 +319,20 @@ When the last wave is closed:
 
 1. **Whole-branch review** over `git merge-base <trunk> HEAD..HEAD`, on
    `sonnet` at `effort: "xhigh"` like every review. One combined fix dispatch receives all findings
-   together; this is the single whole-branch fix wave. With
-   `codex.sh available`, run
-   `codex.sh review $(git merge-base <trunk> HEAD) <prompt-file>` beside it,
-   the prompt file being `reviewer-prompt.md` filled in for the whole branch
-   as in step 4, with the same `<stdin>` diff line in place of
-   `**The diff:**`, and merge its findings by the rule in step 4.
+   together; this is the single whole-branch fix wave.
+
+   When `codex.sh available` exits 0, write a prompt file in the scratchpad:
+   `reviewer-prompt.md` from this skill's directory, filled in for the whole
+   branch — the merge-base as `BASE`, the plan's path, every task number, the
+   spec's path. In this Codex copy, replace the `**The diff:**` line with: the
+   diff arrives on stdin as a `<stdin>` block — review that diff; read local
+   files only for context. Keep "Do not re-run the tests". Run
+   `codex.sh review $(git merge-base <trunk> HEAD) <prompt-file>` in the
+   background in the same message as the `sonnet` dispatch. Every `sonnet`
+   finding goes to the fix dispatch. A Codex finding goes there only after you
+   confirm it yourself at its `file:line`; drop the unconfirmed ones with a
+   one-line note in the final PR comment. The `sonnet` verdict stays the
+   verdict. The final PR comment carries the review's `codex usage:` line.
 2. **Security review.** Invoke the `security-review` skill with the Skill tool
    on the branch diff. Findings go to one fix dispatch under the same rules as
    review findings. A finding fixable inside the branch's own code goes to
