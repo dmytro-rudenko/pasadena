@@ -132,7 +132,7 @@ The server uses `fetch` for choice events and a one-second poll for updates. Tha
 When the Codex CLI is installed and logged in, the skills hand part of the work to `codex exec` to save Claude usage. Claude stays the orchestrator and checks every result itself. Codex runs here as a worker, not as a plugin host.
 
 - **explore** — `leonard`, `leslie`, `sheldon` and `wolowitz` send bulk read-only lookups to Codex and get back facts with `file:line`.
-- **review** — `wolowitz` runs a Codex review of the local diff beside the `sonnet` reviewer; only findings Claude confirms count.
+- **review** — `wolowitz` runs one Codex review of the whole branch at the finish, beside the `sonnet` reviewer; only findings Claude confirms count.
 - **implement** — plan tasks marked `**Executor:** codex` are written by Codex in two calls, tests first and then code, with Claude running the tests between them.
 
 While Codex works, `hooks/codex.sh` streams a compact session log to stderr, one `codex › ` line per command, failed exit code, file change, reasoning summary, message or error, cut to 200 characters. It shows up in the background task's output panel. The final answer stays on stdout.
