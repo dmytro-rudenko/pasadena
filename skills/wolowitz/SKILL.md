@@ -68,10 +68,11 @@ pick a cheaper one to save cost:
 | Dispatch | `model` |
 |---|---|
 | Implementer, including a round-3 fresh implementer | The session's model, as your own system prompt names it: `opus` on Opus, `fable` on Fable |
-| Wave reviewer and whole-branch review | `fable` |
+| Wave reviewer and whole-branch review | `sonnet`, with `effort: "xhigh"` |
 | Read-only lookup | `codex.sh explore <prompt-file>` when `codex.sh available` exits 0; otherwise `Explore` on `sonnet` |
 
-`sonnet` and `haiku` never write code and never review.
+Every review dispatch also sets `effort: "xhigh"` explicitly. `sonnet` never
+writes code; `haiku` never writes code and never reviews.
 
 ## Without subagents
 
@@ -229,22 +230,22 @@ the session has no subagents — and the verification runs again.
 
 ### 4. Review the wave
 
-One reviewer on `fable` examines the `BASE..HEAD` diff with
+One reviewer on `sonnet` at `effort: "xhigh"` examines the `BASE..HEAD` diff with
 `reviewer-prompt.md`. A complete report contains both verdicts: spec compliance
 and quality.
 
 When `codex.sh available` exits 0, write a prompt file in the scratchpad:
 `reviewer-prompt.md` from this skill's directory, filled in exactly as for the
-`fable` reviewer — `BASE`, the plan's path, the task numbers, the spec's path.
+`sonnet` reviewer — `BASE`, the plan's path, the task numbers, the spec's path.
 In this Codex copy, replace the `**The diff:**` line with: the diff arrives on
 stdin as a `<stdin>` block — review that diff; read local files only for
 context. Keep "Do not re-run the tests". Run `codex.sh review <BASE> <prompt-file>` in the background in the same
-message as the `fable` dispatch. The wave is still uncommitted at this point;
+message as the `sonnet` dispatch. The wave is still uncommitted at this point;
 `codex.sh review <BASE>` sends the working tree against `BASE`, untracked
-files included. Every `fable` finding goes to the
+files included. Every `sonnet` finding goes to the
 fix loop. A Codex finding goes there only after you confirm it yourself at its
 `file:line`; drop the unconfirmed ones with a one-line note in the wave's PR
-comment. The `fable` verdict stays the verdict.
+comment. The `sonnet` verdict stays the verdict.
 
 The controller's verification result remains authoritative; the reviewer
 focuses on the diff and skips duplicate test execution.
@@ -328,7 +329,7 @@ Execution pauses only for these four gates:
 When the last wave is closed:
 
 1. **Whole-branch review** over `git merge-base <trunk> HEAD..HEAD`, on
-   `fable` like every review. One combined fix dispatch receives all findings
+   `sonnet` at `effort: "xhigh"` like every review. One combined fix dispatch receives all findings
    together; this is the single whole-branch fix wave. With
    `codex.sh available`, run
    `codex.sh review $(git merge-base <trunk> HEAD) <prompt-file>` beside it,
