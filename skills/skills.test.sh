@@ -135,6 +135,41 @@ for readme in README.md README.uk.md; do
 done
 [ "$fails" -eq "$before" ] && ok "codex delegation documented"
 
+echo "Model routing"
+before=$fails
+require leonard '**Complexity:** routine | complex'
+require leonard '- the task is `**Complexity:** routine`;'
+require leonard 'When in doubt, write `complex`.'
+require wolowitz '| Task 0 | `opus` | `high` |'
+require wolowitz '| `routine` task, the whole `amy` cycle | `sonnet` | `xhigh` |'
+require wolowitz '| `complex` task, red | `opus` | `high` |'
+require wolowitz '| `complex` task, green | `opus` | `medium` |'
+require wolowitz '| Round-3 fresh implementer, including after Codex | `opus` | `medium` |'
+require wolowitz '| Fix dispatch after the whole-branch and security reviews | `opus` | `medium` |'
+require wolowitz '| Wave reviewer and whole-branch review | `sonnet` | `xhigh` |'
+require wolowitz '| `Explore`, when `codex.sh available` exits non-zero | `sonnet` | `xhigh` |'
+require wolowitz '## Complex tasks'
+require wolowitz 'A task with no `**Complexity:**` line is `complex`.'
+! grep -qF 'on Fable' "$SKILLS/wolowitz/SKILL.md" || fail "wolowitz: implementers still follow a Fable session"
+! tr '\n' ' ' <"$SKILLS/wolowitz/SKILL.md" | grep -qF "session's model" || fail "wolowitz: a dispatch still follows the session's model"
+for block in "Red dispatch" "Green dispatch"; do
+  grep -qF "## $block" "$SKILLS/wolowitz/implementer-prompt.md" || fail "implementer-prompt.md: missing \"$block\""
+done
+for file in "$SKILLS"/*/SKILL.md; do
+  if sed -n '2,/^---$/p' "$file" | grep -qE '^(model|effort):'; then
+    fail "$file: model or effort in frontmatter lasts one turn only"
+  fi
+done
+grep -qF '| `complex` task, green | `opus` | `medium` |' "$ROOT/README.md" || fail "README.md: no model table"
+grep -qF '| `complex`-задача, green | `opus` | `medium` |' "$ROOT/README.uk.md" || fail "README.uk.md: no model table"
+for readme in README.md README.uk.md; do
+  grep -qF -- '--advisor' "$ROOT/$readme" || fail "$readme: no advisor note"
+done
+for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
+  grep -qF '"version": "0.14.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.14.0"
+done
+[ "$fails" -eq "$before" ] && ok "model routing checked"
+
 echo "Manifest versions"
 manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json"
 before=$fails
