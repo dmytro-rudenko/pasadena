@@ -8,6 +8,9 @@ Modified portions of these files derive from obra/superpowers:
 - `proto/frame.css` from `skills/brainstorming/scripts/frame-template.html`
 - `skills/amy/SKILL.md` section "Verify before claiming" from `skills/verification-before-completion/SKILL.md`
 - `skills/leslie/SKILL.md` from `skills/systematic-debugging/SKILL.md`
+- `skills/sheldon/builder-check-prompt.md` and `skills/sheldon/SKILL.md` section "Builder check" from `skills/brainstorming/`
+- `skills/leonard/SKILL.md` section "Review Focus" from `skills/writing-plans/SKILL.md`
+- `skills/wolowitz/reviewer-prompt.md` section "Declined to judge" from `skills/requesting-code-review/code-reviewer.md`
 
 Source: <https://github.com/obra/superpowers>
 
