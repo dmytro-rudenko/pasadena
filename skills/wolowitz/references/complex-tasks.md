@@ -12,7 +12,8 @@ that pass on arrival: it runs on the `complex` red row, under amy's rules for
 existing code. State under **Context** in the dispatch that, overriding Rule 1,
 its temporary mutation may touch the code under test outside `**Writes:**`, must
 be reverted before it reports, and that a file another task of this wave writes
-is `BLOCKED`.
+is `BLOCKED`. Dispatch this shape alone, after the wave's other Claude work and
+before its Codex tasks, so no other implementer runs tests against the mutation.
 
 A wave with `complex` tasks runs in stages: every red dispatch goes in the
 single message with the wave's `routine` implementers; when all have reported,

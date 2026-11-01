@@ -1,7 +1,7 @@
 # Builder check dispatch template
 
-Fill the angle brackets. Dispatch one fresh subagent on `sonnet` at
-`effort: "xhigh"`.
+Fill the angle brackets. Dispatch one fresh `Plan` subagent, which has no write
+tools, on `sonnet` at `effort: "xhigh"`.
 
 ---
 

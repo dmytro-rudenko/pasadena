@@ -21,7 +21,9 @@ change it lists to that call.
    - the `codex changed:` paths are all test files from the task's
      `**Writes:**`;
    - the task's verification command is red, and each failure is the reason
-     the plan predicts — a syntax or import error does not count;
+     the plan predicts, or the toolchain's error for something this task has
+     yet to create, whatever that toolchain calls it. A mistake in the test
+     file itself does not count;
    - record `sha256sum` of the task's test files and copy those files into
      the scratchpad.
    When the gate fails, run `codex.sh green <thread-id> <prompt-file>` with a

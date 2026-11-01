@@ -23,8 +23,9 @@ any ambiguity>
 
 Write only the tests of your task's red steps. Do not create or edit any
 non-test file. Run the task's verification command and confirm every new test
-fails for the reason the task predicts. The controller runs it again and
-checks.
+fails for the reason the task predicts. A test that uses something this task
+creates may fail on it however the toolchain reports that: leave it and name it
+in your report. The controller runs it again and checks.
 
 Amy's cycle is split across two calls here: write the test of every red step
 now and watch each fail; the controller asks for the code in the next message.
