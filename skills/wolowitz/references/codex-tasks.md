@@ -1,16 +1,17 @@
 # Codex tasks
 
-Bare file names here live in the skill directory above this file, and other
-paths are relative to the plugin root. `SKILL.md` stays in context.
+Bare file names here, apart from `codex.sh`, live in the skill directory above
+this file, and other paths are relative to the plugin root. `SKILL.md` stays in
+context.
 
 A task with `**Executor:** codex` runs as two Codex calls with your own gates
 between them, because Codex cannot load amy and its report is not evidence.
-Start every `codex.sh` call through Bash with `run_in_background`.
 
-Start a wave's Codex tasks only after all of the wave's Claude implementers
-have reported, and run Codex calls one at a time. No other writer is active
-during a Codex call, so the `codex changed:` line that `red` and `green` print
-on stderr attributes every change it lists to that call.
+Run Codex calls one at a time, and start a wave's Codex tasks only after all of
+the wave's Claude implementers have reported, and after every Gate green and its
+fix rounds. No other writer is active during a Codex call, so the
+`codex changed:` line that `red` and `green` print on stderr attributes every
+change it lists to that call.
 
 1. **Red.** Write a prompt file in the scratchpad: the full text of
    `skills/amy/SKILL.md`, then `implementer-prompt-codex.md` filled in for the

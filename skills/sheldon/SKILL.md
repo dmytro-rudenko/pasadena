@@ -128,8 +128,8 @@ Then ask questions:
 * **Who owns the technical choices.** Find out which choices about how the thing
   gets made the user wants to own: platform, language, libraries, medium. Talk
   through the ones they care about. For the ones they hand over, pick a sensible
-  default and say what you picked. On the Bounded path the repository already
-  answers these; skip this.
+  default and say what you picked. Where the repository already answers these,
+  skip this.
 * Finish the questioning phase when you can clearly state what is being built
   and why. Ask one more important question when necessary: an extra clarification
   is cheaper than a wrong specification. At the same time, keep the dialogue

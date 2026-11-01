@@ -57,8 +57,10 @@ Controller: include this block, without this line, only for the red half of a
 You write the tests, and only the tests. Write every test the task names, run
 the task's verification command, and stop on red with its output in your report.
 Leave the implementation steps to the next implementer. Production code is not
-yours to touch, even to make a test compile. Findings on these tests may come
-back to you through `SendMessage`.
+yours to touch, even to make a test compile. A test that uses something this
+task creates may fail on it however the toolchain reports that: leave it and name
+it in your report.
+Findings on these tests may come back to you through `SendMessage`.
 
 This block overrides Rules 3 and 5: invoke `amy` for how to write the tests and
 watch them fail; her green steps and done checklist belong to the next

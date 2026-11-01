@@ -103,7 +103,8 @@ amy.
 directory. On any `codex.sh` call, exit `75` means the ChatGPT plan's usage
 limit: tell the user in one line that Codex is off for the rest of the session
 and Claude usage is no longer being saved. Exit `1` from `codex.sh review` with
-`codex: nothing to review` means an empty diff; skip the Codex review.
+`codex: nothing to review` means an empty diff; skip the Codex review. Start
+every `codex.sh` call through Bash with `run_in_background`.
 
 A task with `**Executor:** codex` runs as two Codex calls with your own gates
 between them. Before a wave's first such task, read
@@ -114,7 +115,8 @@ compaction.
 
 `**Complexity:**` decides how a Claude task runs. `routine` is one implementer
 through the whole `amy` cycle. `complex` is two dispatches with your own gates
-between them. A task with no `**Complexity:**` line is `complex`. Task 0 is
+between them. Two shapes stay one implementer; the reference names them.
+A task with no `**Complexity:**` line is `complex`. Task 0 is
 outside this section: one implementer, per **Models**, stopping on red. A task
 with `**Executor:** codex` runs through **Codex tasks**. A Codex task handed to
 Claude before Round 3 runs on the `routine` row. A session with no subagents
@@ -171,8 +173,9 @@ plan stays the single source of requirements:
 - `model` and `effort` set per **Models**.
 
 A task whose block says `**Executor:** codex` is not dispatched through the
-Agent tool: run it through **Codex tasks**, started only after all of the
-wave's Claude implementers have reported, one Codex call at a time. When `codex.sh available` exits non-zero at build
+Agent tool: run it through **Codex tasks**, one Codex call at a time, started
+only after all of the wave's Claude implementers have reported, and after every
+Gate green and its fix rounds. When `codex.sh available` exits non-zero at build
 time, dispatch it as a Claude task and say so in the wave's PR comment.
 
 A dispatch describes one task and its required context. The plan and journal
@@ -204,7 +207,8 @@ When the run is red and one line of the error does not show the cause, do not
 patch by guesswork: invoke the `leslie` skill with the Skill tool, as
 `pasadena:leslie`. Leslie diagnoses: she returns the root cause and the fix to make. The
 implementer fixes: the fix goes to the task's implementer — through amy when
-the session has no subagents — and the verification runs again.
+the session has no subagents — and the verification runs again. It counts as a
+round of the fix loop for each task it touches, and that loop's routing applies.
 
 ### 4. Review the wave
 
@@ -251,7 +255,7 @@ nothing else. The diff carries the detail.
 
 ### 7. Comment on the PR
 
-One comment per wave, **2–3 sentences** — no longer:
+One comment per wave, **2–3 sentences**, plus one line per ruling — no longer:
 
     gh pr comment <n> --body-file <file>
 
@@ -302,8 +306,9 @@ Execution pauses only for these four gates:
 
 When the last wave is closed:
 
-1. First run `git fetch origin <trunk>`. When the repository has no `origin`,
-   use the local trunk as the base instead and say so in the final PR comment.
+1. First run `git fetch origin <trunk>`. When the fetch fails or
+   `origin/<trunk>` does not exist, use the local trunk as the base instead and
+   say so in the final PR comment.
    **Whole-branch review** over `git merge-base origin/<trunk> HEAD..HEAD`, on
    `sonnet` at `effort: "xhigh"` like every review. One combined fix dispatch receives all findings
    together; this is the single whole-branch fix wave.
@@ -330,7 +335,8 @@ When the last wave is closed:
    already exposed — is the security-sensitive stop gate: pause and put it to
    the user. When the skill is unavailable, say
    so once and note the skip in the PR comment.
-3. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
+3. Post the final PR comment: every note the steps above assign to it, and the
+   `codex usage:` line. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
    `git rm` the journal, commit `chore(journal): close <task>`.
 4. `gh pr ready` — the draft becomes a real PR.
 

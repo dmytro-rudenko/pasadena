@@ -31,6 +31,8 @@ Then the things a fresh reader would trip on — a name that lies, a branch with
 no test, duplication that will drift, an error path that swallows the cause.
 Where the spec is silent, judge behaviour by what a reasonable person using this
 software would expect, starting with the plan's `## Review Focus` when it has one.
+A `## Review Focus` line whose code belongs to a task outside this review is not
+a finding.
 
 For each finding: file and line, what is wrong, and what happens if it ships.
 Severity in your own words. Rank the list most severe first.
