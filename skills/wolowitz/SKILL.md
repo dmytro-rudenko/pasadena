@@ -62,17 +62,23 @@ and the rest of the build runs uninterrupted.
 
 ## Models
 
-Every dispatch sets `model` **explicitly** — never leave it to a default, never
-pick a cheaper one to save cost:
+Every dispatch sets `model` and `effort` **explicitly**, whatever model the
+session runs on — never leave either to a default, never pick another level to
+save cost:
 
-| Dispatch | `model` |
-|---|---|
-| Implementer, including a round-3 fresh implementer | The session's model, as your own system prompt names it: `opus` on Opus, `fable` on Fable |
-| Wave reviewer and whole-branch review | `sonnet`, with `effort: "xhigh"` |
-| Read-only lookup | `codex.sh explore <prompt-file>` when `codex.sh available` exits 0; otherwise `Explore` on `sonnet` |
+| Dispatch | `model` | `effort` |
+|---|---|---|
+| Task 0 | `opus` | `high` |
+| `routine` task, the whole `amy` cycle | `sonnet` | `xhigh` |
+| `complex` task, red | `opus` | `high` |
+| `complex` task, green | `opus` | `medium` |
+| Round-3 fresh implementer, including after Codex | `opus` | `medium` |
+| Fix dispatch after the whole-branch and security reviews | `opus` | `medium` |
+| Wave reviewer and whole-branch review | `sonnet` | `xhigh` |
+| `Explore`, when `codex.sh available` exits non-zero | `sonnet` | `xhigh` |
 
-Every review dispatch also sets `effort: "xhigh"` explicitly. `sonnet` never
-writes code; `haiku` never writes code and never reviews.
+Read-only lookups go to `codex.sh explore <prompt-file>` when
+`codex.sh available` exits 0. `haiku` is never used.
 
 ## Without subagents
 
@@ -135,8 +141,8 @@ restored.
 Fix loop: a Gate green failure right after step 3 counts as round 1, and its
 findings are the gate's output. Rounds 1–2 go to
 `codex.sh green <thread-id> <prompt-file>`, the prompt file holding the
-findings verbatim; round 3 goes to a fresh Claude implementer on the session's
-model. After each round sent to `codex.sh green`, run Gate green again before
+findings verbatim; round 3 goes to a fresh Claude implementer per **Models**.
+After each round sent to `codex.sh green`, run Gate green again before
 the wave goes on. A Gate green failure of any kind — checksum, `**Writes:**`
 set or verification — consumes that round; after round 2 the task goes to a
 fresh Claude implementer. When `codex.sh` exits non-zero, the task goes to a
@@ -146,6 +152,62 @@ off for the rest of the session and Claude usage is no longer being saved.
 Exit `1` from `codex.sh review` with `codex: nothing to review` means an empty
 diff; skip the Codex review. The wave's PR comment sums the `codex usage:`
 lines its Codex calls printed on stderr.
+
+## Complex tasks
+
+`**Complexity:**` decides how a Claude task runs. `routine` is one implementer
+through the whole `amy` cycle. `complex` is two dispatches with your own gates
+between them. A task with no `**Complexity:**` line is `complex`. Task 0 is
+outside this section: one implementer, per **Models**, stopping on red. A task
+with `**Executor:** codex` runs through **Codex tasks**. A Codex task handed to
+Claude before Round 3 runs on the `routine` row. A session with no subagents
+skips this section.
+
+A `complex` task with no test file in `**Writes:**` turns existing tests green,
+so it is one implementer on the `complex` green row. A `complex` task that only
+covers existing code has tests that pass on arrival, so it is one implementer
+on the `complex` red row, under amy's rules for existing code.
+
+A wave with `complex` tasks runs in stages: every red dispatch goes in the
+single message with the wave's `routine` implementers; when all have reported,
+run every Gate red; then send every green dispatch in one message; run every
+Gate green; only then start the wave's Codex tasks.
+
+1. **Red.** Dispatch `implementer-prompt.md` with its **Red dispatch** block.
+2. **Gate red.** Check it yourself:
+   - the red implementer's reported files are all test files from the task's
+     `**Writes:**`, and `git status --porcelain` shows none of the task's other
+     `**Writes:**` files changed;
+   - the task's verification command is red, and each failure is the reason
+     the plan predicts — a syntax or import error does not count;
+   - record `sha256sum` of the task's test files and copy those files into
+     the scratchpad.
+   When the gate fails, send the problem to the red implementer through
+   `SendMessage`, then run Gate red again. At most two such retries; after that
+   the task goes to a Round-3 fresh implementer. Such a task enters the fix
+   loop at round 3.
+3. **Green.** Dispatch `implementer-prompt.md` with its **Green dispatch** block
+   to a new implementer, naming the test files.
+4. **Gate green.**
+   - `sha256sum` of the test files matches the recorded one;
+   - the reported files are all in the task's `**Writes:**`, and no test file
+     is among them;
+   - the task's verification command is green.
+5. The rest of the wave — suite, review, commit, PR comment — is unchanged.
+
+One counter per task covers every Gate green failure, `BLOCKED` report and
+review round. On a checksum mismatch, first restore the test files from the
+scratchpad copy and tell the next implementer they were edited and restored.
+
+A fix to the tests, after `BLOCKED` or a review finding, goes to the red
+implementer in rounds 1–2. Then record the checksums anew, replace the
+scratchpad copy, send the green implementer the changed tests, and run Gate
+green. A missing test goes the same way as a wrong one.
+
+Round 3 is a fresh implementer who owns the tests and the code: dispatch with
+neither block, no gates, and the verification command must end green. A
+`BLOCKED` still open after round 3 is the broken-plan stop gate: tests and code
+cannot agree, so pause and put it to the user.
 
 ## Setup
 
@@ -179,6 +241,8 @@ diffs against `BASE`, capturing every commit in the wave.
 dispatches in one response run concurrently, which is the execution model the
 wave table establishes.
 
+Green dispatches of `complex` tasks go later, per **Complex tasks**.
+
 Each dispatch carries what `implementer-prompt.md` lays out. Compose it so the
 plan stays the single source of requirements:
 
@@ -190,7 +254,7 @@ plan stays the single source of requirements:
 - the instruction to invoke the `amy` skill (`pasadena:amy`) before writing
   code — a subagent starts with no skills loaded, and naming amy in passing
   does not load her;
-- `model` set to the session's model, per **Models**.
+- `model` and `effort` set per **Models**.
 
 A task whose block says `**Executor:** codex` is not dispatched through the
 Agent tool: run it through **Codex tasks**, started only after all of the
@@ -244,9 +308,12 @@ focuses on the diff and skips duplicate test execution.
 - **Rounds 1–2:** send the open findings, verbatim, back to the implementer
   that wrote the code through `SendMessage` — it still
   has the context.
-- **Round 3:** a fresh implementer — on the session's model, per **Models** —
+- **Round 3:** a fresh implementer, per **Models** —
   framed honestly: "two prior attempts failed on this task; you own it now,
   here is what was tried."
+
+On a `complex` task, findings on code go to its green implementer and findings
+on tests go to its red implementer.
 
 Findings still open after three rounds are parked. Write down what is unresolved,
 note it in the PR comment, keep every fix with an implementer, and continue.
@@ -350,7 +417,7 @@ When the last wave is closed:
 | Situation | Required rule |
 |---|---|
 | Two tasks are candidates for one wave | Their `Writes:` sets must be disjoint. |
-| A wave contains multiple tasks | Dispatch all implementers in one message; disjoint write sets provide safe concurrency. |
+| A wave contains multiple tasks | Dispatch all implementers in one message; disjoint write sets provide safe concurrency. Green dispatches of `complex` tasks go later, per **Complex tasks**. |
 | A task is ready to commit | The controller commits it, keeping access to the shared index serialized. |
 | Review finds a small issue | Return it to the responsible implementer so the fix receives review. |
 | A wave closes | Post its one PR comment, then start the next wave in the same session. |
