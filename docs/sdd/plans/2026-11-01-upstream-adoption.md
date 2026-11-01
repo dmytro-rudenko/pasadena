@@ -101,8 +101,8 @@ grep -qF '## Declined to judge' "$SKILLS/wolowitz/reviewer-prompt.md" || fail "r
 **Complexity:** routine
 **Satisfies:** перевірки `references/*`, розміру, бази, заглушок і `reviewer-prompt.md`.
 
-- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — (references/|.*wolowitz/SKILL.md: 20000|wolowitz: |reviewer-prompt.md: )'`, expect `17`.
-- [ ] **Step 2: винести Codex tasks** — створити `references/codex-tasks.md` із заголовком `# Codex tasks` і дослівним тілом розділу `## Codex tasks` зі `SKILL.md`. У `SKILL.md` тіло розділу замінити на:
+- [x] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — (references/|.*wolowitz/SKILL.md: 20000|wolowitz: |reviewer-prompt.md: )'`, expect `17`.
+- [x] **Step 2: винести Codex tasks** — створити `references/codex-tasks.md` із заголовком `# Codex tasks` і дослівним тілом розділу `## Codex tasks` зі `SKILL.md`. У `SKILL.md` тіло розділу замінити на:
 
 ```markdown
 A task with `**Executor:** codex` runs as two Codex calls with your own gates
@@ -111,7 +111,7 @@ between them. Before a wave's first such task, read
 compaction.
 ```
 
-- [ ] **Step 3: винести Complex tasks** — створити `references/complex-tasks.md` із заголовком `# Complex tasks` і всім тілом розділу `## Complex tasks` від абзацу `Two shapes stay one implementer` до кінця розділу. Перші абзаци лишаються в `SKILL.md` у такому вигляді:
+- [x] **Step 3: винести Complex tasks** — створити `references/complex-tasks.md` із заголовком `# Complex tasks` і всім тілом розділу `## Complex tasks` від абзацу `Two shapes stay one implementer` до кінця розділу. Перші абзаци лишаються в `SKILL.md` у такому вигляді:
 
 ```markdown
 `**Complexity:**` decides how a Claude task runs. `routine` is one implementer
@@ -126,15 +126,15 @@ Before a wave's first `complex` task, read `references/complex-tasks.md` in this
 skill's directory, and read it again after a compaction.
 ```
 
-- [ ] **Step 4: база ревʼю** — у `## Finish` замінити `git merge-base <trunk> HEAD..HEAD` на `git merge-base origin/<trunk> HEAD..HEAD` і `$(git merge-base <trunk> HEAD)` на `$(git merge-base origin/<trunk> HEAD)`.
-- [ ] **Step 5: `### 4. Review the wave`** — після абзацу про авторитетність controller's verification додати:
+- [x] **Step 4: база ревʼю** — у `## Finish` замінити `git merge-base <trunk> HEAD..HEAD` на `git merge-base origin/<trunk> HEAD..HEAD` і `$(git merge-base <trunk> HEAD)` на `$(git merge-base origin/<trunk> HEAD)`.
+- [x] **Step 5: `### 4. Review the wave`** — після абзацу про авторитетність controller's verification додати:
 
 ```markdown
 Decide every `Declined to judge` item yourself: it becomes a finding or a
 one-line ruling in the wave's PR comment.
 ```
 
-- [ ] **Step 6: `reviewer-prompt.md`** — наприкінці абзацу `**2. Quality.**` додати речення, а перед `## Do not` додати розділ:
+- [x] **Step 6: `reviewer-prompt.md`** — наприкінці абзацу `**2. Quality.**` додати речення, а перед `## Do not` додати розділ:
 
 ```markdown
 Where the spec is silent, judge behaviour by what a reasonable person using this
@@ -148,7 +148,7 @@ List anything you could not judge from the diff, the plan and the spec, with the
 reason. The controller decides each item.
 ```
 
-- [ ] **Step 7: перевірити green** — команда зі Step 1, expect `0`; `wc -c skills/wolowitz/SKILL.md` показує менше за `20000`.
+- [x] **Step 7: перевірити green** — команда зі Step 1, expect `0`; `wc -c skills/wolowitz/SKILL.md` показує менше за `20000`.
 
 ### Task 2: `sheldon`: builder check і технічні вибори
 
@@ -158,9 +158,9 @@ reason. The controller decides each item.
 **Complexity:** routine
 **Satisfies:** три перевірки `sheldon`.
 
-- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — sheldon: '`, expect `3`.
-- [ ] **Step 2: frontmatter** — додати `  - Agent` після `  - Skill` в `allowed-tools`.
-- [ ] **Step 3: створити `skills/sheldon/builder-check-prompt.md`:**
+- [x] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — sheldon: '`, expect `3`.
+- [x] **Step 2: frontmatter** — додати `  - Agent` після `  - Skill` в `allowed-tools`.
+- [x] **Step 3: створити `skills/sheldon/builder-check-prompt.md`:**
 
 ```markdown
 # Builder check dispatch template
@@ -187,7 +187,7 @@ reasonably decide yourself. Skip nitpicks about wording.
 If nothing important is left, say "nothing important left".
 ```
 
-- [ ] **Step 4: питання про вибори** — у `## Understand the idea`, після пункту `Finish the questioning phase…`, перед `## Propose approaches` вставити:
+- [x] **Step 4: питання про вибори** — у `## Understand the idea`, після пункту `Finish the questioning phase…`, перед `## Propose approaches` вставити:
 
 ```markdown
 **Who owns the technical choices.** Find out which choices about how the thing
@@ -196,7 +196,7 @@ through the ones they care about. For the ones they hand over, pick a sensible
 default and say what you picked.
 ```
 
-- [ ] **Step 5: builder check** — перед `## Open the PR` вставити:
+- [x] **Step 5: builder check** — перед `## Open the PR` вставити:
 
 ```markdown
 ## Builder check
@@ -216,7 +216,7 @@ This is the only round of questions the check produces. Hand the spec over with
 a short list of the calls you made.
 ```
 
-- [ ] **Step 6: перевірити green** — команда зі Step 1, expect `0`.
+- [x] **Step 6: перевірити green** — команда зі Step 1, expect `0`.
 
 ### Task 3: `leonard`: Review Focus
 
@@ -226,8 +226,8 @@ a short list of the calls you made.
 **Complexity:** routine
 **Satisfies:** перевірка `leonard` на `## Review Focus`.
 
-- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — leonard: '`, expect `1`.
-- [ ] **Step 2: шаблон заголовка** — у блоці Header після абзацу `## Global constraints` усередині того самого блоку коду додати:
+- [x] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — leonard: '`, expect `1`.
+- [x] **Step 2: шаблон заголовка** — у блоці Header після абзацу `## Global constraints` усередині того самого блоку коду додати:
 
 ```markdown
 ## Review Focus
@@ -236,7 +236,7 @@ one line each: the condition and what a reasonable person would expect, most
 likely first. Add a test for each line to the task that owns the code.
 ```
 
-- [ ] **Step 3: перевірити green** — команда зі Step 1, expect `0`.
+- [x] **Step 3: перевірити green** — команда зі Step 1, expect `0`.
 
 ### Task 4: атрибуція
 
@@ -246,8 +246,8 @@ likely first. Add a test for each line to the task that owns the code.
 **Complexity:** routine
 **Satisfies:** перевірка `builder check: not credited`.
 
-- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -c 'builder check: not credited'`, expect `1`.
-- [ ] **Step 2: implement** — у списку розділу `## obra/superpowers` додати рядки:
+- [x] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -c 'builder check: not credited'`, expect `1`.
+- [x] **Step 2: implement** — у списку розділу `## obra/superpowers` додати рядки:
 
 ```markdown
 - `skills/sheldon/builder-check-prompt.md` and `skills/sheldon/SKILL.md` section "Builder check" from `skills/brainstorming/`
@@ -255,4 +255,4 @@ likely first. Add a test for each line to the task that owns the code.
 - `skills/wolowitz/reviewer-prompt.md` section "Declined to judge" from `skills/requesting-code-review/code-reviewer.md`
 ```
 
-- [ ] **Step 3: перевірити green** — команда зі Step 1, expect `0`.
+- [x] **Step 3: перевірити green** — команда зі Step 1, expect `0`.
