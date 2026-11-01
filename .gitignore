@@ -2,3 +2,4 @@
 # The prototype *content* is committed under docs/sdd/proto/ — it is the
 # evidence the spec argues from. This is only the machinery that serves it.
 .sdd/
+.claude/worktrees/
