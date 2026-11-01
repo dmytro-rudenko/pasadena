@@ -16,6 +16,7 @@ allowed-tools:
   - Bash(git show *)
   - Bash(git rev-parse *)
   - Bash(git merge-base *)
+  - Bash(git fetch *)
   - Bash(git worktree *)
   - Bash(git add *)
   - Bash(git commit *)
@@ -99,59 +100,15 @@ amy.
 ## Codex tasks
 
 `codex.sh` lives beside `journal.sh`; the session-start digest names that
-directory. A task with `**Executor:** codex` runs as two Codex calls with your
-own gates between them, because Codex cannot load amy and its report is not
-evidence. Start every `codex.sh` call through Bash with `run_in_background`.
+directory. On any `codex.sh` call, exit `75` means the ChatGPT plan's usage
+limit: tell the user in one line that Codex is off for the rest of the session
+and Claude usage is no longer being saved. Exit `1` from `codex.sh review` with
+`codex: nothing to review` means an empty diff; skip the Codex review.
 
-Start a wave's Codex tasks only after all of the wave's Claude implementers
-have reported, and run Codex calls one at a time. No other writer is active
-during a Codex call, so the `codex changed:` line that `red` and `green` print
-on stderr attributes every change it lists to that call.
-
-1. **Red.** Write a prompt file in the scratchpad: the full text of
-   `skills/amy/SKILL.md`, then `implementer-prompt-codex.md` filled in for the
-   task. Run `codex.sh red <prompt-file>`. Line 1 of its stdout is the thread
-   id; keep it.
-2. **Gate red.** Check it yourself:
-   - the `codex changed:` paths are all test files from the task's
-     `**Writes:**`;
-   - the task's verification command is red, and each failure is the reason
-     the plan predicts — a syntax or import error does not count;
-   - record `sha256sum` of the task's test files and copy those files into
-     the scratchpad.
-   When the gate fails, run `codex.sh green <thread-id> <prompt-file>` with a
-   prompt that names the problem and says to fix the tests only, then run Gate
-   red again. At most two such retries; after that the task goes to a fresh
-   Claude implementer.
-3. **Green.** Run `codex.sh green <thread-id> <prompt-file>` with a prompt that
-   says: write the minimum code that makes these tests pass; do not edit the
-   tests.
-4. **Gate green.**
-   - `sha256sum` of the test files matches the recorded one;
-   - the `codex changed:` paths are all in the task's `**Writes:**`, and no
-     test file is among them;
-   - the task's verification command is green.
-5. The rest of the wave — suite, review, commit, PR comment — is unchanged.
-
-When any gate after Gate red finds a checksum mismatch, first restore the test
-files from the scratchpad copy, then tell the next implementer — the Codex
-round or the fresh Claude implementer — that the tests were edited and
-restored.
-
-Fix loop: a Gate green failure right after step 3 counts as round 1, and its
-findings are the gate's output. Rounds 1–2 go to
-`codex.sh green <thread-id> <prompt-file>`, the prompt file holding the
-findings verbatim; round 3 goes to a fresh Claude implementer per **Models**.
-After each round sent to `codex.sh green`, run Gate green again before
-the wave goes on. A Gate green failure of any kind — checksum, `**Writes:**`
-set or verification — consumes that round; after round 2 the task goes to a
-fresh Claude implementer. When `codex.sh` exits non-zero, the task goes to a
-Claude implementer at once and the wave's PR comment names the exit code. Exit `75`
-means the ChatGPT plan's usage limit: tell the user in one line that Codex is
-off for the rest of the session and Claude usage is no longer being saved.
-Exit `1` from `codex.sh review` with `codex: nothing to review` means an empty
-diff; skip the Codex review. The wave's PR comment sums the `codex usage:`
-lines its Codex calls printed on stderr.
+A task with `**Executor:** codex` runs as two Codex calls with your own gates
+between them. Before a wave's first such task, read
+`references/codex-tasks.md` in this skill's directory, and read it again after a
+compaction.
 
 ## Complex tasks
 
@@ -163,57 +120,8 @@ with `**Executor:** codex` runs through **Codex tasks**. A Codex task handed to
 Claude before Round 3 runs on the `routine` row. A session with no subagents
 skips this section.
 
-Two shapes stay one implementer, dispatched with the wave's first message, with
-neither block and no gates, through the normal wave loop. A `complex` task with
-no test file in `**Writes:**` turns existing tests green: it runs on the
-`complex` green row. A `complex` task that only covers existing code has tests
-that pass on arrival: it runs on the `complex` red row, under amy's rules for
-existing code.
-
-A wave with `complex` tasks runs in stages: every red dispatch goes in the
-single message with the wave's `routine` implementers; when all have reported,
-run every Gate red; then send every green dispatch in one message; run every
-Gate green and finish its fix rounds; only then start the wave's Codex tasks,
-because a Codex call needs no other writer active.
-
-1. **Red.** Dispatch `implementer-prompt.md` with its **Red dispatch** block.
-2. **Gate red.** Check it yourself:
-   - the red implementer's reported files are all test files from the task's
-     `**Writes:**`, and `git status --porcelain` shows none of the task's other
-     `**Writes:**` files changed;
-   - the task's verification command is red, and each failure is the reason
-     the plan predicts — a syntax or import error does not count;
-   - record `sha256sum` of the task's test files and copy those files into
-     the scratchpad.
-   When the gate fails, send the problem to the red implementer through
-   `SendMessage`, then run Gate red again. At most two such retries; after that
-   the task goes to a Round-3 fresh implementer. Such a task enters the fix
-   loop at round 3.
-3. **Green.** Dispatch `implementer-prompt.md` with its **Green dispatch** block
-   to a new implementer, naming the test files.
-4. **Gate green.**
-   - `sha256sum` of the test files matches the recorded one;
-   - the reported files are all in the task's `**Writes:**`, and no test file
-     is among them;
-   - the task's verification command is green.
-5. The rest of the wave — suite, review, commit, PR comment — is unchanged.
-
-One counter per task covers every Gate green failure, `BLOCKED` report and
-review round. On a checksum mismatch, first restore the test files from the
-scratchpad copy and tell the next implementer they were edited and restored.
-
-A fix to the tests, after `BLOCKED` or a review finding, goes to the red
-implementer in rounds 1–2. Then record the checksums anew, replace the
-scratchpad copy, send the green implementer the changed tests, and run Gate
-green. A missing test goes the same way as a wrong one. A `BLOCKED` for any
-other reason, such as a file outside `**Writes:**`, takes a ruling and costs no
-round. In a two-dispatch task, a fix from `leslie` follows the same split and
-counts as a round.
-
-Round 3 is a fresh implementer who owns the tests and the code: dispatch with
-neither block, no gates, and the verification command must end green. A
-`BLOCKED` still open after round 3 is the broken-plan stop gate: tests and code
-cannot agree, so pause and put it to the user.
+Before a wave's first `complex` task, read `references/complex-tasks.md` in this
+skill's directory, and read it again after a compaction.
 
 ## Setup
 
@@ -309,6 +217,9 @@ Codex does not review waves; it reviews the whole branch once, in **Finish**.
 The controller's verification result remains authoritative; the reviewer
 focuses on the diff and skips duplicate test execution.
 
+Decide every `Declined to judge` item yourself: it becomes a finding or a
+one-line ruling in the wave's PR comment.
+
 ### 5. Fix loop, at most three rounds
 
 - **Rounds 1–2:** send the open findings, verbatim, back to the implementer
@@ -319,7 +230,8 @@ focuses on the diff and skips duplicate test execution.
   here is what was tried."
 
 On a task with red and green implementers, rounds 1–2 send findings on code to
-the green implementer and findings on tests to the red implementer.
+the green implementer and findings on tests to the red implementer. After a test
+fix, follow `references/complex-tasks.md`.
 
 Findings still open after three rounds are parked. Write down what is unresolved,
 note it in the PR comment, keep every fix with an implementer, and continue.
@@ -390,7 +302,9 @@ Execution pauses only for these four gates:
 
 When the last wave is closed:
 
-1. **Whole-branch review** over `git merge-base <trunk> HEAD..HEAD`, on
+1. First run `git fetch origin <trunk>`. When the repository has no `origin`,
+   use the local trunk as the base instead and say so in the final PR comment.
+   **Whole-branch review** over `git merge-base origin/<trunk> HEAD..HEAD`, on
    `sonnet` at `effort: "xhigh"` like every review. One combined fix dispatch receives all findings
    together; this is the single whole-branch fix wave.
 
@@ -400,12 +314,14 @@ When the last wave is closed:
    spec's path. In this Codex copy, replace the `**The diff:**` line with: the
    diff arrives on stdin as a `<stdin>` block — review that diff; read local
    files only for context. Keep "Do not re-run the tests". Run
-   `codex.sh review $(git merge-base <trunk> HEAD) <prompt-file>` in the
+   `codex.sh review $(git merge-base origin/<trunk> HEAD) <prompt-file>` in the
    background in the same message as the `sonnet` dispatch. Every `sonnet`
    finding goes to the fix dispatch. A Codex finding goes there only after you
    confirm it yourself at its `file:line`; drop the unconfirmed ones with a
    one-line note in the final PR comment. The `sonnet` verdict stays the
    verdict. The final PR comment carries the review's `codex usage:` line.
+   Decide every `Declined to judge` item from either review yourself, as in
+   step 4 of the wave loop, in the final PR comment.
 2. **Security review.** Invoke the `security-review` skill with the Skill tool
    on the branch diff. Findings go to one fix dispatch under the same rules as
    review findings. A finding fixable inside the branch's own code goes to

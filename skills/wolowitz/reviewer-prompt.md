@@ -9,7 +9,8 @@ you are reviewing all of them together.
 
 **Working directory:** `<absolute path to the worktree>`
 **The diff:** `git diff <BASE>..HEAD` — review the diff, not the files.
-**The plan:** `<path>`, tasks `<N, M, …>`, plus `## Global constraints`.
+**The plan:** `<path>`, tasks `<N, M, …>`, plus `## Global constraints` and,
+when the plan has one, `## Review Focus`.
 **The spec:** `<path>`.
 
 The implementers already ran their verification commands and the controller
@@ -28,6 +29,8 @@ line. Silence here is a verdict, so do not skip it when the answer is yes.
 **2. Quality.** Correctness first: what input or state makes this wrong?
 Then the things a fresh reader would trip on — a name that lies, a branch with
 no test, duplication that will drift, an error path that swallows the cause.
+Where the spec is silent, judge behaviour by what a reasonable person using this
+software would expect, starting with the plan's `## Review Focus` when it has one.
 
 For each finding: file and line, what is wrong, and what happens if it ships.
 Severity in your own words. Rank the list most severe first.
@@ -41,6 +44,11 @@ Severity in your own words. Rank the list most severe first.
   match in name and signature. `clearLayers()` in one and `clearFullLayers()`
   in the other is a bug, not a style note.
 
+## Declined to judge
+
+List anything you could not judge from the diff, the plan and the spec, with the
+reason. The controller decides each item. Write `none` when nothing was declined.
+
 ## Do not
 
 Do not judge decisions the plan or the spec made — if the plan chose an
@@ -48,4 +56,4 @@ approach, that is settled; flag it only if it cannot work. Do not propose
 refactors outside the diff. Do not soften a real finding because the wave is
 otherwise clean.
 
-Report findings only, no fixes.
+Report findings and declined items only, no fixes.
