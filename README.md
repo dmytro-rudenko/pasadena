@@ -127,6 +127,21 @@ Set it in your shell profile or in `.claude/settings.json`:
 
 The server uses `fetch` for choice events and a one-second poll for updates. That keeps the prototype server small and avoids a WebSocket dependency.
 
+## Models
+
+`wolowitz` sets `model` and `effort` on every dispatch. The main session stays on your own settings; `leonard` marks each task `routine` or `complex` in the plan.
+
+| Dispatch | Model | Effort |
+|---|---|---|
+| Task 0 (acceptance tests) | `opus` | `high` |
+| `routine` task | `sonnet` | `xhigh` |
+| `complex` task, red | `opus` | `high` |
+| `complex` task, green | `opus` | `medium` |
+| Round-3 fresh implementer, final fix dispatch | `opus` | `medium` |
+| Reviews, `Explore` fallback | `sonnet` | `xhigh` |
+
+The advisor (`--advisor opus`) is optional and Pasadena does not depend on it: plan approval, `leslie` and the whole-branch review already cover its usual moments. Subagents inherit it, so an Opus subagent with an Opus advisor pays twice for the same check.
+
 ## Codex delegation
 
 When the Codex CLI is installed and logged in, the skills hand part of the work to `codex exec` to save Claude usage. Claude stays the orchestrator and checks every result itself. Codex runs here as a worker, not as a plugin host.

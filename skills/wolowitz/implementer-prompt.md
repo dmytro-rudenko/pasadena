@@ -1,6 +1,7 @@
 # Implementer dispatch template
 
 Fill the angle brackets. Send every implementer of a wave in **one** message.
+Green dispatches of `complex` tasks go later, per **Complex tasks**.
 
 ---
 
@@ -47,6 +48,38 @@ ambiguity you spotted in the task; nothing else>
 6. **Use exactly the values the task gives.** Names, strings, numbers,
    signatures. If a value looks wrong, implement it as written and say so in
    your report.
+
+## Red dispatch
+
+Controller: include this block, without this line, only for the red half of a
+`complex` task; delete it otherwise.
+
+You write the tests, and only the tests. Write every test the task names, run
+the task's verification command, and stop on red with its output in your report.
+Leave the implementation steps to the next implementer. Production code is not
+yours to touch, even to make a test compile. A test that uses something this
+task creates may fail on it however the toolchain reports that: leave it and name
+it in your report.
+Findings on these tests may come back to you through `SendMessage`.
+
+This block overrides Rules 3 and 5: invoke `amy` for how to write the tests and
+watch them fail; her green steps and done checklist belong to the next
+implementer.
+
+In a test-fix round production code already exists, so a corrected test may
+pass. Fix the test, run the verification command, and report its result as it
+stands; do not chase red.
+
+## Green dispatch
+
+Controller: include this block, without this line, only for the green half of a
+`complex` task; delete it otherwise.
+
+The tests at `<test file paths>` were written by another implementer and their
+checksums are recorded. Do not edit them. Write the minimum that makes them
+pass. When a test itself is wrong, or a behaviour you must write has no test,
+stop and report `BLOCKED` with the test and your reason. This overrides amy on
+writing new tests.
 
 ## Before you start
 

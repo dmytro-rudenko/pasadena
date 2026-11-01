@@ -112,6 +112,11 @@ Header:
 ## Global constraints
 Project-wide rules, with exact values copied verbatim from the spec. Every
 task's requirements implicitly include this section.
+
+## Review Focus
+Up to five inputs or failure modes the spec implies but no task's tests exercise,
+one line each: the condition and what a reasonable person would expect, most
+likely first. Add a test for each line to the task that owns the code.
 ```
 
 Then one block per task:
@@ -123,6 +128,7 @@ Then one block per task:
 **Reads:** `docs/design.md`
 **Depends on:** Task 1
 **Executor:** codex
+**Complexity:** routine
 **Interfaces:**
 - Consumes: the `✎` marker written by `cmd_note` (Task 1).
 - Produces: `append_now_fallback` — appends `  ↳ <one line, ≤200 chars>`;
@@ -144,10 +150,22 @@ only when all of these hold:
 - `**Writes:**` names at most 3 files, one of them a test;
 - no other task names it in `**Depends on:**`;
 - every name, string, number and signature is given in the task text;
+- the task is `**Complexity:** routine`;
 - `codex.sh available` exits 0 while you plan.
 
 Otherwise write `claude`. Task 0 is always `**Executor:** claude`. The user
 sees the split when approving the plan.
+
+`**Complexity:** routine | complex` decides which models build the task. Write
+`complex` when at least one of these holds:
+
+- the task touches concurrency, persisted state or migrations, or security;
+- it produces a contract named in another task's `**Depends on:**`, and the task
+  text does not give that contract's full shape;
+- the repository has no example to model its test on.
+
+Otherwise write `routine`. When in doubt, write `complex`. Task 0 carries no
+`**Complexity:**` line: it always runs on Opus at high effort.
 
 `**Interfaces:**` exists because an implementer sees only their own task. It is
 how they learn the names and signatures their neighbours produce.

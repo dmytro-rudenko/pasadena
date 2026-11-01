@@ -125,6 +125,21 @@ git commit -m "chore(journal): close <task>"
 
 Сервер використовує `fetch` для виборів і опитування раз на секунду для оновлень. Так він обходиться без WebSocket-залежності.
 
+## Моделі
+
+`wolowitz` задає `model` і `effort` у кожному dispatch. Головна сесія лишається на ваших налаштуваннях; `leonard` позначає кожну задачу в плані як `routine` або `complex`.
+
+| Dispatch | Модель | Effort |
+|---|---|---|
+| Task 0 (acceptance-тести) | `opus` | `high` |
+| `routine`-задача | `sonnet` | `xhigh` |
+| `complex`-задача, red | `opus` | `high` |
+| `complex`-задача, green | `opus` | `medium` |
+| Fresh implementer у раунді 3, фінальний fix dispatch | `opus` | `medium` |
+| Ревʼю, fallback `Explore` | `sonnet` | `xhigh` |
+
+Advisor (`--advisor opus`) необовʼязковий, і Pasadena від нього не залежить: його типові моменти вже закривають затвердження плану, `leslie` і ревʼю всієї гілки. Субагенти його успадковують, тому Opus-субагент з Opus-advisor двічі платить за ту саму перевірку.
+
 ## Делегування в Codex
 
 Якщо Codex CLI встановлено і в ньому виконано вхід, skills віддають частину роботи в `codex exec`, щоб заощадити ліміти Claude. Claude лишається оркестратором і сам перевіряє кожен результат. Codex тут виконавець, а не хост плагіна.
