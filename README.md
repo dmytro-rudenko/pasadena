@@ -127,6 +127,40 @@ Set it in your shell profile or in `.claude/settings.json`:
 
 The server uses `fetch` for choice events and a one-second poll for updates. That keeps the prototype server small and avoids a WebSocket dependency.
 
+## Models
+
+`wolowitz` sets `model` and `effort` on every dispatch. The main session stays on your own settings; `leonard` marks each task `routine` or `complex` in the plan.
+
+| Dispatch | Model | Effort |
+|---|---|---|
+| Task 0 (acceptance tests) | `opus` | `high` |
+| `routine` task | `sonnet` | `xhigh` |
+| `complex` task, red | `opus` | `high` |
+| `complex` task, green | `opus` | `medium` |
+| Round-3 fresh implementer, final fix dispatch | `opus` | `medium` |
+| Reviews, `Explore` fallback | `sonnet` | `xhigh` |
+
+The advisor (`--advisor opus`) is optional and Pasadena does not depend on it: plan approval, `leslie` and the whole-branch review already cover its usual moments. Subagents inherit it, so an Opus subagent with an Opus advisor pays twice for the same check.
+
+## Codex delegation
+
+When the Codex CLI is installed and logged in, the skills hand part of the work to `codex exec` to save Claude usage. Claude stays the orchestrator and checks every result itself. Codex runs here as a worker, not as a plugin host.
+
+- **explore** — `leonard`, `leslie`, `sheldon` and `wolowitz` send bulk read-only lookups to Codex and get back facts with `file:line`.
+- **review** — `wolowitz` runs one Codex review of the whole branch at the finish, beside the `sonnet` reviewer; only findings Claude confirms count.
+- **implement** — plan tasks marked `**Executor:** codex` are written by Codex in two calls, tests first and then code, with Claude running the tests between them.
+
+While Codex works, `hooks/codex.sh` streams a compact session log to stderr, one `codex › ` line per command, failed exit code, file change, reasoning summary, message or error, cut to 200 characters. It shows up in the background task's output panel. The final answer stays on stdout.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `PASADENA_CODEX` | `1` | `0` turns delegation off |
+| `PASADENA_CODEX_IDLE` | `120` | seconds without a Codex event before the call is stopped |
+| `PASADENA_CODEX_CMD_IDLE` | `600` | the same limit while Codex runs a command |
+| `PASADENA_CODEX_MODEL` | — | passed to Codex as `-m` |
+
+Codex spends your ChatGPT plan's usage. When it runs out, `hooks/codex.sh` exits `75`, the skills tell you once, and delegation stays off for six hours or until you delete `pasadena/codex-exhausted` under `${XDG_STATE_HOME:-~/.local/state}`.
+
 ## Checks
 
 ```bash
@@ -134,9 +168,10 @@ bash skills/skills.test.sh
 bash hooks/journal.test.sh
 bash proto/server.test.sh
 bash hooks/nudge.test.sh
+bash hooks/codex.test.sh
 ```
 
-The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration.
+The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration. The Codex checks run `hooks/codex.sh` against a fake `codex` and cover availability, each subcommand's flags, the session log, the idle stop and the usage-limit marker.
 
 For the full design, read [docs/design.md](docs/design.md).
 

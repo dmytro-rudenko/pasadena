@@ -16,6 +16,7 @@ allowed-tools:
   - Bash(git show *)
   - Bash(git rev-parse *)
   - Bash(git merge-base *)
+  - Bash(git fetch *)
   - Bash(git worktree *)
   - Bash(git add *)
   - Bash(git commit *)
@@ -25,6 +26,8 @@ allowed-tools:
   - Bash(gh pr edit *)
   - Bash(gh pr ready *)
   - Bash(bash *)
+  - Bash(sha256sum *)
+  - Bash(cp *)
   - Bash(npm *)
   - Bash(pnpm *)
   - Bash(yarn *)
@@ -60,16 +63,23 @@ and the rest of the build runs uninterrupted.
 
 ## Models
 
-Every dispatch sets `model` **explicitly** — never leave it to a default, never
-pick a cheaper one to save cost:
+Every dispatch sets `model` and `effort` **explicitly**, whatever model the
+session runs on — never leave either to a default, never pick another level to
+save cost:
 
-| Dispatch | `model` |
-|---|---|
-| Implementer, including a round-3 fresh implementer | The session's model, as your own system prompt names it: `opus` on Opus, `fable` on Fable |
-| Wave reviewer and whole-branch review | `fable` |
-| Read-only `Explore` lookup | `sonnet` is allowed |
+| Dispatch | `model` | `effort` |
+|---|---|---|
+| Task 0 | `opus` | `high` |
+| `routine` task, the whole `amy` cycle | `sonnet` | `xhigh` |
+| `complex` task, red | `opus` | `high` |
+| `complex` task, green | `opus` | `medium` |
+| Round-3 fresh implementer, including after Codex | `opus` | `medium` |
+| Fix dispatch after the whole-branch and security reviews | `opus` | `medium` |
+| Wave reviewer and whole-branch review | `sonnet` | `xhigh` |
+| `Explore`, when `codex.sh available` exits non-zero | `sonnet` | `xhigh` |
 
-`sonnet` and `haiku` never write code and never review.
+Read-only lookups go to `codex.sh explore <prompt-file>` when
+`codex.sh available` exits 0. `haiku` is never used.
 
 ## Without subagents
 
@@ -83,6 +93,37 @@ spec and the plan yourself, and say "no subagents" in the wave's PR comment.
 The rest of the loop — verify, commit, comment, close — stays the same. At
 **Finish**, you do the whole-branch review yourself over the branch diff, and
 you apply its findings and the security-review findings yourself through amy.
+`**Executor:** codex` tasks still run through **Codex tasks** when
+`codex.sh available` exits 0; otherwise you implement them yourself through
+amy.
+
+## Codex tasks
+
+`codex.sh` lives beside `journal.sh`; the session-start digest names that
+directory. On any `codex.sh` call, exit `75` means the ChatGPT plan's usage
+limit: tell the user in one line that Codex is off for the rest of the session
+and Claude usage is no longer being saved. Exit `1` from `codex.sh review` with
+`codex: nothing to review` means an empty diff; skip the Codex review. Start
+every `codex.sh` call through Bash with `run_in_background`.
+
+A task with `**Executor:** codex` runs as two Codex calls with your own gates
+between them. Before a wave's first such task, read
+`references/codex-tasks.md` in this skill's directory, and read it again after a
+compaction.
+
+## Complex tasks
+
+`**Complexity:**` decides how a Claude task runs. `routine` is one implementer
+through the whole `amy` cycle. `complex` is two dispatches with your own gates
+between them. Two shapes stay one implementer; the reference names them.
+A task with no `**Complexity:**` line is `complex`. Task 0 is
+outside this section: one implementer, per **Models**, stopping on red. A task
+with `**Executor:** codex` runs through **Codex tasks**. A Codex task handed to
+Claude before Round 3 runs on the `routine` row. A session with no subagents
+skips this section.
+
+Before a wave's first `complex` task, read `references/complex-tasks.md` in this
+skill's directory, and read it again after a compaction.
 
 ## Setup
 
@@ -116,6 +157,8 @@ diffs against `BASE`, capturing every commit in the wave.
 dispatches in one response run concurrently, which is the execution model the
 wave table establishes.
 
+Green dispatches of `complex` tasks go later, per **Complex tasks**.
+
 Each dispatch carries what `implementer-prompt.md` lays out. Compose it so the
 plan stays the single source of requirements:
 
@@ -127,7 +170,13 @@ plan stays the single source of requirements:
 - the instruction to invoke the `amy` skill (`pasadena:amy`) before writing
   code — a subagent starts with no skills loaded, and naming amy in passing
   does not load her;
-- `model` set to the session's model, per **Models**.
+- `model` and `effort` set per **Models**.
+
+A task whose block says `**Executor:** codex` is not dispatched through the
+Agent tool: run it through **Codex tasks**, one Codex call at a time, started
+only after all of the wave's Claude implementers have reported, and after every
+Gate green and its fix rounds. When `codex.sh available` exits non-zero at build
+time, dispatch it as a Claude task and say so in the wave's PR comment.
 
 A dispatch describes one task and its required context. The plan and journal
 remain the source for accumulated history from earlier waves.
@@ -158,25 +207,35 @@ When the run is red and one line of the error does not show the cause, do not
 patch by guesswork: invoke the `leslie` skill with the Skill tool, as
 `pasadena:leslie`. Leslie diagnoses: she returns the root cause and the fix to make. The
 implementer fixes: the fix goes to the task's implementer — through amy when
-the session has no subagents — and the verification runs again.
+the session has no subagents — and the verification runs again. It counts as a
+round of the fix loop for each task it touches, and that loop's routing applies.
 
 ### 4. Review the wave
 
-One reviewer on `fable` examines the `BASE..HEAD` diff with
+One reviewer on `sonnet` at `effort: "xhigh"` examines the `BASE..HEAD` diff with
 `reviewer-prompt.md`. A complete report contains both verdicts: spec compliance
 and quality.
 
+Codex does not review waves; it reviews the whole branch once, in **Finish**.
+
 The controller's verification result remains authoritative; the reviewer
 focuses on the diff and skips duplicate test execution.
+
+Decide every `Declined to judge` item yourself: it becomes a finding or a
+one-line ruling in the wave's PR comment.
 
 ### 5. Fix loop, at most three rounds
 
 - **Rounds 1–2:** send the open findings, verbatim, back to the implementer
   that wrote the code through `SendMessage` — it still
   has the context.
-- **Round 3:** a fresh implementer — on the session's model, per **Models** —
+- **Round 3:** a fresh implementer, per **Models** —
   framed honestly: "two prior attempts failed on this task; you own it now,
   here is what was tried."
+
+On a task with red and green implementers, rounds 1–2 send findings on code to
+the green implementer and findings on tests to the red implementer. After a test
+fix, follow `references/complex-tasks.md`.
 
 Findings still open after three rounds are parked. Write down what is unresolved,
 note it in the PR comment, keep every fix with an implementer, and continue.
@@ -196,7 +255,7 @@ nothing else. The diff carries the detail.
 
 ### 7. Comment on the PR
 
-One comment per wave, **2–3 sentences** — no longer:
+One comment per wave, **2–3 sentences**, plus one line per ruling — no longer:
 
     gh pr comment <n> --body-file <file>
 
@@ -247,9 +306,27 @@ Execution pauses only for these four gates:
 
 When the last wave is closed:
 
-1. **Whole-branch review** over `git merge-base <trunk> HEAD..HEAD`, on
-   `fable` like every review. One combined fix dispatch receives all findings
+1. First run `git fetch origin <trunk>`. When the fetch fails or
+   `origin/<trunk>` does not exist, use the local trunk as the base instead and
+   say so in the final PR comment.
+   **Whole-branch review** over `git merge-base origin/<trunk> HEAD..HEAD`, on
+   `sonnet` at `effort: "xhigh"` like every review. One combined fix dispatch receives all findings
    together; this is the single whole-branch fix wave.
+
+   When `codex.sh available` exits 0, write a prompt file in the scratchpad:
+   `reviewer-prompt.md` from this skill's directory, filled in for the whole
+   branch — the merge-base as `BASE`, the plan's path, every task number, the
+   spec's path. In this Codex copy, replace the `**The diff:**` line with: the
+   diff arrives on stdin as a `<stdin>` block — review that diff; read local
+   files only for context. Keep "Do not re-run the tests". Run
+   `codex.sh review $(git merge-base origin/<trunk> HEAD) <prompt-file>` in the
+   background in the same message as the `sonnet` dispatch. Every `sonnet`
+   finding goes to the fix dispatch. A Codex finding goes there only after you
+   confirm it yourself at its `file:line`; drop the unconfirmed ones with a
+   one-line note in the final PR comment. The `sonnet` verdict stays the
+   verdict. The final PR comment carries the review's `codex usage:` line.
+   Decide every `Declined to judge` item from either review yourself, as in
+   step 4 of the wave loop, in the final PR comment.
 2. **Security review.** Invoke the `security-review` skill with the Skill tool
    on the branch diff. Findings go to one fix dispatch under the same rules as
    review findings. A finding fixable inside the branch's own code goes to
@@ -258,7 +335,8 @@ When the last wave is closed:
    already exposed — is the security-sensitive stop gate: pause and put it to
    the user. When the skill is unavailable, say
    so once and note the skip in the PR comment.
-3. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
+3. Post the final PR comment: every note the steps above assign to it, and the
+   `codex usage:` line. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
    `git rm` the journal, commit `chore(journal): close <task>`.
 4. `gh pr ready` — the draft becomes a real PR.
 
@@ -267,7 +345,7 @@ When the last wave is closed:
 | Situation | Required rule |
 |---|---|
 | Two tasks are candidates for one wave | Their `Writes:` sets must be disjoint. |
-| A wave contains multiple tasks | Dispatch all implementers in one message; disjoint write sets provide safe concurrency. |
+| A wave contains multiple tasks | Dispatch all implementers in one message; disjoint write sets provide safe concurrency. Green dispatches of `complex` tasks go later, per **Complex tasks**. |
 | A task is ready to commit | The controller commits it, keeping access to the shared index serialized. |
 | Review finds a small issue | Return it to the responsible implementer so the fix receives review. |
 | A wave closes | Post its one PR comment, then start the next wave in the same session. |

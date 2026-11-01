@@ -23,6 +23,7 @@ allowed-tools:
   - Bash(ls *)
   - Bash(rg *)
   - Bash(wc *)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/codex.sh *)
 ---
 
 # Planning
@@ -76,6 +77,17 @@ Gather context deliberately, so every task carries what an implementer needs:
   wave computation keys on — so getting it exact here is what makes the parallel
   waves safe.
 
+When the session-start digest says `Codex: available` (no digest: run
+`codex.sh available` beside `journal.sh` once), the reading past two or three
+pinpoint lookups — everything you would otherwise read file by file or send to
+`Explore` or a read-only fork — goes to `codex.sh explore <prompt-file>`: ask for the stack,
+conventions, reusable helpers and the files each task touches, as facts with
+`file:line`. You draw the conclusions. Confirm with one `Read` or `grep` every
+fact a task will rely on — a signature, a name, a path — before it goes into
+the plan. When `codex.sh explore` exits non-zero, do the reading yourself; on
+exit `75` also tell the user once that Codex is off and Claude usage is no
+longer being saved.
+
 ## 2. Write the plan into the native plan file
 
 **The file contains only the decomposition.** Plan mode normally asks "what
@@ -100,6 +112,11 @@ Header:
 ## Global constraints
 Project-wide rules, with exact values copied verbatim from the spec. Every
 task's requirements implicitly include this section.
+
+## Review Focus
+Up to five inputs or failure modes the spec implies but no task's tests exercise,
+one line each: the condition and what a reasonable person would expect, most
+likely first. Add a test for each line to the task that owns the code.
 ```
 
 Then one block per task:
@@ -110,6 +127,8 @@ Then one block per task:
 **Writes:** `hooks/journal.sh`, `hooks/journal.test.sh`
 **Reads:** `docs/design.md`
 **Depends on:** Task 1
+**Executor:** codex
+**Complexity:** routine
 **Interfaces:**
 - Consumes: the `✎` marker written by `cmd_note` (Task 1).
 - Produces: `append_now_fallback` — appends `  ↳ <one line, ≤200 chars>`;
@@ -125,6 +144,29 @@ Then one block per task:
 `**Writes:**` is load-bearing: the wave computation and the builder's staging
 both key on it. Each task writes only the files it declares.
 
+`**Executor:** codex | claude` says who implements the task. Write `codex`
+only when all of these hold:
+
+- `**Writes:**` names at most 3 files, one of them a test;
+- no other task names it in `**Depends on:**`;
+- every name, string, number and signature is given in the task text;
+- the task is `**Complexity:** routine`;
+- `codex.sh available` exits 0 while you plan.
+
+Otherwise write `claude`. Task 0 is always `**Executor:** claude`. The user
+sees the split when approving the plan.
+
+`**Complexity:** routine | complex` decides which models build the task. Write
+`complex` when at least one of these holds:
+
+- the task touches concurrency, persisted state or migrations, or security;
+- it produces a contract named in another task's `**Depends on:**`, and the task
+  text does not give that contract's full shape;
+- the repository has no example to model its test on.
+
+Otherwise write `routine`. When in doubt, write `complex`. Task 0 carries no
+`**Complexity:**` line: it always runs on Opus at high effort.
+
 `**Interfaces:**` exists because an implementer sees only their own task. It is
 how they learn the names and signatures their neighbours produce.
 
@@ -135,6 +177,7 @@ per completion criterion in the spec's Verification section:
 ### Task 0: acceptance tests
 
 **Writes:** `<the acceptance test files only>`
+**Executor:** claude
 **Covers:** <each completion criterion, quoted from the spec>
 
 - [ ] **Step 1: write the acceptance tests** — <the actual test code>

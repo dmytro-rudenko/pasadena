@@ -347,6 +347,31 @@ ctx="$(jq -r '.hookSpecificOutput.additionalContext' <<<"$out")"
 assert_empty "$(grep 'Artifacts' <<<"$ctx")" "no artifacts, no artifacts block"
 rm -rf "$d"
 
+echo "== Codex availability in the digest =="
+
+fakebin="$(mktemp -d)"
+printf '#!/usr/bin/env bash\nexit 0\n' >"$fakebin/codex"
+chmod +x "$fakebin/codex"
+
+d="$(setup_repo)"
+git -C "$d" checkout -q -b feat/x
+out="$(printf '{"cwd":"%s","source":"startup"}' "$d" | PATH="$fakebin:$PATH" bash "$HOOK" session-start)"
+ctx="$(jq -r '.hookSpecificOutput.additionalContext' <<<"$out")"
+assert_contains "$ctx" "Codex: available" "no journal: digest says Codex is available"
+assert_contains "$ctx" "codex.sh explore" "no journal: digest names codex.sh explore"
+out="$(printf '{"cwd":"%s","source":"startup"}' "$d" | PASADENA_CODEX=0 bash "$HOOK" session-start)"
+ctx="$(jq -r '.hookSpecificOutput.additionalContext' <<<"$out")"
+assert_contains "$ctx" "Codex: off" "no journal: digest says Codex is off"
+
+make_journal "$d" "feat-x"
+out="$(printf '{"cwd":"%s","source":"startup"}' "$d" | PATH="$fakebin:$PATH" bash "$HOOK" session-start)"
+ctx="$(jq -r '.hookSpecificOutput.additionalContext' <<<"$out")"
+assert_contains "$ctx" "Codex: available" "journal: digest says Codex is available"
+out="$(printf '{"cwd":"%s","source":"startup"}' "$d" | PASADENA_CODEX=0 bash "$HOOK" session-start)"
+ctx="$(jq -r '.hookSpecificOutput.additionalContext' <<<"$out")"
+assert_contains "$ctx" "Codex: off" "journal: digest says Codex is off"
+rm -rf "$d" "$fakebin"
+
 echo
 if [ "$fails" -gt 0 ]; then
   echo "FAILED: $fails"

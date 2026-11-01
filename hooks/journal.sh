@@ -117,6 +117,16 @@ emit_context() {
     '{hookSpecificOutput:{hookEventName:"SessionStart",additionalContext:$ctx}}'
 }
 
+codex_line() {
+  local sh
+  sh="$(dirname "$0")/codex.sh"
+  if bash "$sh" available >/dev/null 2>&1; then
+    printf 'Codex: available — send read-only code lookups to `bash %s explore <prompt-file>` instead of Explore or a read-only fork.' "$sh"
+  else
+    printf 'Codex: off — do code lookups yourself.'
+  fi
+}
+
 cmd_session_start() {
   if [ ! -f "$file" ]; then
     is_trunk && exit 0
@@ -124,7 +134,8 @@ cmd_session_start() {
     # plugin's own scripts (proto/start.sh sits beside hooks/), and a session
     # that starts one mid-conversation never sees a second digest.
     emit_context "No session journal for branch \`$branch\`. If this task will span more than one session, offer to start one (skill raj). Skip it for a small fix.
-Plugin scripts live beside \`$0\`."
+Plugin scripts live beside \`$0\`.
+$(codex_line)"
     exit 0
   fi
 
@@ -182,7 +193,8 @@ $notes"
   ctx="$ctx
 
 Continue from \"Now\". Update that section at phase boundaries and before pausing — skill raj.
-Record what happened at each stage boundary: bash \"$0\" note \"<one line>\""
+Record what happened at each stage boundary: bash \"$0\" note \"<one line>\"
+$(codex_line)"
 
   # startup/resume/clear — a new session. compact/fork — same session, no second start line.
   case "$(jf '.source')" in

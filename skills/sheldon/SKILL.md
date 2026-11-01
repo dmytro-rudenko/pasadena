@@ -10,6 +10,7 @@ allowed-tools:
   - AskUserQuestion
   - TodoWrite
   - Skill
+  - Agent
   - Edit(docs/sdd/specs/**)
   - Bash(git status *)
   - Bash(git log *)
@@ -23,6 +24,7 @@ allowed-tools:
   - Bash(ls *)
   - Bash(rg *)
   - Bash(wc *)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/codex.sh *)
 disallowed-tools:
   - NotebookEdit
 ---
@@ -98,6 +100,18 @@ First, inspect the current state — files, documentation, and recent commits.
 Good questions about code are based on code that has already been read and on
 the existing repository context.
 
+When the session-start digest says `Codex: available` (no digest: run
+`codex.sh available` beside `journal.sh` once), the reading goes to
+`codex.sh explore <prompt-file>`, with facts asked for as `file:line`. That
+covers anything past two or three pinpoint lookups: how a feature works, the
+call chain, where the code lives, what the frontend sends — everything you
+would otherwise read file by file or send to `Explore` or a read-only fork.
+Work that needs the network, a database or a browser stays yours. The
+questions and the design stay yours; confirm with one `Read` or `grep` each
+fact a question or the spec rests on. When `codex.sh explore` exits non-zero,
+do the reading yourself; on exit `75` also tell the user once that Codex is off
+and Claude usage is no longer being saved.
+
 **Check the scope before moving into details.** If the request describes several
 independent subsystems ("a platform with chat, storage, billing, and analytics"),
 state that immediately and help decompose the work. Each part then goes through
@@ -111,6 +125,11 @@ Then ask questions:
   they provide more useful context.
 * Focus on purpose, constraints, and completion criteria. Form your own
   implementation proposals from the context you have gathered.
+* **Who owns the technical choices.** Find out which choices about how the thing
+  gets made the user wants to own: platform, language, libraries, medium. Talk
+  through the ones they care about. For the ones they hand over, pick a sensible
+  default and say what you picked. Where the repository already answers these,
+  skip this.
 * Finish the questioning phase when you can clearly state what is being built
   and why. Ask one more important question when necessary: an extra clarification
   is cheaper than a wrong specification. At the same time, keep the dialogue
@@ -121,7 +140,8 @@ Then ask questions:
 Propose two or three approaches with their trade-offs. Lead with the approach
 you recommend and explain why. Apply YAGNI strictly: keep only what is necessary
 for the stated goal in each approach, and explicitly name everything that is
-intentionally left outside the current scope.
+intentionally left outside the current scope. Every approach keeps the choices
+the user owns and the defaults you announced.
 
 ## Present the design
 
@@ -205,6 +225,22 @@ fixes immediately:
   tasks have already been decomposed.
 * **Unambiguity:** every requirement has one clearly documented interpretation.
 
+## Builder check
+
+Architectural path only. After the self-review, dispatch a fresh subagent with
+`builder-check-prompt.md` from this skill's directory. Without a subagent tool,
+read the spec as that builder yourself. Sort what comes back into three piles:
+
+- **Answered already** by the conversation or the repository: put the answer in
+  the spec.
+- **Minor:** a sensible builder could settle it without changing what gets
+  built. Settle it and mark it in the spec as your call.
+- **Theirs:** only the user can answer it, and the answer changes what gets
+  built. Ask these in one message, most important first, then update the spec.
+  This is the one exception to one question per message.
+
+This is the only round of questions the check produces.
+
 ## Open the PR
 
 Commit the specification, push the branch, and open a **draft** PR whose body
@@ -224,6 +260,9 @@ all later phases remain functional regardless of whether the PR exists.
 
 > The spec has been written and committed at `<path>`, and draft PR #N is open.
 > Read it and tell me whether anything should change before we move on to the plan.
+
+On the Architectural path, add the list of calls you made in the Builder check to
+this message.
 
 At this stage, work only with feedback on the specification. If the user asks
 for changes, apply them and repeat the self-review. After explicit user
