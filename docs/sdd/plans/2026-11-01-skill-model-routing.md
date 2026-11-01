@@ -27,7 +27,7 @@
 **Executor:** claude
 **Covers:** усі пункти 1 Verification специфікації: матриця в `wolowitz`, поле `**Complexity:**` у `leonard`, блоки `Red dispatch` і `Green dispatch`, відсутність `model:`/`effort:` у frontmatter, таблиця моделей в обох README, версія `0.14.0`.
 
-- [ ] **Step 1: write the acceptance tests** — вставити перед рядком `echo "Manifest versions"`:
+- [x] **Step 1: write the acceptance tests** — вставити перед рядком `echo "Manifest versions"`:
 
 ```bash
 echo "Model routing"
@@ -67,7 +67,7 @@ done
 
 ```
 
-- [ ] **Step 2: run them, watch them fail** — `bash skills/skills.test.sh | tail -1`, expect `FAILED: 23`: поведінки ще немає. Склад: `leonard` 3, `wolowitz` 12, `implementer-prompt.md` 2, README 4, маніфести 2. Перевірка frontmatter уже зелена, а всі рядки `FAIL` стосуються блоку `Model routing`.
+- [x] **Step 2: run them, watch them fail** — `bash skills/skills.test.sh | tail -1`, expect `FAILED: 23`: поведінки ще немає. Склад: `leonard` 3, `wolowitz` 12, `implementer-prompt.md` 2, README 4, маніфести 2. Перевірка frontmatter уже зелена, а всі рядки `FAIL` стосуються блоку `Model routing`.
 
 ### Task 1: `leonard` розмічає Complexity
 
