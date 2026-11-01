@@ -51,8 +51,8 @@ ambiguity you spotted in the task; nothing else>
 
 ## Red dispatch
 
-Include this block only for the red half of a `complex` task; delete it
-otherwise.
+Controller: include this block, without this line, only for the red half of a
+`complex` task; delete it otherwise.
 
 You write the tests, and only the tests. Write every test the task names, run
 the task's verification command, and stop on red with its output in your report.
@@ -64,10 +64,14 @@ This block overrides Rules 3 and 5: invoke `amy` for how to write the tests and
 watch them fail; her green steps and done checklist belong to the next
 implementer.
 
+In a test-fix round production code already exists, so a corrected test may
+pass. Fix the test, run the verification command, and report its result as it
+stands; do not chase red.
+
 ## Green dispatch
 
-Include this block only for the green half of a `complex` task; delete it
-otherwise.
+Controller: include this block, without this line, only for the green half of a
+`complex` task; delete it otherwise.
 
 The tests at `<test file paths>` were written by another implementer and their
 checksums are recorded. Do not edit them. Write the minimum that makes them

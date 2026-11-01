@@ -163,15 +163,18 @@ with `**Executor:** codex` runs through **Codex tasks**. A Codex task handed to
 Claude before Round 3 runs on the `routine` row. A session with no subagents
 skips this section.
 
-A `complex` task with no test file in `**Writes:**` turns existing tests green,
-so it is one implementer on the `complex` green row. A `complex` task that only
-covers existing code has tests that pass on arrival, so it is one implementer
-on the `complex` red row, under amy's rules for existing code.
+Two shapes stay one implementer, dispatched with the wave's first message, with
+neither block and no gates, through the normal wave loop. A `complex` task with
+no test file in `**Writes:**` turns existing tests green: it runs on the
+`complex` green row. A `complex` task that only covers existing code has tests
+that pass on arrival: it runs on the `complex` red row, under amy's rules for
+existing code.
 
 A wave with `complex` tasks runs in stages: every red dispatch goes in the
 single message with the wave's `routine` implementers; when all have reported,
 run every Gate red; then send every green dispatch in one message; run every
-Gate green; only then start the wave's Codex tasks.
+Gate green and finish its fix rounds; only then start the wave's Codex tasks,
+because a Codex call needs no other writer active.
 
 1. **Red.** Dispatch `implementer-prompt.md` with its **Red dispatch** block.
 2. **Gate red.** Check it yourself:
@@ -202,7 +205,10 @@ scratchpad copy and tell the next implementer they were edited and restored.
 A fix to the tests, after `BLOCKED` or a review finding, goes to the red
 implementer in rounds 1–2. Then record the checksums anew, replace the
 scratchpad copy, send the green implementer the changed tests, and run Gate
-green. A missing test goes the same way as a wrong one.
+green. A missing test goes the same way as a wrong one. A `BLOCKED` for any
+other reason, such as a file outside `**Writes:**`, takes a ruling and costs no
+round. In a two-dispatch task, a fix from `leslie` follows the same split and
+counts as a round.
 
 Round 3 is a fresh implementer who owns the tests and the code: dispatch with
 neither block, no gates, and the verification command must end green. A
@@ -312,8 +318,8 @@ focuses on the diff and skips duplicate test execution.
   framed honestly: "two prior attempts failed on this task; you own it now,
   here is what was tried."
 
-On a `complex` task, findings on code go to its green implementer and findings
-on tests go to its red implementer.
+On a task with red and green implementers, rounds 1–2 send findings on code to
+the green implementer and findings on tests to the red implementer.
 
 Findings still open after three rounds are parked. Write down what is unresolved,
 note it in the PR comment, keep every fix with an implementer, and continue.
