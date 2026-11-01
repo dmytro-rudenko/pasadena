@@ -35,7 +35,7 @@
 **Executor:** claude
 **Covers:** розмір кожного `SKILL.md`; винесення `Codex tasks` і `Complex tasks`; база ревʼю від `origin/<trunk>`; builder check; питання про технічні вибори; `## Review Focus`; правила ревʼюера; атрибуція.
 
-- [ ] **Step 1: додати helper** — одразу після функції `require()` вставити:
+- [x] **Step 1: додати helper** — одразу після функції `require()` вставити:
 
 ```bash
 require_ref() {
@@ -43,7 +43,7 @@ require_ref() {
 }
 ```
 
-- [ ] **Step 2: перенести наявні перевірки** — у блоці `Codex delegation` замінити рядки:
+- [x] **Step 2: перенести наявні перевірки** — у блоці `Codex delegation` замінити рядки:
 
 ```bash
 require wolowitz "codex.sh red"
@@ -63,7 +63,7 @@ require_ref codex-tasks.md "Gate green"
 require_ref codex-tasks.md "implementer-prompt-codex.md"
 ```
 
-- [ ] **Step 3: додати новий блок** — перед рядком `echo "Manifest versions"` вставити:
+- [x] **Step 3: додати новий блок** — перед рядком `echo "Manifest versions"` вставити:
 
 ```bash
 echo "Upstream adoption"
@@ -91,7 +91,7 @@ grep -qF '## Declined to judge' "$SKILLS/wolowitz/reviewer-prompt.md" || fail "r
 
 ```
 
-- [ ] **Step 4: run them, watch them fail** — `bash skills/skills.test.sh | tail -1`, expect `FAILED: 22`. Склад: `references/codex-tasks.md` 5, `references/complex-tasks.md` 4, розмір 1, заглушки 2, база 2, `Declined to judge` у `wolowitz` 1, `sheldon` 3, атрибуція 1, `leonard` 1, `reviewer-prompt.md` 2.
+- [x] **Step 4: run them, watch them fail** — `bash skills/skills.test.sh | tail -1`, expect `FAILED: 22`. Склад: `references/codex-tasks.md` 5, `references/complex-tasks.md` 4, розмір 1, заглушки 2, база 2, `Declined to judge` у `wolowitz` 1, `sheldon` 3, атрибуція 1, `leonard` 1, `reviewer-prompt.md` 2.
 
 ### Task 1: `wolowitz` менший за ліміт, база від origin, правила ревʼюера
 
