@@ -1,7 +1,7 @@
 ---
 branch: worktree-advisor
 spec: docs/sdd/specs/2026-11-01-skill-model-routing.md
-plan: -
+plan: docs/sdd/plans/2026-11-01-skill-model-routing.md
 status: in-progress
 started: 2026-11-01
 ---
@@ -27,3 +27,4 @@ started: 2026-11-01
 - 09:20 ● 150a640 feat(wolowitz): move Codex review from each wave to whole-branch finish
 - 09:20 ● d2f48e3 Merge pull request #21 from dmytro-rudenko/feature/wolowitz-codex-review-finish
 - 09:32 ✎ Shaping: маршрутизація лише через явні model/effort у dispatch; Complexity у leonard; advisor і frontmatter відкинуто
+- 09:33 ● 4ab6c1c docs(sdd): spec for per-task model and effort routing
