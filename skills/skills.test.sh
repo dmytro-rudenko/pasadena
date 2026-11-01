@@ -81,6 +81,9 @@ echo "Workflow rules"
 require() {
   grep -qF -- "$2" "$SKILLS/$1/SKILL.md" || fail "$1: missing \"$2\""
 }
+require_ref() {
+  grep -qF -- "$2" "$SKILLS/wolowitz/references/$1" 2>/dev/null || fail "references/$1: missing \"$2\""
+}
 before=$fails
 require amy "## Two loops"
 require amy "acceptance tests"
@@ -115,12 +118,12 @@ require sheldon "Codex: available"
 require leonard "Codex: available"
 require leslie "Codex: available"
 require wolowitz "codex.sh explore"
-require wolowitz "codex.sh red"
-require wolowitz "codex.sh green"
+require_ref codex-tasks.md "codex.sh red"
+require_ref codex-tasks.md "codex.sh green"
 require wolowitz "codex.sh review"
-require wolowitz "Gate red"
-require wolowitz "Gate green"
-require wolowitz "implementer-prompt-codex.md"
+require_ref codex-tasks.md "Gate red"
+require_ref codex-tasks.md "Gate green"
+require_ref codex-tasks.md "implementer-prompt-codex.md"
 codex_prompt="$SKILLS/wolowitz/implementer-prompt-codex.md"
 if [ -f "$codex_prompt" ]; then
   ! grep -q "Skill tool" "$codex_prompt" || fail "implementer-prompt-codex.md: tells Codex to use the Skill tool"
@@ -169,6 +172,29 @@ for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
   grep -qF '"version": "0.14.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.14.0"
 done
 [ "$fails" -eq "$before" ] && ok "model routing checked"
+
+echo "Upstream adoption"
+before=$fails
+for file in "$SKILLS"/*/SKILL.md; do
+  [ "$(wc -c <"$file")" -lt 20000 ] || fail "$file: 20000 bytes or more, compaction cuts it off"
+done
+require wolowitz 'references/codex-tasks.md'
+require wolowitz 'references/complex-tasks.md'
+require_ref complex-tasks.md 'Gate red'
+require_ref complex-tasks.md 'Gate green'
+require_ref complex-tasks.md '**Red dispatch**'
+require_ref complex-tasks.md '**Green dispatch**'
+require wolowitz 'git merge-base origin/<trunk> HEAD'
+! grep -qF 'git merge-base <trunk>' "$SKILLS/wolowitz/SKILL.md" || fail "wolowitz: merge-base on a local trunk"
+require wolowitz 'Declined to judge'
+require sheldon '## Builder check'
+require sheldon '**Who owns the technical choices.**'
+[ -f "$SKILLS/sheldon/builder-check-prompt.md" ] || fail "sheldon: builder-check-prompt.md missing"
+grep -qF 'skills/sheldon/builder-check-prompt.md' "$ROOT/THIRD_PARTY_NOTICES.md" || fail "builder check: not credited"
+require leonard '## Review Focus'
+grep -qF 'reasonable person' "$SKILLS/wolowitz/reviewer-prompt.md" || fail "reviewer-prompt.md: missing reasonable person rule"
+grep -qF '## Declined to judge' "$SKILLS/wolowitz/reviewer-prompt.md" || fail "reviewer-prompt.md: missing Declined to judge"
+[ "$fails" -eq "$before" ] && ok "upstream adoption checked"
 
 echo "Manifest versions"
 manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json"
