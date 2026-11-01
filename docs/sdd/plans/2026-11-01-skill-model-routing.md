@@ -76,8 +76,8 @@ done
 **Executor:** claude
 **Satisfies:** три рядки `require leonard` блоку `Model routing`.
 
-- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -c 'leonard: missing'`, expect `3`.
-- [ ] **Step 2: implement.**
+- [x] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -c 'leonard: missing'`, expect `3`.
+- [x] **Step 2: implement.**
   1. У шаблоні задачі після `**Executor:** codex` додати рядок `**Complexity:** routine`.
   2. У список умов `Executor: codex`, перед рядком про `codex.sh available`, додати `- the task is `**Complexity:** routine`;`.
   3. Після абзацу, що закінчується `The user sees the split when approving the plan.`, вставити:
@@ -96,7 +96,7 @@ Otherwise write `routine`. When in doubt, write `complex`. Task 0 carries no
 ```
 
   4. У блоці `### Task 0: acceptance tests` нічого не змінювати.
-- [ ] **Step 3: перевірити green** — та сама команда, expect `0`.
+- [x] **Step 3: перевірити green** — та сама команда, expect `0`.
 
 ### Task 2: `wolowitz` виконує матрицю
 
@@ -105,8 +105,8 @@ Otherwise write `routine`. When in doubt, write `complex`. Task 0 carries no
 **Executor:** claude
 **Satisfies:** рядки `require wolowitz`, дві заборони й перевірка блоків implementer-prompt у `Model routing`.
 
-- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — (wolowitz: |implementer-prompt.md: missing)'`, expect `14`.
-- [ ] **Step 2: замінити зміст `## Models`** (рядки від `Every dispatch sets` до `never reviews.`) на:
+- [x] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — (wolowitz: |implementer-prompt.md: missing)'`, expect `14`.
+- [x] **Step 2: замінити зміст `## Models`** (рядки від `Every dispatch sets` до `never reviews.`) на:
 
 ```markdown
 Every dispatch sets `model` and `effort` **explicitly**, whatever model the
@@ -128,18 +128,18 @@ Read-only lookups go to `codex.sh explore <prompt-file>` when
 `codex.sh available` exits 0. `haiku` is never used.
 ```
 
-- [ ] **Step 3: три точкові заміни.**
+- [x] **Step 3: три точкові заміни.**
   1. `fresh Claude implementer on the session's\nmodel.` у **Codex tasks** → `fresh Claude implementer per **Models**.`
   2. `- `model` set to the session's model, per **Models**.` → `- `model` and `effort` set per **Models**.`
   3. `a fresh implementer — on the session's model, per **Models** —` → `a fresh implementer, per **Models** —`
-- [ ] **Step 4: у `### 5. Fix loop` після пункту Round 3** вставити:
+- [x] **Step 4: у `### 5. Fix loop` після пункту Round 3** вставити:
 
 ```markdown
 On a `complex` task, findings on code go to its green implementer and findings
 on tests go to its red implementer.
 ```
 
-- [ ] **Step 5: перед `## Setup`** вставити:
+- [x] **Step 5: перед `## Setup`** вставити:
 
 ```markdown
 ## Complex tasks
@@ -184,7 +184,7 @@ record the checksums anew, and send the green implementer the changed tests.
 
 ```
 
-- [ ] **Step 6: в `implementer-prompt.md` перед `## Before you start`** вставити:
+- [x] **Step 6: в `implementer-prompt.md` перед `## Before you start`** вставити:
 
 ```markdown
 ## Red dispatch
@@ -210,7 +210,7 @@ your reason.
 
 ```
 
-- [ ] **Step 7: перевірити green** — команда зі Step 1, expect `0`.
+- [x] **Step 7: перевірити green** — команда зі Step 1, expect `0`.
 
 ### Task 3: README описують моделі й advisor
 
@@ -219,8 +219,8 @@ your reason.
 **Executor:** claude
 **Satisfies:** перевірки таблиці та `--advisor` у `Model routing`.
 
-- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'README(\.uk)?\.md: no (model table|advisor note)'`, expect `4`.
-- [ ] **Step 2: у `README.md` перед `## Codex delegation`** вставити:
+- [x] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'README(\.uk)?\.md: no (model table|advisor note)'`, expect `4`.
+- [x] **Step 2: у `README.md` перед `## Codex delegation`** вставити:
 
 ```markdown
 ## Models
@@ -240,7 +240,7 @@ The advisor (`--advisor opus`) is optional and Pasadena does not depend on it: p
 
 ```
 
-- [ ] **Step 3: у `README.uk.md` перед `## Делегування в Codex`** вставити:
+- [x] **Step 3: у `README.uk.md` перед `## Делегування в Codex`** вставити:
 
 ```markdown
 ## Моделі
@@ -260,7 +260,7 @@ Advisor (`--advisor opus`) необовʼязковий, і Pasadena від нь
 
 ```
 
-- [ ] **Step 4: перевірити green** — команда зі Step 1, expect `0`.
+- [x] **Step 4: перевірити green** — команда зі Step 1, expect `0`.
 
 ### Task 4: версія 0.14.0
 
@@ -269,6 +269,6 @@ Advisor (`--advisor opus`) необовʼязковий, і Pasadena від нь
 **Executor:** claude
 **Satisfies:** перевірка `0.14.0` у `Model routing`.
 
-- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -c 'not on 0.14.0'`, expect `2`.
-- [ ] **Step 2: implement** — у обох файлах замінити `"version": "0.13.0"` на `"version": "0.14.0"`.
-- [ ] **Step 3: перевірити green** — та сама команда, expect `0`; окремо `bash skills/skills.test.sh | grep -c 'manifest versions differ'`, expect `0`.
+- [x] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -c 'not on 0.14.0'`, expect `2`.
+- [x] **Step 2: implement** — у обох файлах замінити `"version": "0.13.0"` на `"version": "0.14.0"`.
+- [x] **Step 3: перевірити green** — та сама команда, expect `0`; окремо `bash skills/skills.test.sh | grep -c 'manifest versions differ'`, expect `0`.
