@@ -36,7 +36,7 @@
 **Executor:** claude
 **Covers:** spec §6 п.1 через перевірки §3.8: frontmatter у кожному `SKILL.md` і точні значення з §3.1; matrix §3.7 у `wolowitz`; `test-writer-prompt.md` з `pasadena:amy`; `implementer-prompt.md` без `amy`, `## Red dispatch`, `## Green dispatch`; `references/two-dispatch.md` замість `references/complex-tasks.md`; дві таблиці моделей в обох README; `0.15.0`; посилання зі старої специфікації.
 
-- [ ] **Step 1: write the acceptance tests.**
+- [x] **Step 1: write the acceptance tests.**
   1. Замінити весь блок від рядка `echo "Model routing"` до рядка `[ "$fails" -eq "$before" ] && ok "model routing checked"` включно (зараз рядки 141–174) на:
 
 ```bash
@@ -122,7 +122,7 @@ grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-
 ```
 
   2. У блоці `echo "Upstream adoption"` видалити п'ять рядків: `require wolowitz 'references/complex-tasks.md'` і чотири `require_ref complex-tasks.md …` (`'Gate red'`, `'Gate green'`, `'**Red dispatch**'`, `'**Green dispatch**'`). Решту блоку не чіпати.
-- [ ] **Step 2: run them, watch them fail** — `bash skills/skills.test.sh | tail -1`, expect `FAILED: 49`: поведінки ще немає. Склад: десять skills поза `wolowitz` дають 20 (`grep -cE 'FAIL — (amy|bernie|journal|leonard|leslie|pasadena|penny|raj|sheldon|stuart): (frontmatter needs|lines 4-5)'`); `wolowitz` дає 20 (`grep -cE 'FAIL — (wolowitz|test-writer-prompt\.md|implementer-prompt\.md|references/)'`); README дають 6 (`grep -cE 'FAIL — README(\.uk)?\.md:'`); маніфести й стара специфікація дають 3 (`grep -cE 'FAIL — (\.claude-plugin/|docs/sdd/specs/)'`).
+- [x] **Step 2: run them, watch them fail** — `bash skills/skills.test.sh | tail -1`, expect `FAILED: 50` (ruling у Wave 0: +1 перевірка `require wolowitz '- for a test writer only, the instruction to invoke the `amy` skill'`, а перевірка Complexity читає `wolowitz_flat`): поведінки ще немає. Склад: десять skills поза `wolowitz` дають 20 (`grep -cE 'FAIL — (amy|bernie|journal|leonard|leslie|pasadena|penny|raj|sheldon|stuart): (frontmatter needs|lines 4-5)'`); `wolowitz` дає 21 (`grep -cE 'FAIL — (wolowitz|test-writer-prompt\.md|implementer-prompt\.md|references/)'`); README дають 6 (`grep -cE 'FAIL — README(\.uk)?\.md:'`); маніфести й стара специфікація дають 3 (`grep -cE 'FAIL — (\.claude-plugin/|docs/sdd/specs/)'`).
 
 ### Task 1: frontmatter у десяти skills
 
@@ -165,7 +165,7 @@ grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-
 **Complexity:** complex
 **Satisfies:** рядки `Frontmatter models` для `wolowitz` і всі перевірки `Model routing`, що починаються з `wolowitz:`, `test-writer-prompt.md:`, `implementer-prompt.md:` і `references/`.
 
-- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — (wolowitz|test-writer-prompt\.md|implementer-prompt\.md|references/)'`, expect `20`.
+- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — (wolowitz|test-writer-prompt\.md|implementer-prompt\.md|references/)'`, expect `21`.
 - [ ] **Step 2: frontmatter.** У `skills/wolowitz/SKILL.md` вставити після рядка 3 рядки `model: opus` і `effort: medium`.
 - [ ] **Step 3: `## Models`.** Замінити все від `Every dispatch sets` до `` `haiku` is never used.`` включно на:
 
