@@ -54,6 +54,11 @@ ambiguity you spotted in the task; nothing else>
 7. **Evidence before done.** Before you report `DONE`, run the verification
    command fresh and paste its output. An earlier run is not evidence.
 
+8. **Start at the first implement step.** Your task's steps that write the
+   failing tests and watch them fail are done. Do not invoke other skills: an
+   unexpected failure goes in your report as `BLOCKED` or `DONE_WITH_CONCERNS`
+   with its output.
+
 ## Before you start
 
 If anything in the task is ambiguous, ask now, in one message. Once you begin,

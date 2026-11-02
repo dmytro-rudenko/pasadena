@@ -160,9 +160,10 @@ diffs against `BASE`, capturing every commit in the wave.
 ### 2. Dispatch the whole wave at once
 
 **Dispatch the wave's first stage in a single message**: every test writer
-except one for a task that only covers existing code, and every implementer of a
-task that has no test writer. Multiple dispatches in one response run
-concurrently, which is the execution model the wave table establishes.
+except the test writer of a task that only covers existing code, and every
+implementer of a task that has no test writer. Multiple dispatches in one
+response run concurrently, which is the execution model the wave table
+establishes.
 Implementers of paired tasks go after Gate red, per
 `references/two-dispatch.md`.
 
@@ -202,7 +203,8 @@ lines pass, and everything outside the acceptance tests is green. After the
 last wave, none is red. Any red outside that expectation is a failed
 verification. When a commit hook or push gate rejects the red tests, mark them
 with the runner's expected-failure marker (`it.fails` in Vitest, `xfail` in
-pytest) and have each task remove the marker from the tests it satisfies.
+pytest) and remove the marker yourself, a one-line edit, from the tests a task
+satisfies once its Gate green passes, then record those tests' checksums anew.
 
 Then `git status --porcelain`. Every changed file must be claimed by exactly
 one task's `**Writes:**`. A changed file outside those claims is a defect in the
@@ -353,7 +355,7 @@ When the last wave is closed:
 | Situation | Required rule |
 |---|---|
 | Two tasks are candidates for one wave | Their `Writes:` sets must be disjoint. |
-| A wave contains multiple tasks | Dispatch the wave's test writers, apart from one for a task that only covers existing code, and implementers of tasks without one, in one message; disjoint write sets provide safe concurrency. Implementers of paired tasks go after Gate red, per `references/two-dispatch.md`. |
+| A wave contains multiple tasks | Dispatch the wave's test writers, apart from the test writer of a task that only covers existing code, and implementers of tasks without one, in one message; disjoint write sets provide safe concurrency. Implementers of paired tasks go after Gate red, per `references/two-dispatch.md`. |
 | A task is ready to commit | The controller commits it, keeping access to the shared index serialized. |
 | Review finds a small issue | Return it to the subagent that wrote the code or the test, so the fix receives review. |
 | A wave closes | Post its one PR comment, then start the next wave in the same session. |

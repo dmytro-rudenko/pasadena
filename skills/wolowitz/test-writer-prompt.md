@@ -1,8 +1,8 @@
 # Test writer dispatch template
 
 Fill the angle brackets. Send every test writer of a wave in **one** message,
-apart from one for a task that only covers existing code, which goes alone
-later.
+apart from the test writer of a task that only covers existing code, which goes
+alone later.
 
 ---
 
@@ -41,12 +41,17 @@ ambiguity you spotted in the task; nothing else>
 
 5. **Invoke the `amy` skill before writing any test** — with the Skill tool, as
    `pasadena:amy` — and follow her for how to write the tests and watch them
-   fail. Stop where her red steps end; the code belongs to the implementer. Say
-   in your report that you invoked it.
+   fail. Stop where her red steps end: her green steps, her done checklist and
+   the code are not yours. Say in your report that you invoked it.
 
 6. **Use exactly the values the task gives.** Names, strings, numbers,
    signatures. If a value looks wrong, write it as given and say so in your
    report.
+
+7. **An unexpected failure is reported, not chased.** When amy sends you to the
+   `leslie` skill, invoke it as `pasadena:leslie`: under this controller it
+   stops after its Phase 3, and you put its root cause in your report instead
+   of touching production code.
 
 ## Your job
 
