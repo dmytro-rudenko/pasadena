@@ -12,9 +12,10 @@ started: 2026-11-02
 запускається паралельно з whole-branch review. Готово, коли зміну злито і версію плагіна піднято.
 
 ## Now
-Building (wolowitz). Spec і план затверджено, draft PR #24. Хвилі: 0 (Task 0, acceptance-тести
-в skills/skills.test.sh), 1 (Tasks 1–3 паралельно). Далі: Wave 0 — Task 0, потім
-`bash skills/skills.test.sh`, очікується `FAILED: 22`.
+Building (wolowitz). Wave 0 закрита: Task 0 `d8360a0`, `bash skills/skills.test.sh` → `FAILED: 27`
+(22 з плану + 3 перевірки графіка/diff у SKILL.md + 2 негативні README після рев'ю), хуки зелені.
+Далі: Wave 1 — Tasks 1, 2, 3 паралельно (implementer-и без test writer), потім
+`bash skills/skills.test.sh` → `All checks passed.`
 
 ## Timeline
 
@@ -22,3 +23,6 @@ Building (wolowitz). Spec і план затверджено, draft PR #24. Хв
 - 12:46 ✎ Shaping: рев'ю займає 20–35 хв на гілку через thinking sonnet xhigh; обрано wave review на high, рев'ю раз на 3 хвилі, security паралельно з whole-branch
 - 13:13 ✎ Spec узгоджено: рев'ю Wave 0 і груп по три хвилі на sonnet/high, whole-branch xhigh, security паралельно; builder check закрито п'ятьма власними рішеннями
 - 13:13 ● 1fd091f docs(sdd): spec for faster wolowitz review
+- 13:17 ✎ План затверджено: Wave 0 — acceptance-перевірки, Wave 1 — SKILL.md, grouped-review.md+reviewer-prompt, README+0.16.0 паралельно
+- 13:17 ● 21041ee docs(sdd): plan for faster wolowitz review
+- 13:27 ● d8360a0 test(skills): add acceptance checks for grouped review

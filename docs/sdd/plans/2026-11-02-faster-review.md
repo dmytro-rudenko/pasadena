@@ -40,7 +40,7 @@
 **Executor:** claude
 **Covers:** spec §6 п.1: обидва нові рядки **Models**; відсутність `| Wave reviewer and whole-branch review |`; `every third wave` і `references/grouped-review.md` у `SKILL.md`; файл `grouped-review.md` з `GROUP_BASE`; `0.16.0` в обох маніфестах; розмір `SKILL.md` < 20 000 (уже перевіряється в блоці `Upstream adoption`).
 
-- [ ] **Step 1: write the acceptance tests.**
+- [x] **Step 1: write the acceptance tests.**
   1. У блоці `echo "Model routing"` видалити рядок
      ``require wolowitz '| Wave reviewer and whole-branch review | `sonnet` | `xhigh` |'``.
   2. У тому самому блоці замінити `'"version": "0.15.0"'` на `'"version": "0.16.0"'` і `"$manifest: not on 0.15.0"` на `"$manifest: not on 0.16.0"`.
@@ -75,7 +75,7 @@ grep -qF '| Ревʼю всієї гілки, fallback `Explore` | `sonnet` | `x
 
 ```
 
-- [ ] **Step 2: run them, watch them fail** — `bash skills/skills.test.sh`, expect `FAILED: 22`: 20 перевірок блоку `Grouped review` і 2 `not on 0.16.0`. Усі інші блоки `ok`.
+- [x] **Step 2: run them, watch them fail** — `bash skills/skills.test.sh`, expect `FAILED: 22`: 20 перевірок блоку `Grouped review` і 2 `not on 0.16.0`. Усі інші блоки `ok`.
 
 ### Task 1: графік рев'ю, fix loop і Finish у `SKILL.md`
 
