@@ -12,9 +12,9 @@ started: 2026-11-02
 Готово, коли спец, план і build пройдені, `skills/skills.test.sh` зелений, версія `0.15.0`.
 
 ## Now
-1. Building. Wave 0 закрита: `31c23ec`, `bash skills/skills.test.sh` показує `FAILED: 50` (групи 20 / 21 / 6 / 3).
+1. Building. Обидві хвилі закриті: `9b59766` `cec6aa4` `cb8b35d` `d862e78`, чотири набори тестів зелені, рев'ю Wave 1 закрите за два раунди виправлень.
 2. Зупинок немає.
-3. Далі: Wave 1 — Tasks 1, 3, 4 (routine, sonnet/xhigh) і Task 2 (complex: red на opus/high, потім green на opus/medium); перевірка — `bash skills/skills.test.sh | tail -1`, очікується `All checks passed.`
+3. Далі: Finish у `wolowitz` — whole-branch review від `git merge-base origin/main HEAD` (sonnet/xhigh, а також Codex), потім security-review, `journal finish`, `gh pr ready`.
 
 ## Timeline
 
@@ -26,3 +26,9 @@ started: 2026-11-02
 - 12:23 ● a557964 docs(sdd): plan for frontmatter model/effort and a separate test writer
 - 12:31 ● 31c23ec test(skills): add acceptance checks for frontmatter models and test writer
 - 12:31 ✎ Wave 0: acceptance-тести червоні рівно в 50 перевірках; рев'ю знайшло розірване рядком речення про Complexity — перевірка тепер читає flattened текст
+- 12:31 ● 3302e9b docs(sdd): tick Wave 0
+- 12:48 ● 9b59766 feat(skills): set model and effort in skill frontmatter
+- 12:48 ● cec6aa4 feat(wolowitz): split every task into test writer and implementer
+- 12:48 ● cb8b35d docs: describe skill frontmatter models and the dispatch matrix
+- 12:48 ● d862e78 chore: bump plugin to 0.15.0
+- 12:48 ✎ Wave 1: frontmatter, wolowitz split, README, 0.15.0 зелені; рев'ю прибрало залишки старого flow (leslie, wolowitz) і закрило round 3 після Gate red, Codex hand-off, scope Finish

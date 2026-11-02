@@ -133,8 +133,8 @@ grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-
 **Complexity:** routine
 **Satisfies:** рядки `Frontmatter models` для `amy`, `bernie`, `journal`, `leonard`, `leslie`, `pasadena`, `penny`, `raj`, `sheldon`, `stuart`.
 
-- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — (amy|bernie|journal|leonard|leslie|pasadena|penny|raj|sheldon|stuart): (frontmatter needs|lines 4-5)'`, expect `20`.
-- [ ] **Step 2: implement.**
+- [x] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — (amy|bernie|journal|leonard|leslie|pasadena|penny|raj|sheldon|stuart): (frontmatter needs|lines 4-5)'`, expect `20`.
+- [x] **Step 2: implement.**
   1. У кожному файлі вставити два рядки одразу після рядка 3 (`description: …`), щоб вони стали рядками 4 і 5:
 
 | Файл | рядок 4 | рядок 5 |
@@ -154,7 +154,7 @@ grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-
      - речення `It is a technique applied inside whichever skill or implementer is already running, and its writes are that caller's writes; a scope declared here would narrow theirs for the rest of the turn.` замінити на `It is a technique applied inside whichever skill or test writer is already running, and its writes are that caller's writes; a scope declared here would narrow theirs for the rest of the turn.`
      - абзац `Under \`wolowitz\`, \`leonard\` plans the outer loop as Task 0 in Wave 0 and each implementer runs the inner loops of its task. Working alone, you run both.` замінити на `Under \`wolowitz\`, \`leonard\` plans the outer loop as Task 0 in Wave 0. For every later task a test writer runs your red steps and stops on red, and an implementer who does not load you writes the code. Working alone, you run both.`
   3. У жодному з десяти файлів більше нічого не змінювати.
-- [ ] **Step 3: перевірити green** — та сама команда, expect `0`.
+- [x] **Step 3: перевірити green** — та сама команда, expect `0`.
 
 ### Task 2: `wolowitz` — test writer та implementer
 
@@ -165,9 +165,9 @@ grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-
 **Complexity:** complex
 **Satisfies:** рядки `Frontmatter models` для `wolowitz` і всі перевірки `Model routing`, що починаються з `wolowitz:`, `test-writer-prompt.md:`, `implementer-prompt.md:` і `references/`.
 
-- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — (wolowitz|test-writer-prompt\.md|implementer-prompt\.md|references/)'`, expect `21`.
-- [ ] **Step 2: frontmatter.** У `skills/wolowitz/SKILL.md` вставити після рядка 3 рядки `model: opus` і `effort: medium`.
-- [ ] **Step 3: `## Models`.** Замінити все від `Every dispatch sets` до `` `haiku` is never used.`` включно на:
+- [x] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — (wolowitz|test-writer-prompt\.md|implementer-prompt\.md|references/)'`, expect `21`.
+- [x] **Step 2: frontmatter.** У `skills/wolowitz/SKILL.md` вставити після рядка 3 рядки `model: opus` і `effort: medium`.
+- [x] **Step 3: `## Models`.** Замінити все від `Every dispatch sets` до `` `haiku` is never used.`` включно на:
 
 ```markdown
 Every dispatch sets `model` and `effort` **explicitly**, whatever model the
@@ -188,7 +188,7 @@ two wins inside the subagent. Read-only lookups go to
 never used.
 ```
 
-- [ ] **Step 4: розділ `## Complex tasks`.** Замінити весь розділ (від заголовка до рядка перед `## Setup`) на:
+- [x] **Step 4: розділ `## Complex tasks`.** Замінити весь розділ (від заголовка до рядка перед `## Setup`) на:
 
 ```markdown
 ## Test writer and implementer
@@ -209,7 +209,7 @@ Before a wave's first task, read `references/two-dispatch.md` in this skill's
 directory, and read it again after a compaction.
 ```
 
-- [ ] **Step 5: крок `### 2. Dispatch the whole wave at once`.** Замінити текст від `**Dispatch all of the wave's implementers in a single message.**` до рядка `` - `model` and `effort` set per **Models**.`` включно на:
+- [x] **Step 5: крок `### 2. Dispatch the whole wave at once`.** Замінити текст від `**Dispatch all of the wave's implementers in a single message.**` до рядка `` - `model` and `effort` set per **Models**.`` включно на:
 
 ```markdown
 **Dispatch the wave's first stage in a single message**: every test writer,
@@ -233,8 +233,8 @@ stays the single source of requirements:
 ```
 
   Наступний абзац (`A task whose block says **Executor:** codex …`) не змінювати.
-- [ ] **Step 6: `leslie` у кроці 3.** Речення `The implementer fixes: the fix goes to the task's implementer — through amy when the session has no subagents — and the verification runs again.` замінити на `The fix goes to the task's subagents — a fix to a test to its test writer, a fix to code to its implementer, or through amy when the session has no subagents — and the verification runs again.`
-- [ ] **Step 7: крок `### 5. Fix loop, at most three rounds`.** Замінити два пункти списку й абзац `On a task with red and green implementers, …` (до рядка перед `Findings still open after three rounds are parked.`) на:
+- [x] **Step 6: `leslie` у кроці 3.** Речення `The implementer fixes: the fix goes to the task's implementer — through amy when the session has no subagents — and the verification runs again.` замінити на `The fix goes to the task's subagents — a fix to a test to its test writer, a fix to code to its implementer, or through amy when the session has no subagents — and the verification runs again.`
+- [x] **Step 7: крок `### 5. Fix loop, at most three rounds`.** Замінити два пункти списку й абзац `On a task with red and green implementers, …` (до рядка перед `Findings still open after three rounds are parked.`) на:
 
 ```markdown
 - **Rounds 1–2:** send the open findings, verbatim, through `SendMessage`:
@@ -246,12 +246,12 @@ stays the single source of requirements:
   here is what was tried."
 ```
 
-- [ ] **Step 8: Finish.**
+- [x] **Step 8: Finish.**
   1. У пункті 1 речення `One combined fix dispatch receives all findings together; this is the single whole-branch fix wave.` замінити на `All findings go to one fix wave, per references/two-dispatch.md: findings that need a new or changed test go first to one test writer, then one implementer receives every finding under Gate green; when none needs a test, one implementer receives them all. This is the single whole-branch fix wave.` (`references/two-dispatch.md` у backticks.)
   2. У пункті 1 `Every \`sonnet\` finding goes to the fix dispatch.` → `Every \`sonnet\` finding goes to the fix wave.`
   3. У пункті 2 `Findings go to one fix dispatch under the same rules as review findings.` → `Findings go to that fix wave under the same rules as review findings.`; `goes to that fix dispatch;` → `goes to that fix wave;`.
-- [ ] **Step 9: Decision rules.** Рядок `| A wave contains multiple tasks | … |` замінити на `| A wave contains multiple tasks | Dispatch the wave's test writers, and implementers of tasks without one, in one message; disjoint write sets provide safe concurrency. Implementers of paired tasks go after Gate red, per \`references/two-dispatch.md\`. |`.
-- [ ] **Step 10: `skills/wolowitz/test-writer-prompt.md`** (новий файл):
+- [x] **Step 9: Decision rules.** Рядок `| A wave contains multiple tasks | … |` замінити на `| A wave contains multiple tasks | Dispatch the wave's test writers, and implementers of tasks without one, in one message; disjoint write sets provide safe concurrency. Implementers of paired tasks go after Gate red, per \`references/two-dispatch.md\`. |`.
+- [x] **Step 10: `skills/wolowitz/test-writer-prompt.md`** (новий файл):
 
 ```markdown
 # Test writer dispatch template
@@ -334,7 +334,7 @@ Under twenty-five lines:
 - Concerns, if any
 ```
 
-- [ ] **Step 11: `skills/wolowitz/implementer-prompt.md`** — замінити весь файл на:
+- [x] **Step 11: `skills/wolowitz/implementer-prompt.md`** — замінити весь файл на:
 
 ```markdown
 # Implementer dispatch template
@@ -409,7 +409,7 @@ Under twenty-five lines:
 - Concerns, if any
 ```
 
-- [ ] **Step 12: `skills/wolowitz/references/two-dispatch.md`** (новий файл) і видалити `skills/wolowitz/references/complex-tasks.md` (`git rm` не робити — лише видалити файл; індекс веде controller):
+- [x] **Step 12: `skills/wolowitz/references/two-dispatch.md`** (новий файл) і видалити `skills/wolowitz/references/complex-tasks.md` (`git rm` не робити — лише видалити файл; індекс веде controller):
 
 ```markdown
 # Test writer and implementer
@@ -490,7 +490,7 @@ record the checksums, then one implementer receives every finding under Gate
 green. When no finding needs a test, one implementer receives them all.
 ```
 
-- [ ] **Step 13: перевірити green** — команда з Step 1, expect `0`; `wc -c <skills/wolowitz/SKILL.md` — менше `20000`.
+- [x] **Step 13: перевірити green** — команда з Step 1, expect `0`; `wc -c <skills/wolowitz/SKILL.md` — менше `20000`.
 
 ### Task 3: README — дві таблиці моделей
 
@@ -501,8 +501,8 @@ green. When no finding needs a test, one implementer receives them all.
 **Complexity:** routine
 **Satisfies:** шість перевірок `Model routing` з префіксами `README.md:` і `README.uk.md:`.
 
-- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — README(\.uk)?\.md:'`, expect `6`.
-- [ ] **Step 2: `README.md`.** Під `## Models` замінити абзац `` `wolowitz` sets `model` and `effort` on every dispatch. … `` і таблицю під ним (до порожнього рядка перед `The advisor (`--advisor opus`)`) на:
+- [x] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — README(\.uk)?\.md:'`, expect `6`.
+- [x] **Step 2: `README.md`.** Під `## Models` замінити абзац `` `wolowitz` sets `model` and `effort` on every dispatch. … `` і таблицю під ним (до порожнього рядка перед `The advisor (`--advisor opus`)`) на:
 
 ```markdown
 Every skill sets `model` and `effort` in its frontmatter. The override lasts until your next message, then the session returns to your own model; when one turn invokes several skills, the last one wins.
@@ -525,7 +525,7 @@ Every skill sets `model` and `effort` in its frontmatter. The override lasts unt
 ```
 
   Абзац про advisor не змінювати.
-- [ ] **Step 3: `README.uk.md`.** Під `## Моделі` замінити абзац `` `wolowitz` задає `model` і `effort` у кожному dispatch. … `` і таблицю під ним (до порожнього рядка перед `Advisor (`--advisor opus`)`) на:
+- [x] **Step 3: `README.uk.md`.** Під `## Моделі` замінити абзац `` `wolowitz` задає `model` і `effort` у кожному dispatch. … `` і таблицю під ним (до порожнього рядка перед `Advisor (`--advisor opus`)`) на:
 
 ```markdown
 Кожен skill задає `model` і `effort` у своєму frontmatter. Override діє до вашого наступного повідомлення, після чого сесія повертається на вашу модель; коли за один хід викликано кілька skills, діє останній.
@@ -548,7 +548,7 @@ Every skill sets `model` and `effort` in its frontmatter. The override lasts unt
 ```
 
   Абзац про advisor не змінювати.
-- [ ] **Step 4: перевірити green** — команда з Step 1, expect `0`.
+- [x] **Step 4: перевірити green** — команда з Step 1, expect `0`.
 
 ### Task 4: версія `0.15.0` і посилання зі старої специфікації
 
@@ -559,8 +559,8 @@ Every skill sets `model` and `effort` in its frontmatter. The override lasts unt
 **Complexity:** routine
 **Satisfies:** три перевірки `Model routing` з префіксами `.claude-plugin/` і `docs/sdd/specs/`.
 
-- [ ] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — (\.claude-plugin/|docs/sdd/specs/)'`, expect `3`.
-- [ ] **Step 2: implement.**
+- [x] **Step 1: перевірити red** — `bash skills/skills.test.sh | grep -cE 'FAIL — (\.claude-plugin/|docs/sdd/specs/)'`, expect `3`.
+- [x] **Step 2: implement.**
   1. `.claude-plugin/plugin.json` рядок 4 і `.claude-plugin/marketplace.json` рядок 12: `"version": "0.14.0"` → `"version": "0.15.0"`.
   2. `docs/sdd/specs/2026-11-01-skill-model-routing.md` рядок 4: `**Status:** agreed` → ``**Status:** agreed; розділ 2 і рядок «`routine`-задача, весь цикл `amy`» замінено специфікацією `docs/sdd/specs/2026-11-02-skill-frontmatter-models.md` ``.
-- [ ] **Step 3: перевірити green** — команда з Step 1, expect `0`; `bash skills/skills.test.sh | grep -c 'manifest versions differ'`, expect `0`.
+- [x] **Step 3: перевірити green** — команда з Step 1, expect `0`; `bash skills/skills.test.sh | grep -c 'manifest versions differ'`, expect `0`.
