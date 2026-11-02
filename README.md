@@ -19,7 +19,7 @@ Run `/pasadena` to continue from the branch's current stage. `/bazinga` remains 
 | `sheldon` | Scopes the request, asks focused questions, and writes an agreed spec. For architectural work, it creates the worktree, journal, and draft PR first. |
 | `penny` | Builds two to four browser prototypes for a UI decision, tests the chosen version with you, and records the decision. |
 | `leonard` | Uses Claude Code plan mode to split the spec into executable tasks and safe parallel waves. |
-| `wolowitz` | Runs each wave, verifies it, reviews the diff, commits every task, and records progress on the PR. |
+| `wolowitz` | Runs each wave, verifies it, commits every task, reviews every third wave and the whole branch, and records progress on the PR. |
 | `amy` | Writes the task's acceptance tests first, then a failing test before production code for every step of a feature, fix, refactor, or test-only task, and demands proof from a fresh run before anything is called done. |
 | `leslie` | Finds the root cause of a bug or unexpected failure in four phases before any fix, then fixes it through amy. |
 | `bernie` | Checks a feature end-to-end in the browser with evidence, or adds a lasting Playwright e2e test. |
@@ -145,7 +145,8 @@ Every skill sets `model` and `effort` in its frontmatter. The override lasts unt
 | Test writer | `opus` | `high` |
 | Implementer, `routine` task | `sonnet` | `xhigh` |
 | Implementer, `complex` task, round 3, final fix | `opus` | `medium` |
-| Reviews, `Explore` fallback | `sonnet` | `xhigh` |
+| Wave 0 and grouped wave reviews | `sonnet` | `high` |
+| Whole-branch review, `Explore` fallback | `sonnet` | `xhigh` |
 
 The advisor (`--advisor opus`) is optional and Pasadena does not depend on it: plan approval, `leslie` and the whole-branch review already cover its usual moments. Subagents inherit it, so an Opus subagent with an Opus advisor pays twice for the same check.
 
