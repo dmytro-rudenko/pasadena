@@ -1,6 +1,8 @@
 ---
 name: journal
 description: Use when the user asks to start, update, pause, inspect, or finish a Pasadena session journal.
+model: sonnet
+effort: medium
 argument-hint: start|note|pause|finish
 allowed-tools:
   - Read

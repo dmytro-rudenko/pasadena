@@ -1,6 +1,8 @@
 ---
 name: amy
 description: Use when the user asks to run a failing test first, write the failing test first, use TDD, implement a feature, fix a bug, or cover existing code with tests. Writes the task's acceptance tests first and watches them fail, then takes each step through its own failing test and the minimum that passes
+model: opus
+effort: high
 ---
 
 # Test-driven development
@@ -11,7 +13,7 @@ Write the test first. Watch it fail. Write the minimum that passes.
 it tests the right thing.
 
 This skill declares no tool rules. It is a technique applied inside whichever
-skill or implementer is already running, and its writes are that caller's
+skill or test writer is already running, and its writes are that caller's
 writes; a scope declared here would narrow theirs for the rest of the turn.
 
 Following the full sequence preserves both the letter and the spirit of these
@@ -72,8 +74,9 @@ over each step inside it.
    test passes. One still red after the last step means a step is missing; add
    it through its own cycle.
 
-Under `wolowitz`, `leonard` plans the outer loop as Task 0 in Wave 0 and each
-implementer runs the inner loops of its task. Working alone, you run both.
+Under `wolowitz`, `leonard` plans the outer loop as Task 0 in Wave 0. For every
+later task a test writer runs your red steps and stops on red, and an
+implementer who does not load you writes the code. Working alone, you run both.
 
 ## Red → Green → Refactor
 

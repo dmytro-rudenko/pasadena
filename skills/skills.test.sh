@@ -138,39 +138,85 @@ for readme in README.md README.uk.md; do
 done
 [ "$fails" -eq "$before" ] && ok "codex delegation documented"
 
+echo "Frontmatter models"
+before=$fails
+for file in "$SKILLS"/*/SKILL.md; do
+  name="$(basename "$(dirname "$file")")"
+  fm="$(awk 'NR > 1 && /^---$/ { exit } NR > 1' "$file")"
+  if ! grep -qxE 'model: (opus|sonnet)' <<<"$fm" || ! grep -qxE 'effort: (low|medium|high|xhigh|max)' <<<"$fm"; then
+    fail "$name: frontmatter needs model: opus|sonnet and effort: low|medium|high|xhigh|max"
+  fi
+done
+while read -r name model effort; do
+  [ "$(sed -n '4,5p' "$SKILLS/$name/SKILL.md")" = "$(printf 'model: %s\neffort: %s' "$model" "$effort")" ] ||
+    fail "$name: lines 4-5 are not model: $model, effort: $effort"
+done <<'EOF'
+amy opus high
+sheldon opus high
+leonard opus high
+leslie opus high
+wolowitz opus medium
+penny opus medium
+bernie sonnet xhigh
+stuart sonnet xhigh
+pasadena sonnet medium
+raj sonnet medium
+journal sonnet medium
+EOF
+[ "$fails" -eq "$before" ] && ok "frontmatter models checked"
+
 echo "Model routing"
 before=$fails
 require leonard '**Complexity:** routine | complex'
 require leonard '- the task is `**Complexity:** routine`;'
 require leonard 'When in doubt, write `complex`.'
-require wolowitz '| Task 0 | `opus` | `high` |'
-require wolowitz '| `routine` task, the whole `amy` cycle | `sonnet` | `xhigh` |'
-require wolowitz '| `complex` task, red | `opus` | `high` |'
-require wolowitz '| `complex` task, green | `opus` | `medium` |'
-require wolowitz '| Round-3 fresh implementer, including after Codex | `opus` | `medium` |'
-require wolowitz '| Fix dispatch after the whole-branch and security reviews | `opus` | `medium` |'
+require wolowitz '| Test writer: Task 0, red of every task, test fixes, round 3, Finish | `opus` | `high` |'
+require wolowitz '| Implementer, `routine` | `sonnet` | `xhigh` |'
+require wolowitz '| Implementer: `complex`, round 3, Finish | `opus` | `medium` |'
 require wolowitz '| Wave reviewer and whole-branch review | `sonnet` | `xhigh` |'
 require wolowitz '| `Explore`, when `codex.sh available` exits non-zero | `sonnet` | `xhigh` |'
-require wolowitz '## Complex tasks'
-require wolowitz 'A task with no `**Complexity:**` line is `complex`.'
+require wolowitz '## Test writer and implementer'
+require wolowitz 'test-writer-prompt.md'
+require wolowitz 'references/two-dispatch.md'
+require wolowitz '- for a test writer only, the instruction to invoke the `amy` skill'
+wolowitz_flat="$(tr '\n' ' ' <"$SKILLS/wolowitz/SKILL.md")"
+grep -qF 'A task with no `**Complexity:**` line is `complex`.' <<<"$wolowitz_flat" || fail "wolowitz: missing \"A task with no **Complexity:** line is complex.\""
+! grep -qF 'whole `amy` cycle' <<<"$wolowitz_flat" || fail "wolowitz: a routine task still runs the whole amy cycle"
+! grep -qF '## Complex tasks' "$SKILLS/wolowitz/SKILL.md" || fail "wolowitz: still has ## Complex tasks"
 ! grep -qF 'on Fable' "$SKILLS/wolowitz/SKILL.md" || fail "wolowitz: implementers still follow a Fable session"
-! tr '\n' ' ' <"$SKILLS/wolowitz/SKILL.md" | grep -qF "session's model" || fail "wolowitz: a dispatch still follows the session's model"
+! grep -qF "session's model" <<<"$wolowitz_flat" || fail "wolowitz: a dispatch still follows the session's model"
+! grep -rqF --exclude=skills.test.sh 'complex-tasks.md' "$SKILLS" || fail "wolowitz: complex-tasks.md still referenced"
+! grep -rqE '(Red|Green) dispatch' "$SKILLS/wolowitz" || fail "wolowitz: a Red or Green dispatch is still named"
+test_writer="$SKILLS/wolowitz/test-writer-prompt.md"
+if [ -f "$test_writer" ]; then
+  grep -qF 'pasadena:amy' "$test_writer" || fail "test-writer-prompt.md: does not invoke pasadena:amy"
+  grep -qF 'only the tests' "$test_writer" || fail "test-writer-prompt.md: missing \"only the tests\""
+else
+  fail "test-writer-prompt.md: missing"
+fi
+implementer="$SKILLS/wolowitz/implementer-prompt.md"
+! grep -qiw 'amy' "$implementer" || fail "implementer-prompt.md: still mentions amy"
 for block in "Red dispatch" "Green dispatch"; do
-  grep -qF "## $block" "$SKILLS/wolowitz/implementer-prompt.md" || fail "implementer-prompt.md: missing \"$block\""
+  ! grep -qF "## $block" "$implementer" || fail "implementer-prompt.md: still has \"$block\""
 done
-for file in "$SKILLS"/*/SKILL.md; do
-  if sed -n '2,/^---$/p' "$file" | grep -qE '^(model|effort):'; then
-    fail "$file: model or effort in frontmatter lasts one turn only"
-  fi
-done
-grep -qF '| `complex` task, green | `opus` | `medium` |' "$ROOT/README.md" || fail "README.md: no model table"
-grep -qF '| `complex`-задача, green | `opus` | `medium` |' "$ROOT/README.uk.md" || fail "README.uk.md: no model table"
+grep -qF 'checksums are recorded' "$implementer" || fail "implementer-prompt.md: does not protect the tests"
+require_ref two-dispatch.md 'Gate red'
+require_ref two-dispatch.md 'Gate green'
+require_ref two-dispatch.md 'test-writer-prompt.md'
+[ ! -e "$SKILLS/wolowitz/references/complex-tasks.md" ] || fail "references/complex-tasks.md: still present"
 for readme in README.md README.uk.md; do
+  grep -qF '| `wolowitz`, `penny` | `opus` | `medium` |' "$ROOT/$readme" || fail "$readme: no skill model table"
   grep -qF -- '--advisor' "$ROOT/$readme" || fail "$readme: no advisor note"
 done
+grep -qF '| Implementer, `complex` task, round 3, final fix | `opus` | `medium` |' "$ROOT/README.md" || fail "README.md: no dispatch model table"
+grep -qF '| Implementer, `complex`-задача, раунд 3, фінальний fix | `opus` | `medium` |' "$ROOT/README.uk.md" || fail "README.uk.md: no dispatch model table"
+! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
+! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.14.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.14.0"
+  grep -qF '"version": "0.15.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.15.0"
 done
+grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
+  fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"
 [ "$fails" -eq "$before" ] && ok "model routing checked"
 
 echo "Upstream adoption"
@@ -179,11 +225,6 @@ for file in "$SKILLS"/*/SKILL.md; do
   [ "$(wc -c <"$file")" -lt 20000 ] || fail "$file: 20000 bytes or more, compaction cuts it off"
 done
 require wolowitz 'references/codex-tasks.md'
-require wolowitz 'references/complex-tasks.md'
-require_ref complex-tasks.md 'Gate red'
-require_ref complex-tasks.md 'Gate green'
-require_ref complex-tasks.md '**Red dispatch**'
-require_ref complex-tasks.md '**Green dispatch**'
 require wolowitz 'git merge-base origin/<trunk> HEAD'
 ! grep -qF 'git merge-base <trunk>' "$SKILLS/wolowitz/SKILL.md" || fail "wolowitz: merge-base on a local trunk"
 require wolowitz 'Declined to judge'

@@ -127,15 +127,22 @@ git commit -m "chore(journal): close <task>"
 
 ## Моделі
 
-`wolowitz` задає `model` і `effort` у кожному dispatch. Головна сесія лишається на ваших налаштуваннях; `leonard` позначає кожну задачу в плані як `routine` або `complex`.
+Кожен skill задає `model` і `effort` у своєму frontmatter. Override діє до вашого наступного повідомлення, після чого сесія повертається на вашу модель; коли за один хід викликано кілька skills, діє останній.
+
+| Skill | Модель | Effort |
+|---|---|---|
+| `amy`, `sheldon`, `leonard`, `leslie` | `opus` | `high` |
+| `wolowitz`, `penny` | `opus` | `medium` |
+| `bernie`, `stuart` | `sonnet` | `xhigh` |
+| `pasadena`, `raj`, `journal` | `sonnet` | `medium` |
+
+`wolowitz` також задає `model` і `effort` у кожному dispatch. Claude-задача йде спершу до test writer-а, який викликає `amy` і пише лише тести, а потім до implementer-а, який пише лише код; задача, що пише тільки тести або тільки код, іде лише до одного з них. `leonard` позначає кожну задачу в плані як `routine` або `complex`.
 
 | Dispatch | Модель | Effort |
 |---|---|---|
-| Task 0 (acceptance-тести) | `opus` | `high` |
-| `routine`-задача | `sonnet` | `xhigh` |
-| `complex`-задача, red | `opus` | `high` |
-| `complex`-задача, green | `opus` | `medium` |
-| Fresh implementer у раунді 3, фінальний fix dispatch | `opus` | `medium` |
+| Test writer | `opus` | `high` |
+| Implementer, `routine`-задача | `sonnet` | `xhigh` |
+| Implementer, `complex`-задача, раунд 3, фінальний fix | `opus` | `medium` |
 | Ревʼю, fallback `Explore` | `sonnet` | `xhigh` |
 
 Advisor (`--advisor opus`) необовʼязковий, і Pasadena від нього не залежить: його типові моменти вже закривають затвердження плану, `leslie` і ревʼю всієї гілки. Субагенти його успадковують, тому Opus-субагент з Opus-advisor двічі платить за ту саму перевірку.

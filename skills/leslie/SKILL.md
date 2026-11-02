@@ -1,6 +1,8 @@
 ---
 name: leslie
 description: Use when the user reports a bug, a test fails for an unexpected reason, a build or verification is red, or behaviour differs from what was expected. Finds the root cause in four phases before any fix
+model: opus
+effort: high
 allowed-tools:
   - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/codex.sh *)
 ---
@@ -15,9 +17,9 @@ at a symptom moves the failure somewhere else; a fix aimed at the cause
 removes it.
 
 This skill declares no tool rules. It is a technique applied inside whichever
-skill or implementer is already running, and it hands the fix to `amy` in the
-same turn; a scope declared here would narrow the caller's for the rest of the
-turn and block that hand-off.
+skill or subagent is already running, and outside a controller it hands the fix
+to `amy` in the same turn; a scope declared here would narrow the caller's for
+the rest of the turn and block that hand-off.
 
 ## The Iron Law
 
@@ -96,12 +98,14 @@ to know produces a guess with a confident label.
 
 ## When a controller invokes you
 
-When a `wolowitz` controller that dispatches implementers invokes you, stop
-after Phase 3. Hand back the root cause in one sentence, the evidence that
-confirmed it, and the fix the implementer should make. Phase 4 then runs
-inside that implementer, who has amy loaded, so the fix goes through review.
-When the session has no subagents, the controller is the implementer and
-Phase 4 runs as written.
+When a `wolowitz` controller that dispatches subagents, or one of its subagents,
+invokes you, stop after Phase 3. Hand back, in that subagent's report when one
+invoked you, the root cause in one sentence, the evidence that confirmed it,
+and the fix to make, saying which part changes a test and which the code.
+Phase 4 then splits: its test half runs in the task's test writer, who has amy
+loaded, and its code half in the task's implementer, who makes the reproducing
+test pass without editing it, so the fix goes through review. When the session
+has no subagents, the controller runs Phase 4 as written.
 
 Under a controller, Phases 1–3 stay read-only: read, run commands, and add a
 temporary diagnostic only if it is removed before handing back. The

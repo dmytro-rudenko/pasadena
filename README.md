@@ -129,15 +129,22 @@ The server uses `fetch` for choice events and a one-second poll for updates. Tha
 
 ## Models
 
-`wolowitz` sets `model` and `effort` on every dispatch. The main session stays on your own settings; `leonard` marks each task `routine` or `complex` in the plan.
+Every skill sets `model` and `effort` in its frontmatter. The override lasts until your next message, then the session returns to your own model; when one turn invokes several skills, the last one wins.
+
+| Skill | Model | Effort |
+|---|---|---|
+| `amy`, `sheldon`, `leonard`, `leslie` | `opus` | `high` |
+| `wolowitz`, `penny` | `opus` | `medium` |
+| `bernie`, `stuart` | `sonnet` | `xhigh` |
+| `pasadena`, `raj`, `journal` | `sonnet` | `medium` |
+
+`wolowitz` also sets `model` and `effort` on every dispatch. A Claude task goes to a test writer, who invokes `amy` and writes only the tests, then to an implementer, who writes only the code; a task that writes only tests or only code takes one of them. `leonard` marks each task `routine` or `complex` in the plan.
 
 | Dispatch | Model | Effort |
 |---|---|---|
-| Task 0 (acceptance tests) | `opus` | `high` |
-| `routine` task | `sonnet` | `xhigh` |
-| `complex` task, red | `opus` | `high` |
-| `complex` task, green | `opus` | `medium` |
-| Round-3 fresh implementer, final fix dispatch | `opus` | `medium` |
+| Test writer | `opus` | `high` |
+| Implementer, `routine` task | `sonnet` | `xhigh` |
+| Implementer, `complex` task, round 3, final fix | `opus` | `medium` |
 | Reviews, `Explore` fallback | `sonnet` | `xhigh` |
 
 The advisor (`--advisor opus`) is optional and Pasadena does not depend on it: plan approval, `leslie` and the whole-branch review already cover its usual moments. Subagents inherit it, so an Opus subagent with an Opus advisor pays twice for the same check.
