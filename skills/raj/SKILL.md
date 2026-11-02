@@ -1,6 +1,8 @@
 ---
 name: raj
 description: Use when the user asks to start, resume, pause, hand off, or finish a task that spans sessions, or when unfinished work needs its context preserved for the next session. Keeps the session journal
+model: sonnet
+effort: medium
 allowed-tools:
   - Read
   - Grep

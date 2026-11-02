@@ -1,6 +1,8 @@
 ---
 name: stuart
 description: Use when the user says the layout is broken, asks to check responsiveness, or wants a visual check of a page. Screenshots the page at several breakpoints, reports defects with evidence, and fixes them only after approval
+model: sonnet
+effort: xhigh
 allowed-tools:
   - Read
   - Grep

@@ -1,6 +1,8 @@
 ---
 name: penny
 description: Use when the user asks to prototype the UI, build a browser prototype, compare UI options, or make a design question visible. Shows 2-4 working variants, debugs the chosen one with the user, and records sign-off for the spec
+model: opus
+effort: medium
 allowed-tools:
   - Read
   - Grep

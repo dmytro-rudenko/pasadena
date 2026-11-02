@@ -1,6 +1,8 @@
 ---
 name: sheldon
 description: Use when the user asks to write a specification, design a feature, define project scope, add functionality, or change behavior. Classifies the work, explores intent through questions, and produces an agreed specification before implementation begins
+model: opus
+effort: high
 allowed-tools:
   - Read
   - Grep

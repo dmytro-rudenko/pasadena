@@ -1,6 +1,8 @@
 ---
 name: leonard
 description: Use when the user asks to plan the implementation, write an implementation plan, break an agreed spec into tasks, or identify parallel work. Runs native plan mode, declares file sets, and computes parallel waves
+model: opus
+effort: high
 allowed-tools:
   - EnterPlanMode
   - ExitPlanMode

@@ -1,6 +1,8 @@
 ---
 name: bernie
 description: Use when the user asks to check a feature in the browser, run an end-to-end check, or write e2e tests. Drives the running app through Playwright and either reports evidence or adds a lasting e2e test
+model: sonnet
+effort: xhigh
 allowed-tools:
   - Read
   - Grep
