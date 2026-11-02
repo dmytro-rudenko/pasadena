@@ -1,7 +1,7 @@
 # Implementer dispatch template
 
-Fill the angle brackets. Send every implementer of a wave in **one** message.
-Green dispatches of `complex` tasks go later, per **Complex tasks**.
+Fill the angle brackets. Implementers of tasks with a test writer go after Gate
+red, per `references/two-dispatch.md`; the rest go with the wave's first stage.
 
 ---
 
@@ -17,17 +17,19 @@ mislead you.
 
 **Spec:** `<path>` — read it if the task's intent is unclear.
 
+**Tests:** `<test file paths>`
+
 **Context you cannot get from the task text:**
 <interfaces and decisions produced by earlier waves; your resolution of any
 ambiguity you spotted in the task; nothing else>
 
 ## Rules
 
-1. **Write only the files your task's `**Writes:**` line names.** Another agent
-   in this wave owns the files you are not listed for. Editing one loses their
-   work or yours. If the task genuinely cannot be done without touching a file
-   it does not claim, stop and report `BLOCKED` with the file name — do not
-   touch it.
+1. **Write only the files your task's `**Writes:**` line names, apart from its
+   tests.** Another agent in this wave owns the files you are not listed for.
+   Editing one loses their work or yours. If the task genuinely cannot be done
+   without touching a file it does not claim, stop and report `BLOCKED` with
+   the file name — do not touch it.
 
 2. **Do not commit.** The controller commits, one commit per task, after the
    wave is verified. Two `git commit` runs in one worktree race the index lock.
@@ -39,47 +41,18 @@ ambiguity you spotted in the task; nothing else>
 4. **Do not dispatch subagents.** Not helpers, not a reviewer. Review comes
    from the controller after your report.
 
-5. **Invoke the `amy` skill before writing any code** — with the Skill tool,
-   as `pasadena:amy` — and follow it for every step. The plan orders its steps red →
-   green, but that order alone is not amy: her rules on discarding code
-   written before its test, checking the failure reason, and the done
-   checklist apply on top of it. Say in your report that you invoked it.
+5. **The tests are not yours.** The tests at the paths above were written
+   before you started and their checksums are recorded. Do not edit them.
+   Write the minimum that makes them pass. When a test itself is wrong, or a
+   behaviour you must write has no test, stop and report `BLOCKED` with the
+   test and your reason.
 
 6. **Use exactly the values the task gives.** Names, strings, numbers,
    signatures. If a value looks wrong, implement it as written and say so in
    your report.
 
-## Red dispatch
-
-Controller: include this block, without this line, only for the red half of a
-`complex` task; delete it otherwise.
-
-You write the tests, and only the tests. Write every test the task names, run
-the task's verification command, and stop on red with its output in your report.
-Leave the implementation steps to the next implementer. Production code is not
-yours to touch, even to make a test compile. A test that uses something this
-task creates may fail on it however the toolchain reports that: leave it and name
-it in your report.
-Findings on these tests may come back to you through `SendMessage`.
-
-This block overrides Rules 3 and 5: invoke `amy` for how to write the tests and
-watch them fail; her green steps and done checklist belong to the next
-implementer.
-
-In a test-fix round production code already exists, so a corrected test may
-pass. Fix the test, run the verification command, and report its result as it
-stands; do not chase red.
-
-## Green dispatch
-
-Controller: include this block, without this line, only for the green half of a
-`complex` task; delete it otherwise.
-
-The tests at `<test file paths>` were written by another implementer and their
-checksums are recorded. Do not edit them. Write the minimum that makes them
-pass. When a test itself is wrong, or a behaviour you must write has no test,
-stop and report `BLOCKED` with the test and your reason. This overrides amy on
-writing new tests.
+7. **Evidence before done.** Before you report `DONE`, run the verification
+   command fresh and paste its output. An earlier run is not evidence.
 
 ## Before you start
 

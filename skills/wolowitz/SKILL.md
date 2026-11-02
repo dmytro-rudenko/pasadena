@@ -1,6 +1,8 @@
 ---
 name: wolowitz
 description: Use when the user asks to implement an approved plan, run the plan, execute planned tasks, or continue a build. Runs independent tasks in parallel waves, verifies and commits each one, and comments progress on the PR
+model: opus
+effort: medium
 allowed-tools:
   - Read
   - Grep
@@ -50,10 +52,10 @@ across every wave, and every fix receives review.
 ## Tools
 
 This is the only skill in the workflow whose writes are not scoped to a
-directory: the plan sends it anywhere in the tree. Edit code directly only for
-a change small enough to state in one line — or for every task when the session
+directory: the plan sends it anywhere in the tree. Edit code directly only for a
+change small enough to state in one line — or for every task when the session
 has no subagents, see **Without subagents**; anything larger goes to the wave's
-implementers, whose contexts are discarded, which is what lets one session run
+subagents, whose contexts are discarded, which is what lets one session run
 every wave.
 
 `git push` is deliberately absent from the pre-approved list — a push to a
@@ -69,17 +71,16 @@ save cost:
 
 | Dispatch | `model` | `effort` |
 |---|---|---|
-| Task 0 | `opus` | `high` |
-| `routine` task, the whole `amy` cycle | `sonnet` | `xhigh` |
-| `complex` task, red | `opus` | `high` |
-| `complex` task, green | `opus` | `medium` |
-| Round-3 fresh implementer, including after Codex | `opus` | `medium` |
-| Fix dispatch after the whole-branch and security reviews | `opus` | `medium` |
+| Test writer: Task 0, red of every task, test fixes, round 3, Finish | `opus` | `high` |
+| Implementer, `routine` | `sonnet` | `xhigh` |
+| Implementer: `complex`, round 3, Finish | `opus` | `medium` |
 | Wave reviewer and whole-branch review | `sonnet` | `xhigh` |
 | `Explore`, when `codex.sh available` exits non-zero | `sonnet` | `xhigh` |
 
-Read-only lookups go to `codex.sh explore <prompt-file>` when
-`codex.sh available` exits 0. `haiku` is never used.
+The test writer's row equals `amy`'s frontmatter, so it holds whichever of the
+two wins inside the subagent. Read-only lookups go to
+`codex.sh explore <prompt-file>` when `codex.sh available` exits 0. `haiku` is
+never used.
 
 ## Without subagents
 
@@ -111,19 +112,24 @@ between them. Before a wave's first such task, read
 `references/codex-tasks.md` in this skill's directory, and read it again after a
 compaction.
 
-## Complex tasks
+## Test writer and implementer
 
-`**Complexity:**` decides how a Claude task runs. `routine` is one implementer
-through the whole `amy` cycle. `complex` is two dispatches with your own gates
-between them. Two shapes stay one implementer; the reference names them.
-A task with no `**Complexity:**` line is `complex`. Task 0 is
-outside this section: one implementer, per **Models**, stopping on red. A task
-with `**Executor:** codex` runs through **Codex tasks**. A Codex task handed to
-Claude before Round 3 runs on the `routine` row. A session with no subagents
-skips this section.
+Every Claude task is built by two subagents. A test writer, dispatched with
+`test-writer-prompt.md`, invokes `amy` and writes only the tests. An
+implementer, dispatched with `implementer-prompt.md`, writes only the code and
+never loads `amy`; its dispatch does not mention her. `**Complexity:**` decides
+only the implementer's row in **Models**. A task with no `**Complexity:**` line
+is `complex`. Task 0 is a test writer alone, stopping on red, with no gates.
+Some shapes take one role only; the reference names them. A task with
+`**Executor:** codex` runs through **Codex tasks**; one handed to Claude because
+`codex.sh available`, `codex.sh red`, or a `codex.sh green` before Gate red
+passes exits non-zero is an ordinary pair on the `routine` row; one whose
+`codex.sh green` exits non-zero after Gate red goes to an implementer on the
+`routine` row, naming its tests. Round 3, including after Codex, is a fresh
+pair. A session with no subagents skips this section.
 
-Before a wave's first `complex` task, read `references/complex-tasks.md` in this
-skill's directory, and read it again after a compaction.
+Before a wave's first task, read `references/two-dispatch.md` in this skill's
+directory, and read it again after a compaction.
 
 ## Setup
 
@@ -153,28 +159,29 @@ diffs against `BASE`, capturing every commit in the wave.
 
 ### 2. Dispatch the whole wave at once
 
-**Dispatch all of the wave's implementers in a single message.** Multiple
-dispatches in one response run concurrently, which is the execution model the
-wave table establishes.
+**Dispatch the wave's first stage in a single message**: every test writer
+except one for a task that only covers existing code, and every implementer of a
+task that has no test writer. Multiple dispatches in one response run
+concurrently, which is the execution model the wave table establishes.
+Implementers of paired tasks go after Gate red, per
+`references/two-dispatch.md`.
 
-Green dispatches of `complex` tasks go later, per **Complex tasks**.
-
-Each dispatch carries what `implementer-prompt.md` lays out. Compose it so the
-plan stays the single source of requirements:
+Each dispatch carries what its prompt file lays out. Compose it so the plan
+stays the single source of requirements:
 
 - one line on where this task sits in the project;
 - the plan's path and the task number, told to read **only** that task plus
   `## Global constraints`; the plan content stays at its source;
 - interfaces and decisions from earlier waves that the task requires;
 - your resolution of any ambiguity you spotted in the task;
-- the instruction to invoke the `amy` skill (`pasadena:amy`) before writing
-  code — a subagent starts with no skills loaded, and naming amy in passing
-  does not load her;
+- for a test writer only, the instruction to invoke the `amy` skill
+  (`pasadena:amy`) before writing a test — a subagent starts with no skills
+  loaded, and naming amy in passing does not load her;
 - `model` and `effort` set per **Models**.
 
 A task whose block says `**Executor:** codex` is not dispatched through the
 Agent tool: run it through **Codex tasks**, one Codex call at a time, started
-only after all of the wave's Claude implementers have reported, and after every
+only after all of the wave's Claude subagents have reported, and after every
 Gate green and its fix rounds. When `codex.sh available` exits non-zero at build
 time, dispatch it as a Claude task and say so in the wave's PR comment.
 
@@ -183,9 +190,9 @@ remain the source for accumulated history from earlier waves.
 
 ### 3. Verify the wave yourself
 
-When every implementer has reported, run the plan's verification command — the
-whole suite, once. Implementers only ran their own task's check, on purpose: a
-suite run by four agents at once is a flake generator.
+When every subagent of the wave has reported, run the plan's verification
+command — the whole suite, once. Subagents only ran their own task's check, on
+purpose: a suite run by four agents at once is a flake generator.
 
 **The acceptance tests are red on purpose until the last wave.** After Wave 0,
 the run is red exactly in Task 0's acceptance tests, each failing for the
@@ -205,10 +212,11 @@ remaining work.
 
 When the run is red and one line of the error does not show the cause, do not
 patch by guesswork: invoke the `leslie` skill with the Skill tool, as
-`pasadena:leslie`. Leslie diagnoses: she returns the root cause and the fix to make. The
-implementer fixes: the fix goes to the task's implementer — through amy when
-the session has no subagents — and the verification runs again. It counts as a
-round of the fix loop for each task it touches, and that loop's routing applies.
+`pasadena:leslie`. Leslie diagnoses: she returns the root cause and the fix to
+make. The fix goes to the task's subagents — a fix to a test to its test writer,
+a fix to code to its implementer, or through amy when the session has no
+subagents — and the verification runs again. It counts as a round of the fix
+loop for each task it touches, and that loop's routing applies.
 
 ### 4. Review the wave
 
@@ -226,23 +234,20 @@ one-line ruling in the wave's PR comment.
 
 ### 5. Fix loop, at most three rounds
 
-- **Rounds 1–2:** send the open findings, verbatim, back to the implementer
-  that wrote the code through `SendMessage` — it still
-  has the context.
-- **Round 3:** a fresh implementer, per **Models** —
+- **Rounds 1–2:** send the open findings, verbatim, through `SendMessage`:
+  findings on code to the task's implementer, findings on tests — a wrong or
+  missing test — to its test writer. Both still have the context. After a test
+  fix, follow `references/two-dispatch.md`.
+- **Round 3:** a fresh pair, per **Models** and `references/two-dispatch.md` —
   framed honestly: "two prior attempts failed on this task; you own it now,
   here is what was tried."
 
-On a task with red and green implementers, rounds 1–2 send findings on code to
-the green implementer and findings on tests to the red implementer. After a test
-fix, follow `references/complex-tasks.md`.
-
 Findings still open after three rounds are parked. Write down what is unresolved,
-note it in the PR comment, keep every fix with an implementer, and continue.
+note it in the PR comment, keep every fix with a subagent, and continue.
 
 ### 6. Commit — one commit per task, by you
 
-Only the controller commits; implementers return their changes uncommitted.
+Only the controller commits; subagents return their changes uncommitted.
 Commit processes stay serialized because the worktree shares one
 `.git/index.lock`.
 
@@ -310,8 +315,11 @@ When the last wave is closed:
    `origin/<trunk>` does not exist, use the local trunk as the base instead and
    say so in the final PR comment.
    **Whole-branch review** over `git merge-base origin/<trunk> HEAD..HEAD`, on
-   `sonnet` at `effort: "xhigh"` like every review. One combined fix dispatch receives all findings
-   together; this is the single whole-branch fix wave.
+   `sonnet` at `effort: "xhigh"` like every review. All findings go to one fix
+   wave, per `references/two-dispatch.md`: findings that need a new or changed
+   test go first to one test writer, then one implementer receives every
+   finding under Gate green; when none needs a test, one implementer receives
+   them all. This is the single whole-branch fix wave.
 
    When `codex.sh available` exits 0, write a prompt file in the scratchpad:
    `reviewer-prompt.md` from this skill's directory, filled in for the whole
@@ -321,16 +329,16 @@ When the last wave is closed:
    files only for context. Keep "Do not re-run the tests". Run
    `codex.sh review $(git merge-base origin/<trunk> HEAD) <prompt-file>` in the
    background in the same message as the `sonnet` dispatch. Every `sonnet`
-   finding goes to the fix dispatch. A Codex finding goes there only after you
+   finding goes to the fix wave. A Codex finding goes there only after you
    confirm it yourself at its `file:line`; drop the unconfirmed ones with a
    one-line note in the final PR comment. The `sonnet` verdict stays the
    verdict. The final PR comment carries the review's `codex usage:` line.
    Decide every `Declined to judge` item from either review yourself, as in
    step 4 of the wave loop, in the final PR comment.
 2. **Security review.** Invoke the `security-review` skill with the Skill tool
-   on the branch diff. Findings go to one fix dispatch under the same rules as
+   on the branch diff. Findings go to that fix wave under the same rules as
    review findings. A finding fixable inside the branch's own code goes to
-   that fix dispatch; a finding that needs a decision beyond the code —
+   that fix wave; a finding that needs a decision beyond the code —
    credentials or secrets to rotate, permissions or access policy, data
    already exposed — is the security-sensitive stop gate: pause and put it to
    the user. When the skill is unavailable, say
@@ -345,9 +353,9 @@ When the last wave is closed:
 | Situation | Required rule |
 |---|---|
 | Two tasks are candidates for one wave | Their `Writes:` sets must be disjoint. |
-| A wave contains multiple tasks | Dispatch all implementers in one message; disjoint write sets provide safe concurrency. Green dispatches of `complex` tasks go later, per **Complex tasks**. |
+| A wave contains multiple tasks | Dispatch the wave's test writers, apart from one for a task that only covers existing code, and implementers of tasks without one, in one message; disjoint write sets provide safe concurrency. Implementers of paired tasks go after Gate red, per `references/two-dispatch.md`. |
 | A task is ready to commit | The controller commits it, keeping access to the shared index serialized. |
-| Review finds a small issue | Return it to the responsible implementer so the fix receives review. |
+| Review finds a small issue | Return it to the subagent that wrote the code or the test, so the fix receives review. |
 | A wave closes | Post its one PR comment, then start the next wave in the same session. |
 | The context feels long | The code work stays in subagents and the main context holds compact reports; loop the waves and hand off only when a genuine ruling forces a stop. |
 | A resumed task appears complete | Treat the plan's checkboxes and `git log` as the authoritative record. |
