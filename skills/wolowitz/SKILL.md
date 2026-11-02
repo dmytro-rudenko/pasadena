@@ -147,8 +147,8 @@ directory, and read it again after a compaction.
 4. **Baseline.** Run the plan's verification command before touching anything.
    This records any existing red tests before the wave's parallel edits.
 5. **Resume from the record.** Checked boxes mean done; their commits are in
-   `git log`. Start at the first unchecked task. A group-closing wave whose
-   tasks are committed but unticked awaits its grouped review: read
+   `git log`. Start at the first unchecked task. A wave closing a group before
+   the last wave, committed but unticked, awaits its grouped review: read
    `references/grouped-review.md` and run it. After a compaction, the plan
    file and git log remain authoritative.
 
@@ -343,16 +343,17 @@ When the last wave is closed:
    `origin/<trunk>` does not exist, use the local trunk as the base instead and
    say so in the final PR comment.
    **Three reviews at once.** In one message, dispatch the **whole-branch
-   review** over `git merge-base origin/<trunk> HEAD..HEAD` on `sonnet` at
+   review** with `reviewer-prompt.md`, filled as below, over
+   `git merge-base origin/<trunk> HEAD..HEAD` on `sonnet` at
    `effort: "xhigh"` in the background, and start the Codex review below.
    Then, while the reviews run, invoke the `security-review` skill with the
    Skill tool on the branch diff; when the skill is unavailable, say so once
    and note the skip in the PR comment.
 
-   When `codex.sh available` exits 0, write a prompt file in the scratchpad:
-   `reviewer-prompt.md` from this skill's directory, filled in for the whole
-   branch — the merge-base as `BASE`, the plan's path, every task number,
-   waves `0`–`<last>` as `<a>`–`<b>`, the spec's path. In this Codex copy, replace the `**The diff:**` line with: the
+   Fill `reviewer-prompt.md` for the whole branch — the merge-base as
+   `BASE`, the plan's path, every task number, waves `0`–`<last>` as
+   `<a>`–`<b>`, the spec's path. When `codex.sh available` exits 0, write a
+   Codex copy to a prompt file in the scratchpad, replacing the `**The diff:**` line with: the
    diff arrives on stdin as a `<stdin>` block — review that diff; read local
    files only for context. Keep "Do not re-run the tests". Run
    `codex.sh review $(git merge-base origin/<trunk> HEAD) <prompt-file>` in the

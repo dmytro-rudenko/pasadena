@@ -254,6 +254,12 @@ grep -qF '| Ревʼю Wave 0 і груп хвиль | `sonnet` | `high` |' "$RO
 grep -qF '| Ревʼю всієї гілки, fallback `Explore` | `sonnet` | `xhigh` |' "$ROOT/README.uk.md" || fail "README.uk.md: no whole-branch review row"
 ! grep -qF '| Reviews, `Explore` fallback |' "$ROOT/README.md" || fail "README.md: old review row still present"
 ! grep -qF '| Ревʼю, fallback `Explore` |' "$ROOT/README.uk.md" || fail "README.uk.md: old review row still present"
+require_flat wolowitz 'A wave closing a group before the last wave'
+require wolowitz '| A wave after Wave 0 closes no group, or closes the last one |'
+require_ref_flat grouped-review.md 'Without subagents'
+require_ref_flat grouped-review.md 'the counter carries on'
+require_ref_flat grouped-review.md 'one at a time'
+require_ref_flat grouped-review.md 'at step 8 of every wave in the group'
 [ "$fails" -eq "$before" ] && ok "grouped review checked"
 
 echo "Upstream adoption"
