@@ -16,7 +16,7 @@ Run `/pasadena` to continue from the branch's current stage. `/bazinga` remains 
 
 | Skill | Job |
 | --- | --- |
-| `sheldon` | Scopes the request, asks focused questions, and writes an agreed spec. For architectural work, it creates the worktree, journal, and draft PR first. |
+| `sheldon` | Scopes the request, asks focused questions, and writes an agreed spec. Design sections are drafted in parallel and presented for one approval. For architectural work, it creates the worktree, journal, and draft PR first. |
 | `penny` | Builds two to four browser prototypes for a UI decision, tests the chosen version with you, and records the decision. |
 | `leonard` | Uses Claude Code plan mode to split the spec into executable tasks and safe parallel waves. |
 | `wolowitz` | Runs each wave, verifies it, commits every task, reviews every third wave and the whole branch, and records progress on the PR. |
