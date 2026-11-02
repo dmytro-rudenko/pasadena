@@ -60,7 +60,7 @@ Codex tasks, because a Codex call needs no other writer active.
    - the reported files are all in the task's `**Writes:**`, and no test file
      is among them;
    - the task's verification command is green.
-5. The rest of the wave — suite, review, commit, PR comment — is unchanged.
+5. The rest of the wave — suite, review when the schedule has one, commit, PR comment — is unchanged.
 
 One counter per task covers every Gate green failure, `BLOCKED` report and
 review round. On a checksum mismatch, first restore the test files from the
