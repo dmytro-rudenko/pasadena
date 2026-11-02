@@ -1,7 +1,7 @@
 # Маршрутизація моделей та effort у skills — design
 
 **Date:** 2026-11-01
-**Status:** agreed
+**Status:** agreed; розділ 2 і рядок «`routine`-задача, весь цикл `amy`» замінено специфікацією `docs/sdd/specs/2026-11-02-skill-frontmatter-models.md`
 
 ## 1. Problem
 
