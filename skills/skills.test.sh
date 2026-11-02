@@ -212,7 +212,7 @@ grep -qF '| Implementer, `complex`-задача, раунд 3, фінальни�
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.16.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.16.0"
+  grep -qF '"version": "0.17.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.17.0"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"
@@ -279,6 +279,19 @@ require leonard '## Review Focus'
 grep -qF 'reasonable person' "$SKILLS/wolowitz/reviewer-prompt.md" || fail "reviewer-prompt.md: missing reasonable person rule"
 grep -qF '## Declined to judge' "$SKILLS/wolowitz/reviewer-prompt.md" || fail "reviewer-prompt.md: missing Declined to judge"
 [ "$fails" -eq "$before" ] && ok "upstream adoption checked"
+
+echo "Parallel design"
+before=$fails
+require sheldon 'one subagent per section, all in parallel'
+require sheldon 'section outline'
+require sheldon 'open questions'
+require sheldon 'one message through the `AskUserQuestion` tool'
+require sheldon 'one approval'
+require sheldon 'one or two sections'
+! grep -qF 'After each section, ask whether everything looks right' "$SKILLS/sheldon/SKILL.md" || fail "sheldon: still asks after each section"
+grep -qF 'one approval' "$ROOT/README.md" || fail "README.md: sheldon row lacks one approval"
+grep -qF 'одне погодження' "$ROOT/README.uk.md" || fail "README.uk.md: sheldon row lacks одне погодження"
+[ "$fails" -eq "$before" ] && ok "parallel design checked"
 
 echo "Manifest versions"
 manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json"
