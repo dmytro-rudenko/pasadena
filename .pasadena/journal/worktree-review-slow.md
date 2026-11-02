@@ -12,10 +12,9 @@ started: 2026-11-02
 запускається паралельно з whole-branch review. Готово, коли зміну злито і версію плагіна піднято.
 
 ## Now
-Building (wolowitz). Wave 0 закрита: Task 0 `d8360a0`, `bash skills/skills.test.sh` → `FAILED: 27`
-(22 з плану + 3 перевірки графіка/diff у SKILL.md + 2 негативні README після рев'ю), хуки зелені.
-Далі: Wave 1 — Tasks 1, 2, 3 паралельно (implementer-и без test writer), потім
-`bash skills/skills.test.sh` → `All checks passed.`
+Finish (wolowitz). Усі хвилі закриті: `8c232ca` `c50579b` `00646df`, чотири suite зелені,
+SKILL.md 19775 байтів. Далі: whole-branch review (sonnet xhigh) + Codex review + security-review
+над `git merge-base origin/main HEAD`, одна fix wave, фінальний коментар, journal finish, `gh pr ready`.
 
 ## Timeline
 
@@ -26,3 +25,8 @@ Building (wolowitz). Wave 0 закрита: Task 0 `d8360a0`, `bash skills/skill
 - 13:17 ✎ План затверджено: Wave 0 — acceptance-перевірки, Wave 1 — SKILL.md, grouped-review.md+reviewer-prompt, README+0.16.0 паралельно
 - 13:17 ● 21041ee docs(sdd): plan for faster wolowitz review
 - 13:27 ● d8360a0 test(skills): add acceptance checks for grouped review
+- 13:27 ✎ Wave 0: 27 acceptance-перевірок червоні як очікувано; рев'ю додало перевірки межі графіка і diff Wave 0
+- 13:27 ● df24b97 docs(sdd): tick Wave 0
+- 13:39 ● 8c232ca feat(wolowitz): review waves in groups of three
+- 13:39 ● c50579b feat(wolowitz): add grouped review reference and range reviewer template
+- 13:39 ● 00646df docs: describe grouped wave review and bump plugin to 0.16.0

@@ -89,8 +89,8 @@ grep -qF '| Ревʼю всієї гілки, fallback `Explore` | `sonnet` | `x
 - Consumes: `references/grouped-review.md` (Task 2) — лише назва файлу.
 - Produces: назву розділу кроку 4 `### 4. Review schedule`, на яку посилається **Without subagents**.
 
-- [ ] **Step 1: run the tests, watch the task's checks fail** — `bash skills/skills.test.sh`; серед FAIL є `wolowitz: missing "one review for every third wave"`.
-- [ ] **Step 2: implement** — сім правок у `skills/wolowitz/SKILL.md`:
+- [x] **Step 1: run the tests, watch the task's checks fail** — `bash skills/skills.test.sh`; серед FAIL є `wolowitz: missing "one review for every third wave"`.
+- [x] **Step 2: implement** — сім правок у `skills/wolowitz/SKILL.md`:
   1. **Models:** рядок ``| Wave reviewer and whole-branch review | `sonnet` | `xhigh` |`` замінити двома:
      ```
      | Wave 0 review and grouped wave review | `sonnet` | `high` |
@@ -167,7 +167,7 @@ diffs against `BASE`, capturing every commit in the wave.`` замінити н�
      ```
      | A wave closes no group, or closes the last one | Skip steps 4–5; the next grouped review or the whole-branch review covers it. |
      ```
-- [ ] **Step 3: run the tests** — `bash skills/skills.test.sh`; жодного FAIL з `wolowitz:` чи `20000 bytes`; `wc -c skills/wolowitz/SKILL.md` < 20000.
+- [x] **Step 3: run the tests** — `bash skills/skills.test.sh`; жодного FAIL з `wolowitz:` чи `20000 bytes`; `wc -c skills/wolowitz/SKILL.md` < 20000.
 
 ### Task 2: `grouped-review.md`, шаблон рев'юера, references
 
@@ -181,8 +181,8 @@ diffs against `BASE`, capturing every commit in the wave.`` замінити н�
 - Produces: `skills/wolowitz/references/grouped-review.md`, на який посилається `SKILL.md` (Task 1) у кроках 1, 4, 5, 6.
 - Consumes: назви кроків `SKILL.md` — step 3 (verify), step 5 (fix loop), step 6 (commit), step 7 (PR comment), step 8 (close), `## Now`.
 
-- [ ] **Step 1: run the tests, watch the task's checks fail** — `bash skills/skills.test.sh`; серед FAIL є `references/grouped-review.md: missing "GROUP_BASE: <sha>"`.
-- [ ] **Step 2: implement.**
+- [x] **Step 1: run the tests, watch the task's checks fail** — `bash skills/skills.test.sh`; серед FAIL є `references/grouped-review.md: missing "GROUP_BASE: <sha>"`.
+- [x] **Step 2: implement.**
   1. Створити `skills/wolowitz/references/grouped-review.md` дослівно:
      ```markdown
      # Grouped review
@@ -261,7 +261,7 @@ all of them together.``
      - Пункт **Interface drift**: після `must match in name and signature.` дописати ` Check it across every wave under review: later waves consume what earlier ones produce.`
      - `Do not soften a real finding because the wave is otherwise clean.` → `Do not soften a real finding because the waves are otherwise clean.`
   3. `skills/wolowitz/references/two-dispatch.md` і `skills/wolowitz/references/codex-tasks.md`: рядок `5. The rest of the wave — suite, review, commit, PR comment — is unchanged.` → `5. The rest of the wave — suite, review when the schedule has one, commit, PR comment — is unchanged.`
-- [ ] **Step 3: run the tests** — `bash skills/skills.test.sh`; жодного FAIL з `references/` чи `reviewer-prompt.md`.
+- [x] **Step 3: run the tests** — `bash skills/skills.test.sh`; жодного FAIL з `references/` чи `reviewer-prompt.md`.
 
 ### Task 3: README і версія
 
@@ -272,8 +272,8 @@ all of them together.``
 **Complexity:** routine
 **Satisfies:** `Grouped review`: шість перевірок README; `Model routing`: два `not on 0.16.0`; `Manifest versions`.
 
-- [ ] **Step 1: run the tests, watch the task's checks fail** — `bash skills/skills.test.sh`; серед FAIL є `.claude-plugin/plugin.json: not on 0.16.0`.
-- [ ] **Step 2: implement.**
+- [x] **Step 1: run the tests, watch the task's checks fail** — `bash skills/skills.test.sh`; серед FAIL є `.claude-plugin/plugin.json: not on 0.16.0`.
+- [x] **Step 2: implement.**
   1. `README.md`, рядок 22: `| \`wolowitz\` | Runs each wave, verifies it, reviews the diff, commits every task, and records progress on the PR. |` → `| \`wolowitz\` | Runs each wave, verifies it, commits every task, reviews every third wave and the whole branch, and records progress on the PR. |`
   2. `README.md`, таблиця dispatch: рядок ``| Reviews, `Explore` fallback | `sonnet` | `xhigh` |`` замінити двома:
      ```
@@ -287,7 +287,7 @@ all of them together.``
      | Ревʼю всієї гілки, fallback `Explore` | `sonnet` | `xhigh` |
      ```
   5. `.claude-plugin/plugin.json` і `.claude-plugin/marketplace.json`: `"version": "0.15.0"` → `"version": "0.16.0"`.
-- [ ] **Step 3: run the tests** — `bash skills/skills.test.sh`; жодного FAIL з `README` чи `0.16.0`; після всіх трьох задач — `All checks passed.`
+- [x] **Step 3: run the tests** — `bash skills/skills.test.sh`; жодного FAIL з `README` чи `0.16.0`; після всіх трьох задач — `All checks passed.`
 
 ## Verification (end-to-end)
 
