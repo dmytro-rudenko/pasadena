@@ -38,7 +38,7 @@ change it lists to that call.
    - the `codex changed:` paths are all in the task's `**Writes:**`, and no
      test file is among them;
    - the task's verification command is green.
-5. The rest of the wave — suite, review, commit, PR comment — is unchanged.
+5. The rest of the wave — suite, review when the schedule has one, commit, PR comment — is unchanged.
 
 When any gate after Gate red finds a checksum mismatch, first restore the test
 files from the scratchpad copy, then tell the next implementer — the Codex

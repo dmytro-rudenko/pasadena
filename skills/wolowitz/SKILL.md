@@ -74,7 +74,8 @@ save cost:
 | Test writer: Task 0, red of every task, test fixes, round 3, Finish | `opus` | `high` |
 | Implementer, `routine` | `sonnet` | `xhigh` |
 | Implementer: `complex`, round 3, Finish | `opus` | `medium` |
-| Wave reviewer and whole-branch review | `sonnet` | `xhigh` |
+| Wave 0 review and grouped wave review | `sonnet` | `high` |
+| Whole-branch review | `sonnet` | `xhigh` |
 | `Explore`, when `codex.sh available` exits non-zero | `sonnet` | `xhigh` |
 
 The test writer's row equals `amy`'s frontmatter, so it holds whichever of the
@@ -89,8 +90,9 @@ time, in task order. Before the first task, invoke the `amy` skill with the
 Skill tool, as `pasadena:amy`, and take every task through her cycle. Naming amy in the text
 does not load her.
 
-The wave review in this mode is yours: read the `BASE..HEAD` diff against the
-spec and the plan yourself, and say "no subagents" in the wave's PR comment.
+The reviews in this mode are yours, on the schedule in step 4 of the wave
+loop: read the diff against the spec and the plan yourself, and say "no
+subagents" in the wave's PR comment.
 The rest of the loop — verify, commit, comment, close — stays the same. At
 **Finish**, you do the whole-branch review yourself over the branch diff, and
 you apply its findings and the security-review findings yourself through amy.
@@ -144,9 +146,11 @@ directory, and read it again after a compaction.
    computed.
 4. **Baseline.** Run the plan's verification command before touching anything.
    This records any existing red tests before the wave's parallel edits.
-5. **Resume from the record.** Checked boxes in the plan mean done, and their
-   commits are present in `git log`. Start at the first unchecked task. After a
-   compaction, the plan file and git log remain authoritative.
+5. **Resume from the record.** Checked boxes mean done; their commits are in
+   `git log`. Start at the first unchecked task. A wave closing a group before
+   the last wave, committed but unticked, awaits its grouped review: read
+   `references/grouped-review.md` and run it. After a compaction, the plan
+   file and git log remain authoritative.
 
 ## The wave loop
 
@@ -154,8 +158,8 @@ For each wave in order:
 
 ### 1. Record the base
 
-Run `git rev-parse HEAD` and keep the result as `BASE`. The wave's review always
-diffs against `BASE`, capturing every commit in the wave.
+Run `git rev-parse HEAD` and keep the result as `BASE`. In waves 1, 4, 7… it
+is also the group's `GROUP_BASE`; see `references/grouped-review.md`.
 
 ### 2. Dispatch the whole wave at once
 
@@ -220,11 +224,24 @@ a fix to code to its implementer, or through amy when the session has no
 subagents — and the verification runs again. It counts as a round of the fix
 loop for each task it touches, and that loop's routing applies.
 
-### 4. Review the wave
+### 4. Review schedule
 
-One reviewer on `sonnet` at `effort: "xhigh"` examines the `BASE..HEAD` diff with
-`reviewer-prompt.md`. A complete report contains both verdicts: spec compliance
-and quality.
+Wave 0 is reviewed now, before its commit. Waves 1…N are reviewed in groups
+of three, one review for every third wave: after wave k when `k mod 3 = 0`
+and k is not the plan's last wave, over waves k−2…k, once step 6 has
+committed wave k. Every other wave skips steps 4–5 and goes from step 3 to
+step 6. The last group, of one to three waves, is covered by the
+whole-branch review in **Finish**, so with three waves or fewer after
+Wave 0 there is no grouped review.
+
+Before the first grouped review, read `references/grouped-review.md` in this
+skill's directory, and read it again after a compaction.
+
+One reviewer on `sonnet` at `effort: "high"` examines the diff with
+`reviewer-prompt.md`. Before it goes out, run `git add -N` on the new files
+in the reviewed tasks' `**Writes:**` sets and hand it `git diff <base>` —
+`BASE` for Wave 0, `GROUP_BASE` for a group — so uncommitted work is in the
+diff. A complete report contains both verdicts: spec compliance and quality.
 
 Codex does not review waves; it reviews the whole branch once, in **Finish**.
 
@@ -244,6 +261,12 @@ one-line ruling in the wave's PR comment.
   framed honestly: "two prior attempts failed on this task; you own it now,
   here is what was tried."
 
+After each round, run the verification, then send the reviewer the fix diff
+through `SendMessage` — `git diff HEAD` after `git add -N` on the fix's new
+files; when it is not reachable, a fresh one on `sonnet` at `effort: "high"`
+reviews that diff. Its new findings are the next round. A grouped review's fix
+loop follows `references/grouped-review.md`.
+
 Findings still open after three rounds are parked. Write down what is unresolved,
 note it in the PR comment, keep every fix with a subagent, and continue.
 
@@ -255,7 +278,9 @@ Commit processes stay serialized because the worktree shares one
 
 For each task in the wave, in task order: stage exactly that task's
 `**Writes:**` set, commit with the message the plan gives it. The history
-stays one-commit-per-task, which is what makes it reviewable.
+stays one-commit-per-task, which is what makes it reviewable. Fixes from a
+grouped review land later as their own commits, per
+`references/grouped-review.md`.
 
 Keep the message description to **30–40 words** — what changed and why, and
 nothing else. The diff carries the detail.
@@ -275,7 +300,8 @@ that once and continue.
 
 1. Tick the wave's checkboxes in the plan file and commit it.
 2. Update `## Now`: which wave is next, what is verified, the concrete next
-   step with a file and a command.
+   step with a file and a command. Inside a group, write its
+   `GROUP_BASE: <sha>` line, per `references/grouped-review.md`.
 3. `✎` note — the decision or proof produced by this wave.
 
 ### 9. Start the next wave
@@ -316,17 +342,18 @@ When the last wave is closed:
 1. First run `git fetch origin <trunk>`. When the fetch fails or
    `origin/<trunk>` does not exist, use the local trunk as the base instead and
    say so in the final PR comment.
-   **Whole-branch review** over `git merge-base origin/<trunk> HEAD..HEAD`, on
-   `sonnet` at `effort: "xhigh"` like every review. All findings go to one fix
-   wave, per `references/two-dispatch.md`: findings that need a new or changed
-   test go first to one test writer, then one implementer receives every
-   finding under Gate green; when none needs a test, one implementer receives
-   them all. This is the single whole-branch fix wave.
+   **Three reviews at once.** In one message, dispatch the **whole-branch
+   review** with `reviewer-prompt.md`, filled as below, over
+   `git merge-base origin/<trunk> HEAD..HEAD` on `sonnet` at
+   `effort: "xhigh"` in the background, and start the Codex review below.
+   Then, while the reviews run, invoke the `security-review` skill with the
+   Skill tool on the branch diff; when the skill is unavailable, say so once
+   and note the skip in the PR comment.
 
-   When `codex.sh available` exits 0, write a prompt file in the scratchpad:
-   `reviewer-prompt.md` from this skill's directory, filled in for the whole
-   branch — the merge-base as `BASE`, the plan's path, every task number, the
-   spec's path. In this Codex copy, replace the `**The diff:**` line with: the
+   Fill `reviewer-prompt.md` for the whole branch — the merge-base as
+   `BASE`, the plan's path, every task number, waves `0`–`<last>` as
+   `<a>`–`<b>`, the spec's path. When `codex.sh available` exits 0, write a
+   Codex copy to a prompt file in the scratchpad, replacing the `**The diff:**` line with: the
    diff arrives on stdin as a `<stdin>` block — review that diff; read local
    files only for context. Keep "Do not re-run the tests". Run
    `codex.sh review $(git merge-base origin/<trunk> HEAD) <prompt-file>` in the
@@ -337,14 +364,18 @@ When the last wave is closed:
    verdict. The final PR comment carries the review's `codex usage:` line.
    Decide every `Declined to judge` item from either review yourself, as in
    step 4 of the wave loop, in the final PR comment.
-2. **Security review.** Invoke the `security-review` skill with the Skill tool
-   on the branch diff. Findings go to that fix wave under the same rules as
-   review findings. A finding fixable inside the branch's own code goes to
-   that fix wave; a finding that needs a decision beyond the code —
-   credentials or secrets to rotate, permissions or access policy, data
-   already exposed — is the security-sensitive stop gate: pause and put it to
-   the user. When the skill is unavailable, say
-   so once and note the skip in the PR comment.
+2. **Findings.** When every review started has returned: a security
+   finding fixable inside the branch's own code goes to the fix wave like a
+   review finding;
+   a finding that needs a decision beyond the code — credentials or secrets
+   to rotate, permissions or access policy, data already exposed — is the
+   security-sensitive stop gate: pause and put it to the user before the fix
+   wave. All findings go to one fix wave, per `references/two-dispatch.md`:
+   findings that need a new or changed test go first to one test writer,
+   then one implementer receives every finding under Gate green; when none
+   needs a test, one implementer receives them all. This is the single
+   whole-branch fix wave. Commit its changes in one commit,
+   `fix(<scope>): whole-branch and security review findings`.
 3. Post the final PR comment: every note the steps above assign to it, and the
    `codex usage:` line. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
    `git rm` the journal, commit `chore(journal): close <task>`.
@@ -359,6 +390,7 @@ When the last wave is closed:
 | A task is ready to commit | The controller commits it, keeping access to the shared index serialized. |
 | Review finds a small issue | Return it to the subagent that wrote the code or the test, so the fix receives review. |
 | A wave closes | Post its one PR comment, then start the next wave in the same session. |
+| A wave after Wave 0 closes no group, or closes the last one | Skip steps 4–5; the next grouped review or the whole-branch review covers it. |
 | The context feels long | The code work stays in subagents and the main context holds compact reports; loop the waves and hand off only when a genuine ruling forces a stop. |
 | A resumed task appears complete | Treat the plan's checkboxes and `git log` as the authoritative record. |
 | The wave suite has already run | The reviewer uses that result and focuses on spec compliance and quality. |

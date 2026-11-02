@@ -1,14 +1,15 @@
 # Wave reviewer dispatch template
 
-One reviewer per wave, over the wave's diff. Fill the angle brackets.
+One reviewer for Wave 0 and one for each group of three waves, over their diff. Fill the angle brackets.
 
 ---
 
-Review one wave of an approved plan. `<K>` tasks were implemented in parallel;
-you are reviewing all of them together.
+Review waves `<a>`–`<b>` of an approved plan (`<a>` = `<b>` = 0 for Wave 0).
+`<K>` tasks were implemented, in parallel within each wave; you are reviewing
+all of them together.
 
 **Working directory:** `<absolute path to the worktree>`
-**The diff:** `git diff <BASE>..HEAD` — review the diff, not the files.
+**The diff:** `git diff <BASE>` — commits plus the working tree; review the diff, not the files.
 **The plan:** `<path>`, tasks `<N, M, …>`, plus `## Global constraints` and,
 when the plan has one, `## Review Focus`.
 **The spec:** `<path>`.
@@ -37,14 +38,17 @@ a finding.
 For each finding: file and line, what is wrong, and what happens if it ships.
 Severity in your own words. Rank the list most severe first.
 
-## Two things this wave specifically risks
+## Two things these waves specifically risk
 
-- **Cross-task collisions.** These tasks were run in parallel because their
-  declared file sets were disjoint. Check that the diff bears that out — a file
-  touched by two tasks, or by a task that did not declare it, is a real finding.
+- **Cross-task collisions.** Tasks of one wave ran in parallel because their
+  declared file sets were disjoint. Check that the diff bears that out within
+  each wave — a file touched by two tasks of one wave, or by a task that did not
+  declare it, is a real finding. Changes under `.pasadena/` and checkbox ticks
+  in the plan file are the controller's, not findings.
 - **Interface drift.** A function one task produces and another consumes must
-  match in name and signature. `clearLayers()` in one and `clearFullLayers()`
-  in the other is a bug, not a style note.
+  match in name and signature. Check it across every wave under review: later
+  waves consume what earlier ones produce. `clearLayers()` in one and
+  `clearFullLayers()` in the other is a bug, not a style note.
 
 ## Declined to judge
 
@@ -55,7 +59,7 @@ reason. The controller decides each item. Write `none` when nothing was declined
 
 Do not judge decisions the plan or the spec made — if the plan chose an
 approach, that is settled; flag it only if it cannot work. Do not propose
-refactors outside the diff. Do not soften a real finding because the wave is
+refactors outside the diff. Do not soften a real finding because the waves are
 otherwise clean.
 
 Report findings and declined items only, no fixes.

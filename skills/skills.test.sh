@@ -173,7 +173,6 @@ require leonard 'When in doubt, write `complex`.'
 require wolowitz '| Test writer: Task 0, red of every task, test fixes, round 3, Finish | `opus` | `high` |'
 require wolowitz '| Implementer, `routine` | `sonnet` | `xhigh` |'
 require wolowitz '| Implementer: `complex`, round 3, Finish | `opus` | `medium` |'
-require wolowitz '| Wave reviewer and whole-branch review | `sonnet` | `xhigh` |'
 require wolowitz '| `Explore`, when `codex.sh available` exits non-zero | `sonnet` | `xhigh` |'
 require wolowitz '## Test writer and implementer'
 require wolowitz 'test-writer-prompt.md'
@@ -213,11 +212,55 @@ grep -qF '| Implementer, `complex`-задача, раунд 3, фінальни�
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.15.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.15.0"
+  grep -qF '"version": "0.16.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.16.0"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"
 [ "$fails" -eq "$before" ] && ok "model routing checked"
+
+echo "Grouped review"
+before=$fails
+require wolowitz '| Wave 0 review and grouped wave review | `sonnet` | `high` |'
+require wolowitz '| Whole-branch review | `sonnet` | `xhigh` |'
+! grep -qF '| Wave reviewer and whole-branch review |' "$SKILLS/wolowitz/SKILL.md" || fail "wolowitz: one review row still covers waves and the whole branch"
+flat() { cat -- "$1" 2>/dev/null | tr '\n' ' ' | tr -s ' '; }
+require_flat() {
+  grep -qF -- "$2" <<<"$(flat "$SKILLS/$1/SKILL.md")" || fail "$1: missing \"$2\""
+}
+require_ref_flat() {
+  grep -qF -- "$2" <<<"$(flat "$SKILLS/wolowitz/references/$1")" || fail "references/$1: missing \"$2\""
+}
+require_flat wolowitz 'one review for every third wave'
+require wolowitz 'references/grouped-review.md'
+require_flat wolowitz 'while the reviews run'
+require_flat wolowitz 'fix(<scope>): whole-branch and security review findings'
+require_flat wolowitz 'k mod 3 = 0'
+require_flat wolowitz "not the plan's last wave"
+require_flat wolowitz 'so uncommitted work is in the diff'
+require_ref_flat grouped-review.md 'GROUP_BASE: <sha>'
+require_ref_flat grouped-review.md 'git add -N'
+require_ref_flat grouped-review.md 'fix(<scope>): review findings for task N'
+for ref in two-dispatch.md codex-tasks.md; do
+  require_ref_flat "$ref" 'review when the schedule has one'
+done
+reviewer="$SKILLS/wolowitz/reviewer-prompt.md"
+grep -qF 'Review waves `<a>`–`<b>`' "$reviewer" || fail "reviewer-prompt.md: does not review a range of waves"
+grep -qF '**The diff:** `git diff <BASE>` —' "$reviewer" || fail "reviewer-prompt.md: the diff misses the working tree"
+grep -qF 'reviews every third wave' "$ROOT/README.md" || fail "README.md: wolowitz row does not name the review schedule"
+grep -qF 'кожну третю хвилю' "$ROOT/README.uk.md" || fail "README.uk.md: wolowitz row does not name the review schedule"
+grep -qF '| Wave 0 and grouped wave reviews | `sonnet` | `high` |' "$ROOT/README.md" || fail "README.md: no grouped review row"
+grep -qF '| Whole-branch review, `Explore` fallback | `sonnet` | `xhigh` |' "$ROOT/README.md" || fail "README.md: no whole-branch review row"
+grep -qF '| Ревʼю Wave 0 і груп хвиль | `sonnet` | `high` |' "$ROOT/README.uk.md" || fail "README.uk.md: no grouped review row"
+grep -qF '| Ревʼю всієї гілки, fallback `Explore` | `sonnet` | `xhigh` |' "$ROOT/README.uk.md" || fail "README.uk.md: no whole-branch review row"
+! grep -qF '| Reviews, `Explore` fallback |' "$ROOT/README.md" || fail "README.md: old review row still present"
+! grep -qF '| Ревʼю, fallback `Explore` |' "$ROOT/README.uk.md" || fail "README.uk.md: old review row still present"
+require_flat wolowitz 'A wave closing a group before the last wave'
+require wolowitz '| A wave after Wave 0 closes no group, or closes the last one |'
+require_ref_flat grouped-review.md 'Without subagents'
+require_ref_flat grouped-review.md 'the counter carries on'
+require_ref_flat grouped-review.md 'one at a time'
+require_ref_flat grouped-review.md 'at step 8 of every wave in the group'
+[ "$fails" -eq "$before" ] && ok "grouped review checked"
 
 echo "Upstream adoption"
 before=$fails
