@@ -3,13 +3,15 @@ set -uo pipefail
 
 [ "${PASADENA_NUDGE:-1}" = "0" ] && exit 0
 
-case "$(locale charmap 2>/dev/null)" in UTF-8) ;; *) export LC_ALL=C.UTF-8 2>/dev/null ;; esac
+charmap="$(locale charmap 2>/dev/null)"
+case "$charmap" in UTF-8) ;; *) export LC_ALL=C.UTF-8 2>/dev/null ;; esac
 input="$(cat)"
 prompt="$(jq -r '.prompt // empty' <<<"$input" 2>/dev/null)"
 cwd="$(jq -r '.cwd // empty' <<<"$input" 2>/dev/null)"
 [ -n "$cwd" ] || cwd="$PWD"
 
-[ "$(git -C "$cwd" rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ] || exit 0
+inside="$(git -C "$cwd" rev-parse --is-inside-work-tree 2>/dev/null)"
+[ "$inside" = "true" ] || exit 0
 
 trimmed="${prompt#"${prompt%%[![:space:]]*}"}"
 [ "${trimmed:0:1}" = "/" ] && exit 0
