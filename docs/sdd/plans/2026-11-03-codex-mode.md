@@ -101,7 +101,7 @@ done
 **Interfaces:**
 - Produces: `bash codex.sh mode [get]` prints one of `explore|full|auto` and exits 0. `bash codex.sh mode set <explore|full|auto>` writes the mode file and exits 0. Anything else exits 2 through `usage`. The subcommand writes no `codex.log` and sets no traps.
 
-- [ ] **Step 1: write the failing test.** In `hooks/codex.test.sh`, insert directly before the line `rm -rf "$tmp"`:
+- [x] **Step 1: write the failing test.** In `hooks/codex.test.sh`, insert directly before the line `rm -rf "$tmp"`:
 
 ```bash
 echo "== mode =="
@@ -122,8 +122,8 @@ out="$(cx XDG_STATE_HOME="$mstate" mode get)"; assert_eq "$out" explore "an unkn
 assert_eq "$([ -e "$mstate/pasadena/codex.log" ] && echo present || echo absent)" absent "mode writes no session log"
 ```
 
-- [ ] **Step 2: run it and watch it fail.** Run `bash hooks/codex.test.sh` and expect `FAILED:` as the last line. The `mode` checks fail because `mode` currently hits `usage`.
-- [ ] **Step 3: implement.** In `hooks/codex.sh`:
+- [x] **Step 2: run it and watch it fail.** Run `bash hooks/codex.test.sh` and expect `FAILED:` as the last line. The `mode` checks fail because `mode` currently hits `usage`.
+- [x] **Step 3: implement.** In `hooks/codex.sh`:
   - After the `log_max=1048576` line, add:
     ```bash
     mode_file="${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex-mode"
@@ -156,7 +156,7 @@ assert_eq "$([ -e "$mstate/pasadena/codex.log" ] && echo present || echo absent)
     ```bash
       mode) cmd_mode "${2:-get}" "${3:-}" ;;
     ```
-- [ ] **Step 4: run it and watch it pass.** Run `bash hooks/codex.test.sh` and expect `All checks passed.`
+- [x] **Step 4: run it and watch it pass.** Run `bash hooks/codex.test.sh` and expect `All checks passed.`
 
 ### Task 2: `codex.sh budget` and `codex.sh cost`
 
@@ -491,8 +491,8 @@ Do exactly one of these, by the arguments:
 **Complexity:** routine
 **Satisfies:** Task 0 `require sheldon "Codex mode: auto"`, `"journal.sh codex-mode"`, `"codex.sh mode get"`.
 
-- [ ] **Step 1: see the failing checks.** Run `bash skills/skills.test.sh` and confirm `FAIL — sheldon: missing "Codex mode: auto"` and the other two `sheldon` lines.
-- [ ] **Step 2: implement.** Insert this new section directly before the line `## Step 0, architectural only: somewhere to work`:
+- [x] **Step 1: see the failing checks.** Run `bash skills/skills.test.sh` and confirm `FAIL — sheldon: missing "Codex mode: auto"` and the other two `sheldon` lines.
+- [x] **Step 2: implement.** Insert this new section directly before the line `## Step 0, architectural only: somewhere to work`:
 
 ```markdown
 ## Codex mode
@@ -523,7 +523,7 @@ lists the exact path of every file the change writes, the test file included;
 `amy` builds the task's `**Writes:**` from that list.
 ```
 
-- [ ] **Step 3: run the checks and watch them pass.** Run `bash skills/skills.test.sh` and confirm none of the three `sheldon` lines from Step 1 remain.
+- [x] **Step 3: run the checks and watch them pass.** Run `bash skills/skills.test.sh` and confirm none of the three `sheldon` lines from Step 1 remain.
 
 ### Task 6: `raj` records the branch mode
 
@@ -534,8 +534,8 @@ lists the exact path of every file the change writes, the test file included;
 **Complexity:** routine
 **Satisfies:** Task 0 `require raj "journal.sh codex-mode"`.
 
-- [ ] **Step 1: see the failing check.** Run `bash skills/skills.test.sh` and confirm `FAIL — raj: missing "journal.sh codex-mode"`.
-- [ ] **Step 2: implement.** In `## Create`, directly after the paragraph that begins ``"`spec:` and `plan:` point at whatever files"``, insert:
+- [x] **Step 1: see the failing check.** Run `bash skills/skills.test.sh` and confirm `FAIL — raj: missing "journal.sh codex-mode"`.
+- [x] **Step 2: implement.** In `## Create`, directly after the paragraph that begins ``"`spec:` and `plan:` point at whatever files"``, insert:
 
 ```markdown
 The frontmatter may also hold `codex-mode: explore|full`, the branch's Codex
@@ -547,7 +547,7 @@ starting the journal, run it right after creating the file. Exit `1` means the
 journal is missing; exit `2` means the value was not `explore` or `full`.
 ```
 
-- [ ] **Step 3: run the check and watch it pass.** Run `bash skills/skills.test.sh` and confirm the `raj` line from Step 1 is gone.
+- [x] **Step 3: run the check and watch it pass.** Run `bash skills/skills.test.sh` and confirm the `raj` line from Step 1 is gone.
 
 ### Task 7: `leonard` plans `full` within the budget
 
@@ -558,8 +558,8 @@ journal is missing; exit `2` means the value was not `explore` or `full`.
 **Complexity:** routine
 **Satisfies:** Task 0 `require leonard "Codex mode: full"`, `"Codex budget:"`, `"codex.sh budget"`, `"codex.sh cost estimate"`.
 
-- [ ] **Step 1: see the failing checks.** Run `bash skills/skills.test.sh` and confirm the four `leonard: missing` lines.
-- [ ] **Step 2: implement.** Directly after the paragraph that ends ``The user sees the split when approving the plan.``, insert the block below. Keep every existing line, including the five conditions, which the `Model routing` checks require.
+- [x] **Step 1: see the failing checks.** Run `bash skills/skills.test.sh` and confirm the four `leonard: missing` lines.
+- [x] **Step 2: implement.** Directly after the paragraph that ends ``The user sees the split when approving the plan.``, insert the block below. Keep every existing line, including the five conditions, which the `Model routing` checks require.
 
 ```markdown
 **Codex mode `full`.** The session-start digest names the effective mode.
@@ -590,7 +590,7 @@ each.
 In `explore`, none of this applies and no `Codex budget:` line is written.
 ```
 
-- [ ] **Step 3: run the checks and watch them pass.** Run `bash skills/skills.test.sh` and confirm no `leonard: missing` line remains, and `model routing checked` is still printed.
+- [x] **Step 3: run the checks and watch them pass.** Run `bash skills/skills.test.sh` and confirm no `leonard: missing` line remains, and `model routing checked` is still printed.
 
 ### Task 8: `wolowitz` builds in `full`
 
@@ -601,8 +601,8 @@ In `explore`, none of this applies and no `Codex budget:` line is written.
 **Complexity:** complex
 **Satisfies:** Task 0 `require wolowitz "Codex mode: full"`, `"codex budget: exhausted"`, `"codex.sh cost add"`, `"codex review: skipped (codex-mode full)"`.
 
-- [ ] **Step 1: see the failing checks.** Run `bash skills/skills.test.sh` and confirm the four `wolowitz: missing` lines.
-- [ ] **Step 2: implement.**
+- [x] **Step 1: see the failing checks.** Run `bash skills/skills.test.sh` and confirm the four `wolowitz: missing` lines.
+- [x] **Step 2: implement.**
   - In `## Codex tasks`, directly after the paragraph ending ``and read it again after a compaction.`` (the one naming `references/codex-tasks.md`), insert:
 
 ```markdown
@@ -638,7 +638,7 @@ In `explore`, none of this applies.
 ```
 
   - In `## Finish`, step 1, change the sentence that starts ``When `codex.sh available` exits 0, write a`` so it begins ``When `codex.sh available` exits 0 and the digest does not say `Codex mode: full`, write a``. Leave the rest of that sentence and the step unchanged.
-- [ ] **Step 3: run the checks and watch them pass.** Run `bash skills/skills.test.sh` and confirm no `wolowitz: missing` line remains, and `model routing checked` and `codex delegation documented` are still printed.
+- [x] **Step 3: run the checks and watch them pass.** Run `bash skills/skills.test.sh` and confirm no `wolowitz: missing` line remains, and `model routing checked` and `codex delegation documented` are still printed.
 
 ### Task 9: `amy` runs a Bounded change through Codex in `full`
 
@@ -649,8 +649,8 @@ In `explore`, none of this applies.
 **Complexity:** routine
 **Satisfies:** Task 0 `require amy "codex.sh red"`, `"codex.sh budget"`.
 
-- [ ] **Step 1: see the failing checks.** Run `bash skills/skills.test.sh` and confirm the two `amy: missing` lines.
-- [ ] **Step 2: implement.** Insert this new section directly before the line `## Any runner counts`:
+- [x] **Step 1: see the failing checks.** Run `bash skills/skills.test.sh` and confirm the two `amy: missing` lines.
+- [x] **Step 2: implement.** Insert this new section directly before the line `## Any runner counts`:
 
 ```markdown
 ## Codex mode `full` on a bounded change
@@ -689,7 +689,7 @@ section does not apply.
 Then **Verify before claiming**, as always.
 ```
 
-- [ ] **Step 3: run the checks and watch them pass.** Run `bash skills/skills.test.sh` and confirm no `amy: missing` line remains.
+- [x] **Step 3: run the checks and watch them pass.** Run `bash skills/skills.test.sh` and confirm no `amy: missing` line remains.
 
 ### Task 10: READMEs
 
@@ -700,8 +700,8 @@ Then **Verify before claiming**, as always.
 **Complexity:** routine
 **Satisfies:** Task 0 README needles `/codex-mode`, `codex.sh budget`, `codex-cost.tsv` in both files.
 
-- [ ] **Step 1: see the failing checks.** Run `bash skills/skills.test.sh` and confirm six `README…: missing` lines.
-- [ ] **Step 2: implement.**
+- [x] **Step 1: see the failing checks.** Run `bash skills/skills.test.sh` and confirm six `README…: missing` lines.
+- [x] **Step 2: implement.**
   - In `README.md`, insert directly after the `- **implement** — …` bullet of `## Codex delegation`:
 
 ```markdown
@@ -736,7 +736,7 @@ In `full`, `bash hooks/codex.sh budget` reads the remaining 5-hour and weekly li
 У `full` команда `bash hooks/codex.sh budget` читає залишок 5-годинного і тижневого лімітів із власних session-файлів Codex у `${CODEX_HOME:-~/.codex}/sessions`. `leonard` віддає Codex стільки задач, скільки вміщається в тижневий ліміт мінус 10% резерву, і показує розподіл рядком `Codex budget:` у плані; `wolowitz` перевіряє ще раз перед кожною Codex-задачею і віддає решту Claude, коли ліміту бракує. Вартість задачі визначається з того, наскільки зрушив тижневий ліміт: історія лежить у `pasadena/codex-cost.tsv` у теці стану, а оцінка — медіана останніх десяти задач (3% routine, 6% complex, поки історії немає).
 ```
 
-- [ ] **Step 3: run the checks and watch them pass.** Run `bash skills/skills.test.sh` and confirm no `README.md: missing` or `README.uk.md: missing` line remains.
+- [x] **Step 3: run the checks and watch them pass.** Run `bash skills/skills.test.sh` and confirm no `README.md: missing` or `README.uk.md: missing` line remains.
 
 ### Task 11: version `0.21.0`
 
@@ -746,9 +746,9 @@ In `full`, `bash hooks/codex.sh budget` reads the remaining 5-hour and weekly li
 **Complexity:** routine
 **Satisfies:** Task 0 `not on 0.21.0` checks for both manifests.
 
-- [ ] **Step 1: see the failing checks.** Run `bash skills/skills.test.sh` and confirm `FAIL — .claude-plugin/plugin.json: not on 0.21.0` and the same for `marketplace.json`.
-- [ ] **Step 2: implement.** In both files, change `"version": "0.20.0"` to `"version": "0.21.0"`.
-- [ ] **Step 3: run the checks and watch them pass.** Run `bash skills/skills.test.sh` and confirm both lines are gone and `manifest versions checked` is printed.
+- [x] **Step 1: see the failing checks.** Run `bash skills/skills.test.sh` and confirm `FAIL — .claude-plugin/plugin.json: not on 0.21.0` and the same for `marketplace.json`.
+- [x] **Step 2: implement.** In both files, change `"version": "0.20.0"` to `"version": "0.21.0"`.
+- [x] **Step 3: run the checks and watch them pass.** Run `bash skills/skills.test.sh` and confirm both lines are gone and `manifest versions checked` is printed.
 
 ---
 
