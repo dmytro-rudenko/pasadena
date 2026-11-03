@@ -4,6 +4,7 @@ set -uo pipefail
 
 HOOK="$(cd "$(dirname "$0")" && pwd)/journal.sh"
 fails=0
+export XDG_STATE_HOME="$(mktemp -d)"
 
 assert_contains() {
   if [[ "$1" == *"$2"* ]]; then
@@ -22,6 +23,17 @@ assert_empty() {
   else
     echo "  FAIL — $2"
     echo "        expected empty output, got: $1"
+    fails=$((fails + 1))
+  fi
+}
+
+assert_eq() {
+  if [ "$1" = "$2" ]; then
+    echo "  ok  — $3"
+  else
+    echo "  FAIL — $3"
+    echo "        expected: $2"
+    echo "        got: $1"
     fails=$((fails + 1))
   fi
 }
@@ -371,6 +383,62 @@ out="$(printf '{"cwd":"%s","source":"startup"}' "$d" | PASADENA_CODEX=0 bash "$H
 ctx="$(jq -r '.hookSpecificOutput.additionalContext' <<<"$out")"
 assert_contains "$ctx" "Codex: off" "journal: digest says Codex is off"
 rm -rf "$d" "$fakebin"
+
+echo "== Codex mode =="
+
+CODEX_SH="$(dirname "$HOOK")/codex.sh"
+rm -f "$XDG_STATE_HOME/pasadena/codex-mode"
+
+d="$(setup_repo)"
+git -C "$d" checkout -q -b feat/x
+err="$(cd "$d" && bash "$HOOK" codex-mode full 2>&1 >/dev/null)"; rc=$?
+assert_eq "$rc" 1 "codex-mode without a journal exits 1"
+assert_contains "$err" "no journal for feat/x" "codex-mode without a journal says so"
+
+out="$(printf '{"cwd":"%s","source":"startup"}' "$d" | bash "$HOOK" session-start)"
+ctx="$(jq -r '.hookSpecificOutput.additionalContext' <<<"$out")"
+assert_contains "$ctx" "Codex mode: explore (global)." "no journal, no mode file: explore (global)"
+bash "$CODEX_SH" mode set auto
+out="$(printf '{"cwd":"%s","source":"startup"}' "$d" | bash "$HOOK" session-start)"
+ctx="$(jq -r '.hookSpecificOutput.additionalContext' <<<"$out")"
+assert_contains "$ctx" "Codex mode: auto (global)." "no journal: digest shows the global mode"
+
+make_canonical_journal "$d" "feat-x"
+jfile="$d/.pasadena/journal/feat-x.md"
+(cd "$d" && bash "$HOOK" codex-mode full </dev/null); rc=$?
+assert_eq "$rc" 0 "codex-mode full on a journal without plan: succeeds"
+fm="$(awk 'NR == 1 { next } /^---$/ { exit } { print }' "$jfile")"
+assert_eq "$(grep -c '^codex-mode: full$' <<<"$fm")" 1 "without plan: the field goes inside the frontmatter"
+
+awk '/^status: in-progress$/ { print "spec: docs/sdd/specs/x.md"; print "plan: docs/sdd/plans/x.md" } { print }' \
+  "$jfile" | grep -v '^codex-mode: ' >"$d/tmp" && mv "$d/tmp" "$jfile"
+(cd "$d" && bash "$HOOK" codex-mode full </dev/null)
+assert_eq "$(grep -A1 '^plan: ' "$jfile" | tail -1)" "codex-mode: full" "the field goes right after plan:"
+(cd "$d" && bash "$HOOK" codex-mode explore </dev/null)
+assert_eq "$(grep -c '^codex-mode: ' "$jfile")" 1 "a second call replaces the field"
+assert_eq "$(grep -A1 '^plan: ' "$jfile" | tail -1)" "codex-mode: explore" "the replaced field holds the new mode"
+assert_contains "$(tail -1 "$jfile")" "✎ codex-mode: explore" "the change is noted in the timeline"
+(cd "$d" && bash "$HOOK" codex-mode auto 2>/dev/null </dev/null); rc=$?
+assert_eq "$rc" 2 "auto is not a branch mode"
+(cd "$d" && bash "$HOOK" codex-mode 2>/dev/null </dev/null); rc=$?
+assert_eq "$rc" 2 "codex-mode without a value is a usage error"
+assert_eq "$(grep -c '^codex-mode: explore$' "$jfile")" 1 "a rejected value leaves the field alone"
+
+out="$(printf '{"cwd":"%s","source":"startup"}' "$d" | bash "$HOOK" session-start)"
+ctx="$(jq -r '.hookSpecificOutput.additionalContext' <<<"$out")"
+assert_contains "$ctx" "Codex mode: explore (branch)." "journal field wins over the global mode"
+
+git -C "$d" checkout -q -b feat/nofm
+nofm="$d/.pasadena/journal/feat-nofm.md"
+printf '## Goal\nNo frontmatter.\n\n## Timeline\n' >"$nofm"
+before="$(sha256sum <"$nofm")"
+err="$(cd "$d" && bash "$HOOK" codex-mode full 2>&1 >/dev/null </dev/null)"; rc=$?
+assert_eq "$rc" 1 "codex-mode on a journal without frontmatter exits 1"
+assert_contains "$err" "journal has no frontmatter" "codex-mode on a journal without frontmatter says so"
+assert_eq "$(sha256sum <"$nofm")" "$before" "codex-mode on a journal without frontmatter leaves the file unchanged"
+rm -rf "$d"
+
+rm -rf "$XDG_STATE_HOME"
 
 echo
 if [ "$fails" -gt 0 ]; then

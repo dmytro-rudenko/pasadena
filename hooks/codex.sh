@@ -7,9 +7,12 @@ marker="${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex-exhausted"
 marker_ttl=21600
 log="${PASADENA_CODEX_LOG:-${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex.log}"
 log_max=1048576
+mode_file="${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex-mode"
+cost_file="${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex-cost.tsv"
+codex_home="${CODEX_HOME:-$HOME/.codex}"
 
 usage() {
-  echo "usage: codex.sh available | explore <prompt-file> | review <base> <prompt-file> | red <prompt-file> | green <thread-id> <prompt-file>" >&2
+  echo "usage: codex.sh available | explore <prompt-file> | review <base> <prompt-file> | red <prompt-file> | green <thread-id> <prompt-file> | mode [get | set <explore|full|auto>] | budget | cost add <routine|complex> <pct> | cost estimate <routine|complex>" >&2
   exit 2
 }
 
@@ -23,6 +26,68 @@ cmd_available() {
     rm -f "$marker"
   fi
   codex login status >/dev/null 2>&1 || exit 1
+  exit 0
+}
+
+cmd_mode() {
+  local m=""
+  case "${1:-get}" in
+    get)
+      [ -f "$mode_file" ] && m="$(head -1 "$mode_file")"
+      case "$m" in explore | full | auto) ;; *) m=explore ;; esac
+      echo "$m"
+      ;;
+    set)
+      case "${2:-}" in explore | full | auto) ;; *) usage ;; esac
+      mkdir -p "$(dirname "$mode_file")"
+      echo "$2" >"$mode_file"
+      ;;
+    *) usage ;;
+  esac
+  exit 0
+}
+
+cmd_budget() {
+  local f rl="" found=0
+  while IFS= read -r f; do
+    found=1
+    rl="$(jq -c 'select(.payload.rate_limits? != null and (.payload.rate_limits.primary != null or .payload.rate_limits.secondary != null)) | .payload.rate_limits' "$f" 2>/dev/null | tail -1)"
+    [ -z "$rl" ] || break
+  done < <(find "$codex_home/sessions" -type f -name 'rollout-*.jsonl' 2>/dev/null |
+    while IFS= read -r f; do printf '%s %s\n' "$(mtime "$f")" "$f"; done | sort -rn | cut -d' ' -f2-)
+  [ "$found" = 1 ] || exit 1
+  [ -n "$rl" ] || exit 1
+  jq -r --argjson now "$(date +%s)" '
+    def used($w): if $w == null or (($w.resets_at // 0) <= $now) then 0 else ($w.used_percent // 0 | ceil) end;
+    used(.secondary) as $wu | used(.primary) as $fu |
+    "weekly_left=\([100 - $wu, 0] | max) weekly_used=\($wu) five_hour_left=\([100 - $fu, 0] | max) five_hour_reset=\(.primary.resets_at // 0)"
+  ' <<<"$rl" || exit 1
+  exit 0
+}
+
+cmd_cost() {
+  case "${1:-}:${2:-}" in
+    add:routine | add:complex | estimate:routine | estimate:complex) ;;
+    *) usage ;;
+  esac
+  if [ "$1" = add ]; then
+    [[ "${3:-}" =~ ^[0-9]+$ ]] || usage
+    mkdir -p "$(dirname "$cost_file")"
+    printf '%s\t%s\t%s\n' "$(date +%s)" "$2" "$3" >>"$cost_file"
+    exit 0
+  fi
+  local vals default=3
+  [ "$2" = complex ] && default=6
+  vals="$(awk -F'\t' -v c="$2" '$2 == c { print $3 }' "$cost_file" 2>/dev/null | tail -10 | sort -n)"
+  if [ -z "$vals" ]; then
+    echo "$default"
+    exit 0
+  fi
+  awk '{ a[NR] = $1 } END {
+    m = (NR % 2) ? a[(NR + 1) / 2] : (a[NR / 2] + a[NR / 2 + 1]) / 2
+    r = int(m); if (r < m) r++; if (r < 1) r = 1
+    print r
+  }' <<<"$vals"
   exit 0
 }
 
@@ -153,6 +218,9 @@ run() {
 sub="${1:-}"
 case "$sub" in
   available) cmd_available ;;
+  mode) cmd_mode "${2:-get}" "${3:-}" ;;
+  budget) cmd_budget ;;
+  cost) cmd_cost "${2:-}" "${3:-}" "${4:-}" ;;
   explore | review | red | green) ;;
   *) usage ;;
 esac

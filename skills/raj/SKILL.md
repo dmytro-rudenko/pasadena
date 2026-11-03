@@ -92,6 +92,15 @@ file.
 doc, a ticket, an implementation plan. When an artifact is unavailable, write
 `-`.
 
+The frontmatter may also hold `codex-mode: explore|full`, the branch's Codex
+mode, which wins over the global one. Write it only through
+`journal.sh codex-mode <explore|full>` —
+`bash "<path from the session-start digest>" codex-mode <explore|full>` — never
+by hand: the script places it after `plan:`, replaces an existing line, and
+notes the change in the timeline. When `sheldon` hands you a mode while
+starting the journal, run it right after creating the file. Exit `1` means the
+journal is missing; exit `2` means the value was not `explore` or `full`.
+
 Keep the phases in the referenced plan — `plan:` already points at them. This
 keeps the plan as the single source of truth.
 
