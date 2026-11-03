@@ -48,13 +48,14 @@ cmd_mode() {
 }
 
 cmd_budget() {
-  local f rl="" files=()
-  while IFS= read -r -d '' f; do files+=("$f"); done < <(find "$codex_home/sessions" -type f -name 'rollout-*.jsonl' -print0 2>/dev/null)
-  [ "${#files[@]}" -gt 0 ] || exit 1
+  local f rl="" found=0
   while IFS= read -r f; do
-    rl="$(jq -c 'select(.payload.rate_limits? != null) | .payload.rate_limits' "$f" 2>/dev/null | tail -1)"
+    found=1
+    rl="$(jq -c 'select(.payload.rate_limits? != null and (.payload.rate_limits.primary != null or .payload.rate_limits.secondary != null)) | .payload.rate_limits' "$f" 2>/dev/null | tail -1)"
     [ -z "$rl" ] || break
-  done < <(ls -t "${files[@]}")
+  done < <(find "$codex_home/sessions" -type f -name 'rollout-*.jsonl' 2>/dev/null |
+    while IFS= read -r f; do printf '%s %s\n' "$(mtime "$f")" "$f"; done | sort -rn | cut -d' ' -f2-)
+  [ "$found" = 1 ] || exit 1
   [ -n "$rl" ] || exit 1
   jq -r --argjson now "$(date +%s)" '
     def used($w): if $w == null or (($w.resets_at // 0) <= $now) then 0 else ($w.used_percent // 0 | ceil) end;

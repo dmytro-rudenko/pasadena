@@ -158,14 +158,18 @@ only when all of these hold:
 Otherwise write `claude`. Task 0 is always `**Executor:** claude`. The user
 sees the split when approving the plan.
 
-**Codex mode `full`.** The session-start digest names the effective mode.
-When it says `Codex mode: full` and `codex.sh available` exits 0, the five
+**Codex mode `full`.** The effective mode is the branch journal's
+`codex-mode:` line when present, else `codex.sh mode get`; read it when you
+plan, since the digest's `Codex mode:` line is only the value at session start.
+When the effective mode is `full` (`Codex mode: full`) and `codex.sh available`
+exits 0, the five
 conditions above do not apply: every task except Task 0 is a candidate for
 `codex`, and the budget below decides which candidates get it. Write each
 candidate's text so it stands alone — Codex sees only its prompt, never the
 conversation or the spec. `**Complexity:**` is written as usual; it picks the
-model of a Claude fallback. `Codex mode: auto` at planning time means `sheldon`
-left no resolution: plan as in `explore`.
+model of a Claude fallback. An effective mode of `auto` (no journal line and
+`codex.sh mode get` prints `auto`) means `sheldon` left no resolution: plan as
+in `explore`.
 
 Budget, once every task has its `**Complexity:**`: run `codex.sh budget`,
 `codex.sh cost estimate routine` and `codex.sh cost estimate complex` once

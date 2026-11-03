@@ -59,8 +59,9 @@ stderr.
 
 ## Codex mode full
 
-**Codex mode `full`.** The session-start digest names the effective mode.
-When it says `Codex mode: full`:
+The effective mode is the branch journal's `codex-mode:` line when present,
+else `codex.sh mode get`; read it before Wave 1, since the digest's
+`Codex mode:` line is only the value at session start. When it is `full`:
 
 - **Executor.** A plan with a `Codex budget:` line already carries the split:
   follow each task's `**Executor:**`. A plan without one was written in

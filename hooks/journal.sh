@@ -6,7 +6,7 @@ set -uo pipefail
 sub="${1:-}"
 arg="${2:-}"
 
-# Hook subcommands get JSON on stdin. `note` is invoked by hand and would block on it.
+# Hook subcommands get JSON on stdin. `note` and `codex-mode` are invoked by hand and would block on it.
 case "$sub" in
   note | codex-mode) input='{}' ;;
   *) input="$(cat)" ;;
@@ -259,6 +259,10 @@ cmd_codex_mode() {
   esac
   if [ ! -f "$file" ]; then
     echo "no journal for $branch" >&2
+    exit 1
+  fi
+  if [ "$(head -1 "$file")" != "---" ]; then
+    echo "journal has no frontmatter" >&2
     exit 1
   fi
   awk -v m="$arg" '

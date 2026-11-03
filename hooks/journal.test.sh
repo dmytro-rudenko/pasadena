@@ -427,6 +427,15 @@ assert_eq "$(grep -c '^codex-mode: explore$' "$jfile")" 1 "a rejected value leav
 out="$(printf '{"cwd":"%s","source":"startup"}' "$d" | bash "$HOOK" session-start)"
 ctx="$(jq -r '.hookSpecificOutput.additionalContext' <<<"$out")"
 assert_contains "$ctx" "Codex mode: explore (branch)." "journal field wins over the global mode"
+
+git -C "$d" checkout -q -b feat/nofm
+nofm="$d/.pasadena/journal/feat-nofm.md"
+printf '## Goal\nNo frontmatter.\n\n## Timeline\n' >"$nofm"
+before="$(sha256sum <"$nofm")"
+err="$(cd "$d" && bash "$HOOK" codex-mode full 2>&1 >/dev/null </dev/null)"; rc=$?
+assert_eq "$rc" 1 "codex-mode on a journal without frontmatter exits 1"
+assert_contains "$err" "journal has no frontmatter" "codex-mode on a journal without frontmatter says so"
+assert_eq "$(sha256sum <"$nofm")" "$before" "codex-mode on a journal without frontmatter leaves the file unchanged"
 rm -rf "$d"
 
 rm -rf "$XDG_STATE_HOME"
