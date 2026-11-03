@@ -10,6 +10,17 @@ A spec says what you intend to build. Git history says what you merged. Neither 
 
 Pasadena stores that working context in `.pasadena/journal/<branch>.md`. The journal travels with the task branch and is removed before merge, after its useful summary moves to the pull request. Existing `.claude/journal/` files remain readable as legacy journals.
 
+## Coming from obra/superpowers
+
+Pasadena grew out of daily work with [obra/superpowers](https://github.com/obra/superpowers). It keeps the same idea of skills that steer the agent, and changes what I kept missing:
+
+- **Plan mode for the plan.** After the spec is agreed, `leonard` writes the plan inside Claude Code's native plan mode.
+- **Codex as a helper.** When the Codex CLI is installed, skills hand it read-only lookups, a second branch review and marked tasks. Claude checks every result.
+- **Spec-driven plus test-driven.** `sheldon` agrees the spec first, then `amy` writes failing tests before any production code.
+- **Parallel subagents.** `leonard` declares file sets per task and groups independent tasks into waves; `wolowitz` runs each wave in parallel.
+
+Feedback is welcome: open an [issue](https://github.com/dmytro-rudenko/pasadena/issues/new/choose).
+
 ## Workflow
 
 Run `/pasadena` to continue from the branch's current stage. `/bazinga` remains an alias.
@@ -182,7 +193,7 @@ bash hooks/codex.test.sh
 
 The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration. The Codex checks run `hooks/codex.sh` against a fake `codex` and cover availability, each subcommand's flags, the session log, the idle stop and the usage-limit marker.
 
-For the full design, read [docs/design.md](docs/design.md).
+Specs and plans for each change live in [docs/sdd/specs](docs/sdd/specs) and [docs/sdd/plans](docs/sdd/plans).
 
 ## License
 

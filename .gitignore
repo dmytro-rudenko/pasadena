@@ -3,3 +3,6 @@
 # evidence the spec argues from. This is only the machinery that serves it.
 .sdd/
 .claude/worktrees/
+
+# Local git worktrees
+.worktrees/
