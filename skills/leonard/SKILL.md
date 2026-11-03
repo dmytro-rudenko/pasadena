@@ -158,6 +158,33 @@ only when all of these hold:
 Otherwise write `claude`. Task 0 is always `**Executor:** claude`. The user
 sees the split when approving the plan.
 
+**Codex mode `full`.** The session-start digest names the effective mode.
+When it says `Codex mode: full` and `codex.sh available` exits 0, the five
+conditions above do not apply: every task except Task 0 is a candidate for
+`codex`, and the budget below decides which candidates get it. Write each
+candidate's text so it stands alone — Codex sees only its prompt, never the
+conversation or the spec. `**Complexity:**` is written as usual; it picks the
+model of a Claude fallback. `Codex mode: auto` at planning time means `sheldon`
+left no resolution: plan as in `explore`.
+
+Budget, once every task has its `**Complexity:**`: run `codex.sh budget`,
+`codex.sh cost estimate routine` and `codex.sh cost estimate complex` once
+each.
+
+1. `headroom` = `weekly_left` − 10; the 10 is the reserve.
+2. Order the candidates: `routine` first, then `complex`, each group by task
+   number.
+3. Walk that order and give a candidate `codex` while its estimate plus the
+   estimates already given fits in `headroom`; every candidate that does not
+   fit is `claude`.
+4. Under the plan header write one line:
+   `Codex budget: weekly <left>% left, reserve 10%, <k>/<n> tasks to codex (estimate <sum>%)`.
+5. When `codex.sh budget` exits 1 the budget is unknown: every candidate gets
+   `codex` and the line reads `Codex budget: unknown, all <n> tasks to codex`.
+   The build-time guard and exit `75` stay as protection.
+
+In `explore`, none of this applies and no `Codex budget:` line is written.
+
 `**Complexity:** routine | complex` decides which models build the task. Write
 `complex` when at least one of these holds:
 
