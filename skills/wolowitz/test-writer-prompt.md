@@ -13,7 +13,8 @@ separate implementer writes the code after you report.
 **Working directory:** `<absolute path to the worktree>`
 
 **Your task:** Task `<N>` in `<path to the plan>`.
-Read **only** that task's block and the `## Global constraints` section. Do not
+Read **only** that task's block and the `## Global constraints` section.
+`grep -n '^##' <plan>` gives their line ranges: read those ranges, not the file. Do not
 read the rest of the plan — the other tasks are not yours and their detail will
 mislead you.
 
@@ -53,6 +54,11 @@ ambiguity you spotted in the task; nothing else>
    stops after its Phase 3, and you put its root cause in your report instead
    of touching production code.
 
+8. **Read only what you need.** Find the place with `grep -n`, then read
+   that range (`Read` with `offset` and `limit`, or `sed -n`). Read a whole file
+   only when it is short or you rewrite most of it, and do not read again a
+   file you already have.
+
 ## Your job
 
 You write the tests, and only the tests. Write every test the task names, run
@@ -76,10 +82,19 @@ resolve small ambiguities yourself and record them in your report.
 
 ## Report back
 
-Under twenty-five lines:
+Only these lines, nothing before or after them:
 
-- **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED
-- Files you wrote
-- The last lines (up to 10) of your verification command's output and its exit code, pasted, not summarised
-- Anything you decided that the task did not specify
-- Concerns, if any
+```
+Status: DONE | DONE_WITH_CONCERNS | BLOCKED
+Files: <paths relative to the working directory>
+Amy: invoked
+Unexpected: <each failure that is not the reason the task predicts, or none>
+Verify: `<command>`, exit <code>
+<its last lines, up to 10, pasted as printed>
+Decided: <one line per choice the task did not specify, or none>
+Concerns: <one line each, or none>
+```
+
+Do not restate the task, the steps you took or the values you used as given:
+the controller has the plan and checks the files itself. A `BLOCKED` report
+names the file or test and the reason on its `Concerns:` line.
