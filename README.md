@@ -158,6 +158,18 @@ When the Codex CLI is installed and logged in, the skills hand part of the work 
 - **review** — `wolowitz` runs one Codex review of the whole branch at the finish, beside the `sonnet` reviewer; only findings Claude confirms count.
 - **implement** — plan tasks marked `**Executor:** codex` are written by Codex in two calls, tests first and then code, with Claude running the tests between them.
 
+### Modes
+
+`/codex-mode` shows the current mode; `/codex-mode explore|full|auto` sets the global one, kept in `pasadena/codex-mode` under `${XDG_STATE_HOME:-~/.local/state}`; `/codex-mode explore|full --branch` sets it for the current branch in the journal's `codex-mode:` line, which wins on that branch. The session-start digest names the effective mode.
+
+| Mode | Reading | Implementation | Final review |
+|---|---|---|---|
+| `explore` (default) | Codex | Codex only for tasks marked `**Executor:** codex` | Claude `sonnet` + Codex |
+| `full` | Codex | Codex for every task except Task 0, and for bounded fixes, within the usage budget | Claude only |
+| `auto` | — | `sheldon` picks: spike → `explore`, bounded → `full`, architectural with concurrency, persisted state, security or a shared interface → `explore`, other architectural → asks | — |
+
+In `full`, `bash hooks/codex.sh budget` reads the remaining 5-hour and weekly limits from Codex's own session files under `${CODEX_HOME:-~/.codex}/sessions`. `leonard` hands Codex only as many tasks as fit in the weekly limit minus a 10% reserve and names the split in the plan's `Codex budget:` line; `wolowitz` checks again before each Codex task and gives the rest to Claude when the limit runs short. A task's cost is learned from how far the weekly limit moved: `pasadena/codex-cost.tsv` under the state directory keeps the history, and the estimate is the median of the last ten tasks (3% routine, 6% complex until there is history).
+
 While Codex works, `hooks/codex.sh` appends a compact session log to `pasadena/codex.log` under `${XDG_STATE_HOME:-~/.local/state}`: a `== ` header per call, then one `codex › ` line per command, failed exit code, file change, reasoning summary, message or error, cut to 200 characters. Follow it with `tail -f`. The log stays out of the script's output so Claude reads only the final answer on stdout and the `codex usage:`, `codex changed:` and error lines on stderr. Past 1 MB the log moves to `codex.log.1`. It holds the commands Codex ran and its messages, so it is created readable by you only.
 
 | Variable | Default | Effect |
