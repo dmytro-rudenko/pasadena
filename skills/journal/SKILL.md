@@ -7,7 +7,7 @@ argument-hint: start|note|pause|finish
 allowed-tools:
   - Read
   - Glob
-  - Skill
+  - Skill(pasadena:raj)
   - Bash(git branch *)
   - Bash(git status *)
 ---

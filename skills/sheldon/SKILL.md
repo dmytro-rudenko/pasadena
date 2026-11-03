@@ -7,11 +7,13 @@ allowed-tools:
   - Read
   - Grep
   - Glob
-  - WebFetch
-  - WebSearch
   - AskUserQuestion
   - TodoWrite
-  - Skill
+  - Skill(pasadena:amy)
+  - Skill(pasadena:penny)
+  - Skill(pasadena:leonard)
+  - Skill(pasadena:raj)
+  - Skill(pasadena:wolowitz)
   - Agent
   - Edit(docs/sdd/specs/**)
   - Bash(git status *)

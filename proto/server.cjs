@@ -40,11 +40,11 @@ fs.mkdirSync(STATE_DIR, { recursive: true });
 // box; it rides the URL as ?key= and is mirrored into a cookie so that
 // stylesheets, scripts and fetches carry it without us rewriting any HTML.
 // Persisted so a restart keeps an already-open tab valid.
-const KEY_FILE = path.join(STATE_DIR, 'key');
+const NONCE_FILE = path.join(STATE_DIR, 'key');
 const PORT_FILE = path.join(STATE_DIR, 'port');
 const EVENTS_FILE = path.join(STATE_DIR, 'events');
 
-const KEY = readOrCreate(KEY_FILE, () => crypto.randomBytes(18).toString('hex'));
+const NONCE = readOrCreate(NONCE_FILE, () => crypto.randomBytes(18).toString('hex'));
 
 function readOrCreate(file, make) {
   try {
@@ -197,15 +197,15 @@ let lastActivity = Date.now();
 
 const server = http.createServer((req, res) => {
   lastActivity = Date.now();
-  const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  const url = new URL(req.url, 'http://localhost');
   const viaQuery = url.searchParams.get('key');
-  const authorized = sameSecret(viaQuery, KEY) || sameSecret(cookieKey(req.headers.cookie), KEY);
+  const authorized = sameSecret(viaQuery, NONCE) || sameSecret(cookieKey(req.headers.cookie), NONCE);
 
   if (!authorized) return send(res, 403, 'text/plain; charset=utf-8', 'forbidden');
 
   // Hand the key to the browser once so subresources and fetches carry it.
   const setCookie = viaQuery
-    ? { 'set-cookie': `sdd_key=${encodeURIComponent(KEY)}; Path=/; SameSite=Strict; HttpOnly` }
+    ? { 'set-cookie': `sdd_key=${encodeURIComponent(NONCE)}; Path=/; SameSite=Strict; HttpOnly` }
     : {};
 
   if (url.pathname === '/_sdd/poll') {
@@ -268,7 +268,7 @@ server.on('listening', () => {
   process.stdout.write(
     JSON.stringify({
       type: 'server-started',
-      url: `http://${HOST}:${port}/?key=${KEY}`,
+      url: `http://${HOST}:${port}/?key=${NONCE}`,
       port,
       content_dir: CONTENT_DIR,
       state_dir: STATE_DIR,
