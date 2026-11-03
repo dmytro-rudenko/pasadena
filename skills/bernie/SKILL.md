@@ -7,16 +7,11 @@ allowed-tools:
   - Read
   - Grep
   - Glob
-  - Edit
-  - Write
-  - Skill
+  - Skill(pasadena:amy)
   - AskUserQuestion
   - TodoWrite
   - mcp__playwright
   - mcp__claude-in-chrome
-  - Bash(npm *)
-  - Bash(pnpm *)
-  - Bash(yarn *)
   - Bash(npx playwright *)
   - Bash(git status *)
   - Bash(git diff *)

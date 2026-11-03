@@ -1,6 +1,6 @@
 ---
 description: Show or set how much work Pasadena hands to Codex — explore, full or auto
-argument-hint: [explore|full|auto] [--branch]
+argument-hint: "[explore|full|auto] [--branch]"
 allowed-tools: Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/codex.sh *), Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/journal.sh *), Bash(git rev-parse *), Read
 ---
 

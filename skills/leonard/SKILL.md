@@ -10,11 +10,11 @@ allowed-tools:
   - Read
   - Grep
   - Glob
-  - WebFetch
-  - WebSearch
   - AskUserQuestion
   - TodoWrite
-  - Skill
+  - Skill(pasadena:wolowitz)
+  - Skill(pasadena:raj)
+  - Skill(pasadena:amy)
   - Edit(docs/sdd/plans/**)
   - Bash(git status *)
   - Bash(git log *)

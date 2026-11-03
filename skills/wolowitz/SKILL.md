@@ -7,11 +7,11 @@ allowed-tools:
   - Read
   - Grep
   - Glob
-  - Edit
-  - Write
   - Agent
   - TodoWrite
-  - Skill
+  - Skill(pasadena:amy)
+  - Skill(pasadena:leslie)
+  - Skill(pasadena:raj)
   - Bash(git status *)
   - Bash(git log *)
   - Bash(git diff *)
@@ -27,12 +27,8 @@ allowed-tools:
   - Bash(gh pr comment *)
   - Bash(gh pr edit *)
   - Bash(gh pr ready *)
-  - Bash(bash *)
   - Bash(sha256sum *)
   - Bash(cp *)
-  - Bash(npm *)
-  - Bash(pnpm *)
-  - Bash(yarn *)
   - Bash(make *)
   - Bash(pytest *)
   - Bash(go test *)

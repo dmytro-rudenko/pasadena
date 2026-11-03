@@ -15,8 +15,11 @@ esac
 # Branches that never get a journal. Override per project or per user.
 : "${PASADENA_TRUNK:=main master dev develop trunk}"
 
+# Where the plugin lives. Claude Code sets it for hooks; tests and hand calls fall back to this file's folder.
+: "${CLAUDE_PLUGIN_ROOT:=$(cd "$(dirname "$0")/.." && pwd)}"
+
 # Read a field from the stdin JSON; empty string when absent
-jf() { jq -r "$1 // empty" <<<"$input" 2>/dev/null; }
+jf() { printf '%s' "$input" | jq -r "$1 // empty" 2>/dev/null; }
 
 cwd="$(jf '.cwd')"
 [ -n "$cwd" ] || cwd="$PWD"
@@ -119,8 +122,8 @@ emit_context() {
 
 codex_line() {
   local sh m="" src=global
-  sh="$(dirname "$0")/codex.sh"
-  if bash "$sh" available >/dev/null 2>&1; then
+  sh="${CLAUDE_PLUGIN_ROOT}/hooks/codex.sh"
+  if bash "${CLAUDE_PLUGIN_ROOT}/hooks/codex.sh" available >/dev/null 2>&1; then
     printf 'Codex: available — send read-only code lookups to `bash %s explore <prompt-file>` instead of Explore or a read-only fork.' "$sh"
   else
     printf 'Codex: off — do code lookups yourself.'
@@ -128,7 +131,7 @@ codex_line() {
   [ -f "$file" ] && m="$(frontmatter codex-mode)"
   case "$m" in
     explore | full) src=branch ;;
-    *) m="$(bash "$sh" mode get 2>/dev/null)"; [ -n "$m" ] || m=explore ;;
+    *) m="$(bash "${CLAUDE_PLUGIN_ROOT}/hooks/codex.sh" mode get 2>/dev/null)"; [ -n "$m" ] || m=explore ;;
   esac
   printf '\nCodex mode: %s (%s).' "$m" "$src"
 }
@@ -236,9 +239,9 @@ cmd_commit() {
   fi
   [ -n "$log" ] || exit 0
 
-  while read -r sha subject; do
+  printf '%s\n' "$log" | while read -r sha subject; do
     grep -q "● $sha" "$file" || append_line "- $(date +%H:%M) ● $sha $subject"
-  done <<<"$log"
+  done
   exit 0
 }
 

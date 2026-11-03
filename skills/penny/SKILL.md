@@ -9,7 +9,8 @@ allowed-tools:
   - Glob
   - AskUserQuestion
   - TodoWrite
-  - Skill
+  - Skill(pasadena:sheldon)
+  - Skill(pasadena:raj)
   - Edit(docs/sdd/proto/**)
   - mcp__playwright
   - mcp__claude-in-chrome

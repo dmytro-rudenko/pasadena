@@ -8,7 +8,13 @@ allowed-tools:
   - Read
   - Grep
   - Glob
-  - Skill
+  - Skill(pasadena:sheldon)
+  - Skill(pasadena:penny)
+  - Skill(pasadena:leonard)
+  - Skill(pasadena:wolowitz)
+  - Skill(pasadena:raj)
+  - Skill(pasadena:amy)
+  - Skill(pasadena:leslie)
   - Bash(git branch *)
   - Bash(git status *)
   - Bash(git log *)
