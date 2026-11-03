@@ -48,7 +48,7 @@ pasadena: no repository map in context. Enable it with tokeneconomizer: `te conf
 **Covers:** spec §6, пункти 1–10 і 6a: «session-start … містить `Reuse before you write`», «без `te`: є підказка; з `PASADENA_REUSE_HINT=0` її немає», «`{"other":{"repomap":"on"}}`: підказки немає; `off`: є», «subagent-start … карта без службового рядка, `hookEventName` = `SubagentStart`», «`no map cached for x`: правило без карти», «без `te`: лише правило», «Explore / plan: порожньо; general-purpose: правило+карта; `PASADENA_REUSE_SKIP=` + Explore: правило+карта; без agent_type: правило», «`PASADENA_REUSE=0`: порожньо», «поза git: порожньо», «`te`, що висить 5 с: < 4 с, правило без карти», «реєстрація в `claude-hooks.json`».
 Вирішить рев'ю Focus: додати в цей файл також перевірки `start`, не-JSON-конфігу, `cwd` з пробілом, `Explorer-custom` і спецсимволів у карті (код нижче вже їх містить).
 
-- [ ] **Step 1: write the acceptance tests** — створити `hooks/reuse.test.sh`:
+- [x] **Step 1: write the acceptance tests** — створити `hooks/reuse.test.sh`:
 ```bash
 #!/usr/bin/env bash
 # Self-check for the reuse hook. Run: bash hooks/reuse.test.sh
@@ -197,7 +197,7 @@ if [ "$fails" -gt 0 ]; then
 fi
 echo "All checks passed."
 ```
-- [ ] **Step 2: run them, watch them fail** — `bash hooks/reuse.test.sh`, останній рядок починається з `FAILED:`, бо `hooks/reuse.sh` і реєстрації ще немає. Порожні перевірки (silent cases, Explore) можуть пройти вже зараз, і це нормально.
+- [x] **Step 2: run them, watch them fail** — `bash hooks/reuse.test.sh`, останній рядок починається з `FAILED:`, бо `hooks/reuse.sh` і реєстрації ще немає. Порожні перевірки (silent cases, Explore) можуть пройти вже зараз, і це нормально.
 
 ### Task 1: хук `hooks/reuse.sh`
 
@@ -276,7 +276,7 @@ esac
 exit 0
 ```
 Fake `te` у тесті робить `exec sleep`, тож `timeout` убиває саме процес, що тримає pipe. Якщо тест таймауту займає ≥ 4 с, причина в дочірньому процесі, який тримає stdout. Тоді треба шукати першопричину через `leslie`, а не піднімати поріг.
-- [ ] **Step 3: run them, watch them pass** — `bash hooks/reuse.test.sh`: усі перевірки, крім розділу `== registration ==`, мають `ok`. Останній рядок `FAILED: 3`, якщо Task 2 ще не злитий у worktree (три перевірки реєстрації; `journal.sh stays first` проходить і так), і `All checks passed.`, якщо злитий.
+- [ ] **Step 3: run them, watch them pass** — `bash hooks/reuse.test.sh`: усі перевірки, крім розділу `== registration ==`, мають `ok`. Останній рядок `FAILED: 7`, якщо Task 2 ще не злитий у worktree (усі перевірки розділу `== registration ==`, крім `journal.sh stays first`), і `All checks passed.`, якщо злитий.
 
 ### Task 2: реєстрація хуків
 
@@ -315,7 +315,7 @@ Fake `te` у тесті робить `exec sleep`, тож `timeout` убиває
       }
     ],
 ```
-- [ ] **Step 3: watch it pass** — `jq . hooks/claude-hooks.json >/dev/null && bash hooks/reuse.test.sh 2>&1 | grep -c 'ok  — .*\(registers\|stays first\|timeout is 10\)'` → `4`; `bash hooks/nudge.test.sh` і `bash hooks/journal.test.sh` → `All checks passed.`
+- [ ] **Step 3: watch it pass** — `jq . hooks/claude-hooks.json >/dev/null && bash hooks/reuse.test.sh 2>&1 | sed -n '/== registration ==/,$p' | grep -c 'FAIL —'` → `0`; `bash hooks/nudge.test.sh` і `bash hooks/journal.test.sh` → `All checks passed.`
 
 ### Task 3: версія 0.21.0 і документація
 
