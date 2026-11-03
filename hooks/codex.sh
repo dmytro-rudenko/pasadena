@@ -168,8 +168,9 @@ trap 'stop_codex; exit 130' INT
 trap 'stop_codex; exit 143' TERM
 events="$work/events.jsonl"
 last="$work/last.txt"
-mkdir -p "$(dirname "$log")"
 [ ! -f "$log" ] || [ "$(wc -c <"$log")" -le "$log_max" ] || mv -f "$log" "$log.1"
+(umask 077; mkdir -p "$(dirname "$log")"; : >>"$log")
+chmod 600 "$log"
 echo "== $(date '+%Y-%m-%d %H:%M:%S') $sub $$ $PWD" >>"$log"
 
 case "$sub" in

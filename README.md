@@ -158,7 +158,7 @@ When the Codex CLI is installed and logged in, the skills hand part of the work 
 - **review** — `wolowitz` runs one Codex review of the whole branch at the finish, beside the `sonnet` reviewer; only findings Claude confirms count.
 - **implement** — plan tasks marked `**Executor:** codex` are written by Codex in two calls, tests first and then code, with Claude running the tests between them.
 
-While Codex works, `hooks/codex.sh` appends a compact session log to `pasadena/codex.log` under `${XDG_STATE_HOME:-~/.local/state}`: a `== ` header per call, then one `codex › ` line per command, failed exit code, file change, reasoning summary, message or error, cut to 200 characters. Follow it with `tail -f`. The log stays out of the script's output so Claude reads only the final answer on stdout and the `codex usage:`, `codex changed:` and error lines on stderr. Past 1 MB the log moves to `codex.log.1`.
+While Codex works, `hooks/codex.sh` appends a compact session log to `pasadena/codex.log` under `${XDG_STATE_HOME:-~/.local/state}`: a `== ` header per call, then one `codex › ` line per command, failed exit code, file change, reasoning summary, message or error, cut to 200 characters. Follow it with `tail -f`. The log stays out of the script's output so Claude reads only the final answer on stdout and the `codex usage:`, `codex changed:` and error lines on stderr. Past 1 MB the log moves to `codex.log.1`. It holds the commands Codex ran and its messages, so it is created readable by you only.
 
 | Variable | Default | Effect |
 |---|---|---|
