@@ -198,12 +198,11 @@ assert_eq "${line: -2}" " -" "red reads the prompt from stdin (-)"
 out="$(cx red "$prompt" 2>&1)"
 assert_eq "$(sed -n 1p <<<"$out")" "fake-thread-1" "red prints the thread id first even with stderr merged"
 assert_contains "$(tail -n 1 <<<"$out")" "codex usage:" "usage line comes last"
-assert_eq "$(sed -n 2p <<<"$out")" "codex › final answer" "red logs the agent message after the thread id"
-assert_eq "$(sed -n 3p <<<"$out")" "final answer" "red final message is its own line with stderr merged"
-assert_eq "$(sed -n 4p <<<"$out")" "codex changed:" "red that changes nothing reports an empty change list"
-assert_eq "$(wc -l <<<"$out" | tr -d ' ')" 5 "red merged output is thread id, log, final answer, change list, usage line"
+assert_eq "$(sed -n 2p <<<"$out")" "final answer" "red final message is its own line with stderr merged"
+assert_eq "$(sed -n 3p <<<"$out")" "codex changed:" "red that changes nothing reports an empty change list"
+assert_eq "$(wc -l <<<"$out" | tr -d ' ')" 4 "red merged output is thread id, final answer, change list, usage line"
 out="$(cx FAKE_MODE=log red "$prompt" 2>&1)"
-assert_eq "$(sed -n 1p <<<"$out")" "fake-thread-1" "red prints the thread id before the session log"
+assert_eq "$(sed -n 1p <<<"$out")" "fake-thread-1" "red prints the thread id first when codex logs events"
 assert_eq "$(grep -c '^fake-thread' <<<"$out")" 1 "red prints the thread id once"
 cx FAKE_MODE=nothread red "$prompt" >/dev/null 2>&1; assert_eq "$?" 1 "red without a thread id is a failure"
 err="$(cx FAKE_MODE=writes red "$prompt" 2>&1 >/dev/null)"
@@ -227,9 +226,14 @@ assert_eq "${line: -2}" " -" "green reads the prompt from stdin (-)"
 assert_contains "$(cat "$FAKE_LOG.stdin")" "PROMPT-MARKER" "green passes the prompt file on stdin"
 
 echo "== session log =="
+codex_log="$XDG_STATE_HOME/pasadena/codex.log"
+rm -f "$codex_log" "$codex_log.1"
 out="$(cx FAKE_MODE=log explore "$prompt" 2>"$tmp/err")"
-err="$(cat "$tmp/err")"
 assert_eq "$out" "final answer" "session log stays off stdout"
+[[ "$(cat "$tmp/err")" != *"codex ›"* ]]; assert_eq "$?" 0 "session log stays off stderr"
+err="$(cat "$codex_log")"
+assert_eq "$(grep -c '^== .* explore ' <<<"$err")" 1 "each call opens the log with a header line"
+assert_eq "$(stat -c %a "$codex_log" 2>/dev/null || stat -f %Lp "$codex_log")" 600 "the log is readable by its owner only"
 assert_contains "$err" "codex › · thinking about it" "reasoning is logged on one line"
 assert_contains "$err" "codex › \$ rg -n foo" "started command is logged"
 assert_contains "$err" "codex › exit 2" "failed command logs its exit code"
@@ -239,9 +243,17 @@ assert_contains "$err" "codex › $(printf 'x%.0s' $(seq 200))…" "long agent m
 [[ "$err" != *"$(printf 'x%.0s' $(seq 201))"* ]]; assert_eq "$?" 0 "long agent message is not logged in full"
 assert_contains "$err" "codex › error: boom" "error is logged"
 [[ "$err" != *"turn.started"* && "$err" != *"usage\":"* ]]; assert_eq "$?" 0 "unknown and turn events are not logged raw"
+cx explore "$prompt" >/dev/null 2>&1
+assert_eq "$(grep -c '^== ' "$codex_log")" 2 "later calls append to the log"
+head -c 1048577 /dev/zero >"$codex_log"
+cx explore "$prompt" >/dev/null 2>&1
+assert_eq "$(grep -c '^== ' "$codex_log")" 1 "an oversized log is rotated"
+[ -f "$codex_log.1" ]; assert_eq "$?" 0 "the rotated log is kept as .1"
+cx PASADENA_CODEX_LOG="$tmp/custom.log" explore "$prompt" >/dev/null 2>&1
+assert_contains "$(cat "$tmp/custom.log")" "codex › final answer" "PASADENA_CODEX_LOG moves the log"
 
 rm -f "$tmp/live.err"
-(cd "$repo" && exec env PATH="$bin:$PATH" FAKE_MODE=live bash "$CODEX_SH" explore "$prompt") >/dev/null 2>"$tmp/live.err" &
+(cd "$repo" && exec env PATH="$bin:$PATH" PASADENA_CODEX_LOG="$tmp/live.err" FAKE_MODE=live bash "$CODEX_SH" explore "$prompt") >/dev/null 2>&1 &
 cxpid=$!
 for _ in $(seq 30); do
   grep -q "live-marker" "$tmp/live.err" 2>/dev/null && break

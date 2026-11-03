@@ -158,7 +158,7 @@ When the Codex CLI is installed and logged in, the skills hand part of the work 
 - **review** — `wolowitz` runs one Codex review of the whole branch at the finish, beside the `sonnet` reviewer; only findings Claude confirms count.
 - **implement** — plan tasks marked `**Executor:** codex` are written by Codex in two calls, tests first and then code, with Claude running the tests between them.
 
-While Codex works, `hooks/codex.sh` streams a compact session log to stderr, one `codex › ` line per command, failed exit code, file change, reasoning summary, message or error, cut to 200 characters. It shows up in the background task's output panel. The final answer stays on stdout.
+While Codex works, `hooks/codex.sh` appends a compact session log to `pasadena/codex.log` under `${XDG_STATE_HOME:-~/.local/state}`: a `== ` header per call, then one `codex › ` line per command, failed exit code, file change, reasoning summary, message or error, cut to 200 characters. Follow it with `tail -f`. The log stays out of the script's output so Claude reads only the final answer on stdout and the `codex usage:`, `codex changed:` and error lines on stderr. Past 1 MB the log moves to `codex.log.1`. It holds the commands Codex ran and its messages, so it is created readable by you only.
 
 | Variable | Default | Effect |
 |---|---|---|
@@ -166,6 +166,7 @@ While Codex works, `hooks/codex.sh` streams a compact session log to stderr, one
 | `PASADENA_CODEX_IDLE` | `120` | seconds without a Codex event before the call is stopped |
 | `PASADENA_CODEX_CMD_IDLE` | `600` | the same limit while Codex runs a command |
 | `PASADENA_CODEX_MODEL` | — | passed to Codex as `-m` |
+| `PASADENA_CODEX_LOG` | `pasadena/codex.log` under the state directory | where the session log goes |
 
 Codex spends your ChatGPT plan's usage. When it runs out, `hooks/codex.sh` exits `75`, the skills tell you once, and delegation stays off for six hours or until you delete `pasadena/codex-exhausted` under `${XDG_STATE_HOME:-~/.local/state}`.
 
