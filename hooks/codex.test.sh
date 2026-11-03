@@ -335,6 +335,51 @@ printf 'garbage\n' >"$mstate/pasadena/codex-mode"
 out="$(cx XDG_STATE_HOME="$mstate" mode get)"; assert_eq "$out" explore "an unknown value in the file reads as explore"
 assert_eq "$([ -e "$mstate/pasadena/codex.log" ] && echo present || echo absent)" absent "mode writes no session log"
 
+echo "== budget =="
+chome="$tmp/codexhome"
+bstate="$tmp/bstate"
+now="$(date +%s)"
+future=$((now + 3600))
+past=$((now - 10))
+cx CODEX_HOME="$chome" XDG_STATE_HOME="$bstate" budget >"$tmp/b.out" 2>/dev/null; rc=$?
+assert_eq "$rc" 1 "budget without rollout files exits 1"
+assert_eq "$(cat "$tmp/b.out")" "" "budget without rollout files prints nothing"
+mkdir -p "$chome/sessions/2026/11/03"
+old="$chome/sessions/2026/11/03/rollout-old.jsonl"
+new="$chome/sessions/2026/11/03/rollout-new.jsonl"
+{
+  echo '{"type":"session_meta","payload":{"id":"x"}}'
+  echo '{"type":"event_msg","payload":{"type":"token_count","info":null,"rate_limits":{"primary":{"used_percent":10.0,"window_minutes":300,"resets_at":'"$future"'},"secondary":{"used_percent":20.0,"window_minutes":10080,"resets_at":'"$future"'}}}}'
+  echo '{"type":"event_msg","payload":{"type":"token_count","info":null,"rate_limits":{"primary":{"used_percent":27.0,"window_minutes":300,"resets_at":'"$future"'},"secondary":{"used_percent":40.4,"window_minutes":10080,"resets_at":'"$future"'}}}}'
+} >"$old"
+printf '%s\n' '{"type":"session_meta","payload":{"id":"y"}}' '{"type":"event_msg","payload":{"type":"token_count","info":null,"rate_limits":null}}' >"$new"
+touch -t 202601010000 "$old"
+out="$(cx CODEX_HOME="$chome" XDG_STATE_HOME="$bstate" budget)"
+assert_eq "$out" "weekly_left=59 weekly_used=41 five_hour_left=73 five_hour_reset=$future" "budget reads the last rate_limits, skipping a newer file without them"
+echo '{"type":"event_msg","payload":{"type":"token_count","rate_limits":{"primary":{"used_percent":99.0,"window_minutes":300,"resets_at":'"$past"'},"secondary":{"used_percent":100.0,"window_minutes":10080,"resets_at":'"$past"'}}}}' >>"$new"
+out="$(cx CODEX_HOME="$chome" XDG_STATE_HOME="$bstate" budget)"
+assert_eq "$out" "weekly_left=100 weekly_used=0 five_hour_left=100 five_hour_reset=$past" "a window whose reset is past counts as fresh"
+assert_eq "$([ -e "$bstate/pasadena/codex.log" ] && echo present || echo absent)" absent "budget writes no session log"
+
+echo "== cost =="
+out="$(cx XDG_STATE_HOME="$bstate" cost estimate routine)"; assert_eq "$out" 3 "routine estimate defaults to 3"
+out="$(cx XDG_STATE_HOME="$bstate" cost estimate complex)"; assert_eq "$out" 6 "complex estimate defaults to 6"
+cx XDG_STATE_HOME="$bstate" cost add routine 2; assert_eq "$?" 0 "cost add succeeds"
+cx XDG_STATE_HOME="$bstate" cost add routine 5
+out="$(cx XDG_STATE_HOME="$bstate" cost estimate routine)"; assert_eq "$out" 4 "even count: median 3.5 rounds up to 4"
+cx XDG_STATE_HOME="$bstate" cost add routine 9
+out="$(cx XDG_STATE_HOME="$bstate" cost estimate routine)"; assert_eq "$out" 5 "median of 2, 5, 9 is 5"
+out="$(cx XDG_STATE_HOME="$bstate" cost estimate complex)"; assert_eq "$out" 6 "routine entries do not move the complex estimate"
+cx XDG_STATE_HOME="$bstate" cost add complex 0
+out="$(cx XDG_STATE_HOME="$bstate" cost estimate complex)"; assert_eq "$out" 1 "estimate is at least 1"
+for i in 1 1 1 1 1 1 1 1 1 1; do cx XDG_STATE_HOME="$bstate" cost add routine "$i"; done
+out="$(cx XDG_STATE_HOME="$bstate" cost estimate routine)"; assert_eq "$out" 1 "only the last 10 entries count"
+cx XDG_STATE_HOME="$bstate" cost add routine -1 >/dev/null 2>&1; assert_eq "$?" 2 "negative cost is a usage error"
+cx XDG_STATE_HOME="$bstate" cost add easy 3 >/dev/null 2>&1; assert_eq "$?" 2 "unknown complexity is a usage error"
+cx XDG_STATE_HOME="$bstate" cost estimate >/dev/null 2>&1; assert_eq "$?" 2 "estimate without complexity is a usage error"
+cx XDG_STATE_HOME="$bstate" cost >/dev/null 2>&1; assert_eq "$?" 2 "cost without action is a usage error"
+assert_eq "$(awk -F'\t' 'END { print NF }' "$bstate/pasadena/codex-cost.tsv")" 3 "cost log lines have three tab-separated fields"
+
 rm -rf "$tmp"
 
 echo
