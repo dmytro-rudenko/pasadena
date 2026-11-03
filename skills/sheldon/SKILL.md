@@ -81,6 +81,33 @@ work to the heavier path. In that case, tell the user about the change and
 continue under the rules of the new level. The selected level of rigor can only
 stay the same or increase.
 
+## Codex mode
+
+The session-start digest names the effective Codex mode in a line such as
+`Codex mode: auto (global).`; with no such line, run `codex.sh mode get`
+beside `journal.sh`. Only `auto` is yours to resolve. An explicit `explore` or
+`full`, global or on the branch, stays as it is and is not asked about.
+
+When the digest says `Codex mode: auto`, name the resolved mode out loud
+together with the path:
+
+- **Spike** → `explore`: nothing gets built.
+- **Bounded** → `full`.
+- **Architectural** that touches concurrency, persisted state or migrations,
+  security, or an interface other components depend on → `explore`.
+- **Any other Architectural** → one `AskUserQuestion`: `explore` or `full`,
+  recommending `full`.
+
+When the classification moves to a heavier path, resolve the mode again by the
+same rules.
+
+On the Architectural path, once `raj` has created the journal in Step 0, have
+it record the mode with `journal.sh codex-mode <explore|full>` — the resolved
+one, or the explicit global one. On the Bounded path the effective mode stays in
+the conversation: name it when you invoke `amy`. With `full`, the in-chat design
+lists the exact path of every file the change writes, the test file included;
+`amy` builds the task's `**Writes:**` from that list.
+
 ## Step 0, architectural only: somewhere to work
 
 Before the first question:
