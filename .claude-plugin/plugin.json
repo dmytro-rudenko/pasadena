@@ -7,6 +7,12 @@
     "name": "dmytro-rudenko",
     "email": "ph.dmitry.rudenko@gmail.com"
   },
+  "homepage": "https://github.com/dmytro-rudenko/pasadena",
+  "repository": "https://github.com/dmytro-rudenko/pasadena",
+  "documentationUrl": "https://github.com/dmytro-rudenko/pasadena#readme",
+  "supportUrl": "https://github.com/dmytro-rudenko/pasadena/issues/new/choose",
+  "privacyPolicyUrl": "https://github.com/dmytro-rudenko/pasadena/blob/main/PRIVACY.md",
+  "termsOfServiceUrl": "https://github.com/dmytro-rudenko/pasadena/blob/main/LICENSE",
   "license": "MIT",
   "keywords": [
     "sdd",
