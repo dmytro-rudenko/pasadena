@@ -88,12 +88,13 @@ Keep `## Goal`, `## Now`, and `## Timeline` in English. Hooks parse those headin
 
 `## Now` is the only section that changes. It records the current phase, the blocker if there is one, and a concrete next step with a verification command. `## Timeline` only grows.
 
-Pasadena uses five hooks:
+Pasadena uses six hooks:
 
 | Event | What it does |
 | --- | --- |
-| `SessionStart` | Restores the journal context and offers to start one on a task branch. |
+| `SessionStart` | Restores the journal context and offers to start one on a task branch; adds the reuse-first rule. |
 | `UserPromptSubmit` | Reminds the agent to invoke leslie for a bug or amy for new behaviour; silent outside a Git repo. |
+| `SubagentStart` | Gives every subagent that writes code the reuse-first rule and the cached tokeneconomizer repository map, when there is one. |
 | `PostToolUse` | Adds commits that appeared since the last journal entry. |
 | `SessionEnd` | Adds a pause marker with HEAD and dirty files. |
 | `StopFailure` | Adds the failure type. |
@@ -120,6 +121,8 @@ Set it in your shell profile or in `.claude/settings.json`:
 ```
 
 `PASADENA_NUDGE=0` turns off the `UserPromptSubmit` reminder.
+
+`PASADENA_REUSE=0` turns off the reuse-first rule and the subagent map. `PASADENA_REUSE_HINT=0` hides only the hint to enable tokeneconomizer's repomap. `PASADENA_REUSE_SKIP` is a regex of subagent types that get neither (default `Explore|Plan|claude-code-guide|statusline-setup|web-fetch`; empty turns the filter off).
 
 ## Browser prototypes
 
@@ -177,10 +180,11 @@ bash skills/skills.test.sh
 bash hooks/journal.test.sh
 bash proto/server.test.sh
 bash hooks/nudge.test.sh
+bash hooks/reuse.test.sh
 bash hooks/codex.test.sh
 ```
 
-The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration. The Codex checks run `hooks/codex.sh` against a fake `codex` and cover availability, each subcommand's flags, the session log, the idle stop and the usage-limit marker.
+The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration. The reuse checks run `hooks/reuse.sh` against a fake `te` and cover the rule, the hint, the subagent map and filter, the timeout, the silent cases, and hook registration. The Codex checks run `hooks/codex.sh` against a fake `codex` and cover availability, each subcommand's flags, the session log, the idle stop and the usage-limit marker.
 
 For the full design, read [docs/design.md](docs/design.md).
 

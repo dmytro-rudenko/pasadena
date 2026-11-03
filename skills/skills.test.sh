@@ -138,6 +138,17 @@ for readme in README.md README.uk.md; do
 done
 [ "$fails" -eq "$before" ] && ok "codex delegation documented"
 
+echo "Reuse hook"
+before=$fails
+for readme in README.md README.uk.md; do
+  for needle in PASADENA_REUSE= PASADENA_REUSE_HINT PASADENA_REUSE_SKIP "bash hooks/reuse.test.sh" '`SubagentStart`'; do
+    grep -qF -- "$needle" "$ROOT/$readme" || fail "$readme: missing \"$needle\""
+  done
+done
+grep -qF 'Pasadena uses six hooks' "$ROOT/README.md" || fail "README.md: hook count is not six"
+grep -qF "Pasadena використовує шість hooks" "$ROOT/README.uk.md" || fail "README.uk.md: hook count is not six"
+[ "$fails" -eq "$before" ] && ok "reuse hook documented"
+
 echo "Frontmatter models"
 before=$fails
 for file in "$SKILLS"/*/SKILL.md; do
@@ -212,7 +223,7 @@ grep -qF '| Implementer, `complex`-задача, раунд 3, фінальни�
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.20.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.20.0"
+  grep -qF '"version": "0.21.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.21.0"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"
