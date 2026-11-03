@@ -11,7 +11,8 @@ all of them together.
 **Working directory:** `<absolute path to the worktree>`
 **The diff:** `git diff <BASE>` — commits plus the working tree; review the diff, not the files.
 **The plan:** `<path>`, tasks `<N, M, …>`, plus `## Global constraints` and,
-when the plan has one, `## Review Focus`.
+when the plan has one, `## Review Focus`. Read those blocks only:
+`grep -n '^##' <plan>` gives their line ranges.
 **The spec:** `<path>`.
 
 The implementers already ran their verification commands and the controller
@@ -62,4 +63,20 @@ approach, that is settled; flag it only if it cannot work. Do not propose
 refactors outside the diff. Do not soften a real finding because the waves are
 otherwise clean.
 
-Report findings and declined items only, no fixes.
+Do not read whole files the diff already covers. When a finding needs context
+the hunk does not show, find it with `grep -n` and read that range. When the
+diff is large, start from `git diff --stat <BASE>` and take it file by file.
+
+Report findings and declined items only, no fixes, in this shape and nothing
+before or after it:
+
+```
+Review for pasadena:wolowitz
+Spec: compliant | <file>:<line> — <how it diverges>, one per line
+Findings: none | numbered, most severe first:
+1. <file>:<line> — <what is wrong>; <what happens if it ships>. <severity>
+Declined: none | <item> — <why>, one per line
+```
+
+A compliant verdict needs no evidence. Do not describe what you checked or
+restate the plan.
