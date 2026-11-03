@@ -318,6 +318,23 @@ cx FAKE_MODE=fail explore "$prompt" >/dev/null 2>&1; assert_eq "$?" 1 "codex exi
 cx explore >/dev/null 2>&1; assert_eq "$?" 2 "missing prompt file is a usage error"
 cx >/dev/null 2>&1; assert_eq "$?" 2 "no subcommand is a usage error"
 
+echo "== mode =="
+mstate="$tmp/mstate"
+out="$(cx XDG_STATE_HOME="$mstate" mode get)"; assert_eq "$out" explore "mode defaults to explore"
+out="$(cx XDG_STATE_HOME="$mstate" mode)"; assert_eq "$out" explore "mode without an argument is get"
+assert_eq "$([ -e "$mstate/pasadena/codex.log" ] && echo present || echo absent)" absent "mode get writes no session log"
+cx XDG_STATE_HOME="$mstate" mode set full; assert_eq "$?" 0 "mode set full succeeds"
+assert_eq "$(cat "$mstate/pasadena/codex-mode")" full "mode set writes the state file"
+out="$(cx XDG_STATE_HOME="$mstate" mode get)"; assert_eq "$out" full "mode get returns the set mode"
+cx XDG_STATE_HOME="$mstate" mode set auto; out="$(cx XDG_STATE_HOME="$mstate" mode get)"; assert_eq "$out" auto "auto is a valid global mode"
+cx XDG_STATE_HOME="$mstate" mode set bogus >/dev/null 2>&1; assert_eq "$?" 2 "mode set rejects an unknown mode"
+cx XDG_STATE_HOME="$mstate" mode set >/dev/null 2>&1; assert_eq "$?" 2 "mode set without a value is a usage error"
+cx XDG_STATE_HOME="$mstate" mode frob >/dev/null 2>&1; assert_eq "$?" 2 "unknown mode action is a usage error"
+out="$(cx XDG_STATE_HOME="$mstate" mode get)"; assert_eq "$out" auto "a rejected set leaves the mode unchanged"
+printf 'garbage\n' >"$mstate/pasadena/codex-mode"
+out="$(cx XDG_STATE_HOME="$mstate" mode get)"; assert_eq "$out" explore "an unknown value in the file reads as explore"
+assert_eq "$([ -e "$mstate/pasadena/codex.log" ] && echo present || echo absent)" absent "mode writes no session log"
+
 rm -rf "$tmp"
 
 echo

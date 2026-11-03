@@ -7,9 +7,10 @@ marker="${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex-exhausted"
 marker_ttl=21600
 log="${PASADENA_CODEX_LOG:-${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex.log}"
 log_max=1048576
+mode_file="${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex-mode"
 
 usage() {
-  echo "usage: codex.sh available | explore <prompt-file> | review <base> <prompt-file> | red <prompt-file> | green <thread-id> <prompt-file>" >&2
+  echo "usage: codex.sh available | explore <prompt-file> | review <base> <prompt-file> | red <prompt-file> | green <thread-id> <prompt-file> | mode [get | set <explore|full|auto>]" >&2
   exit 2
 }
 
@@ -23,6 +24,24 @@ cmd_available() {
     rm -f "$marker"
   fi
   codex login status >/dev/null 2>&1 || exit 1
+  exit 0
+}
+
+cmd_mode() {
+  local m=""
+  case "${1:-get}" in
+    get)
+      [ -f "$mode_file" ] && m="$(head -1 "$mode_file")"
+      case "$m" in explore | full | auto) ;; *) m=explore ;; esac
+      echo "$m"
+      ;;
+    set)
+      case "${2:-}" in explore | full | auto) ;; *) usage ;; esac
+      mkdir -p "$(dirname "$mode_file")"
+      echo "$2" >"$mode_file"
+      ;;
+    *) usage ;;
+  esac
   exit 0
 }
 
@@ -153,6 +172,7 @@ run() {
 sub="${1:-}"
 case "$sub" in
   available) cmd_available ;;
+  mode) cmd_mode "${2:-get}" "${3:-}" ;;
   explore | review | red | green) ;;
   *) usage ;;
 esac
