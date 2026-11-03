@@ -174,7 +174,7 @@ assert_eq "$([ -e "$mstate/pasadena/codex.log" ] && echo present || echo absent)
   - Bad arguments exit 2.
   - Neither subcommand writes `codex.log` or sets traps.
 
-- [ ] **Step 1: write the failing test.** In `hooks/codex.test.sh`, insert directly before the line `rm -rf "$tmp"` (after Task 1's `== mode ==` block):
+- [x] **Step 1: write the failing test.** In `hooks/codex.test.sh`, insert directly before the line `rm -rf "$tmp"` (after Task 1's `== mode ==` block):
 
 ```bash
 echo "== budget =="
@@ -223,8 +223,8 @@ cx XDG_STATE_HOME="$bstate" cost >/dev/null 2>&1; assert_eq "$?" 2 "cost without
 assert_eq "$(awk -F'\t' 'END { print NF }' "$bstate/pasadena/codex-cost.tsv")" 3 "cost log lines have three tab-separated fields"
 ```
 
-- [ ] **Step 2: run it and watch it fail.** Run `bash hooks/codex.test.sh` and expect `FAILED:` as the last line. The budget and cost checks fail because both subcommands currently hit `usage`.
-- [ ] **Step 3: implement.** In `hooks/codex.sh`:
+- [x] **Step 2: run it and watch it fail.** Run `bash hooks/codex.test.sh` and expect `FAILED:` as the last line. The budget and cost checks fail because both subcommands currently hit `usage`.
+- [x] **Step 3: implement.** In `hooks/codex.sh`:
   - After the `mode_file=` line, add:
     ```bash
     cost_file="${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex-cost.tsv"
@@ -284,7 +284,7 @@ assert_eq "$(awk -F'\t' 'END { print NF }' "$bstate/pasadena/codex-cost.tsv")" 3
       budget) cmd_budget ;;
       cost) cmd_cost "${2:-}" "${3:-}" "${4:-}" ;;
     ```
-- [ ] **Step 4: run it and watch it pass.** Run `bash hooks/codex.test.sh` and expect `All checks passed.`
+- [x] **Step 4: run it and watch it pass.** Run `bash hooks/codex.test.sh` and expect `All checks passed.`
 
 ### Task 3: `journal.sh codex-mode` and the digest line
 
@@ -303,7 +303,7 @@ assert_eq "$(awk -F'\t' 'END { print NF }' "$bstate/pasadena/codex-cost.tsv")" 3
   - With no journal it prints `no journal for <branch>` on stderr and exits 1. Any other value exits 2.
   - Digest line `Codex mode: <mode> (branch|global).` follows the `Codex: …` line in every session-start digest.
 
-- [ ] **Step 1: write the failing test.** In `hooks/journal.test.sh`:
+- [x] **Step 1: write the failing test.** In `hooks/journal.test.sh`:
   - Directly after `fails=0`, add:
     ```bash
     export XDG_STATE_HOME="$(mktemp -d)"
@@ -371,8 +371,8 @@ rm -rf "$d"
 ```
 
   - Directly after that new block, still before the final `echo`, add `rm -rf "$XDG_STATE_HOME"`.
-- [ ] **Step 2: run it and watch it fail.** Run `bash hooks/journal.test.sh` and expect `FAILED:` as the last line. The `Codex mode` checks fail. The three `Codex: available` checks that fail today pass now, because `XDG_STATE_HOME` is isolated.
-- [ ] **Step 3: implement.** In `hooks/journal.sh`:
+- [x] **Step 2: run it and watch it fail.** Run `bash hooks/journal.test.sh` and expect `FAILED:` as the last line. The `Codex mode` checks fail. The three `Codex: available` checks that fail today pass now, because `XDG_STATE_HOME` is isolated.
+- [x] **Step 3: implement.** In `hooks/journal.sh`:
   - Change the stdin case line `note) input='{}' ;;` to:
     ```bash
       note | codex-mode) input='{}' ;;
@@ -421,7 +421,7 @@ rm -rf "$d"
     ```bash
       codex-mode) cmd_codex_mode ;;
     ```
-- [ ] **Step 4: run it and watch it pass.** Run `bash hooks/journal.test.sh` and expect `All checks passed.`
+- [x] **Step 4: run it and watch it pass.** Run `bash hooks/journal.test.sh` and expect `All checks passed.`
 
 ### Task 4: `/codex-mode` command
 

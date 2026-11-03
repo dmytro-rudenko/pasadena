@@ -11,8 +11,8 @@ started: 2026-11-03
 Готово, коли режими зберігаються (глобально + поле `codex-mode:` журналу), skills їх дотримуються, тести зелені, README оновлено, версію піднято.
 
 ## Now
-Building. Wave 1 закрита (`5c13aaf`…`11ead3d`); червоною лишилась лише acceptance-перевірка Task 4, `journal.test.sh` має 3 базові падіння, які прибере Task 3. GROUP_BASE: a5f16f6 (waves 1–3 = остання група, її покриє whole-branch review).
-Next: Wave 2 — Task 2 (`hooks/codex.sh` budget/cost) і Task 3 (`hooks/journal.sh` codex-mode); перевірка `bash hooks/codex.test.sh`, `bash hooks/journal.test.sh`.
+Building. Wave 2 закрита (`ab47f43`, `f71c2ba`); codex і journal тести зелені, червоною лишилась лише acceptance-перевірка Task 4. GROUP_BASE: a5f16f6 (waves 1–3 покриє whole-branch review).
+Next: Wave 3 — Task 4 (`commands/codex-mode.md`), implementer один; перевірка `bash skills/skills.test.sh` → `All checks passed.`; потім Finish.
 
 ## Timeline
 
@@ -34,3 +34,7 @@ Next: Wave 2 — Task 2 (`hooks/codex.sh` budget/cost) і Task 3 (`hooks/journal
 - 17:51 ● ee8c452 feat(amy): run a bounded change through Codex in codex-mode full
 - 17:51 ● 7d138f2 docs(readme): document codex modes and the usage budget
 - 17:51 ● 11ead3d chore(release): bump pasadena to 0.21.0
+- 17:51 ● 6963065 chore(plan): close wave 1
+- 17:51 ✎ Wave 1: 8 задач; два дефекти плану вирішено ухвалами — raj без літерала journal.sh codex-mode, wolowitz >20000 байт (блок full перенесено в codex-tasks.md)
+- 17:55 ● ab47f43 feat(codex): codex.sh budget and cost for the Codex usage limit
+- 17:55 ● f71c2ba feat(journal): branch codex-mode field and digest line
