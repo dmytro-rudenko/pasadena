@@ -5,6 +5,8 @@ set -uo pipefail
 : "${PASADENA_CODEX_CMD_IDLE:=600}"
 marker="${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex-exhausted"
 marker_ttl=21600
+log="${PASADENA_CODEX_LOG:-${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex.log}"
+log_max=1048576
 
 usage() {
   echo "usage: codex.sh available | explore <prompt-file> | review <base> <prompt-file> | red <prompt-file> | green <thread-id> <prompt-file>" >&2
@@ -101,7 +103,7 @@ stream() {
     thread="$(jq -rR 'fromjson? | select(.type == "thread.started") | .thread_id' <<<"$chunk" 2>/dev/null | head -1)"
     [ -z "$thread" ] || echo "$thread"
   fi
-  jq -rR "$log_format" <<<"$chunk" >&2 2>/dev/null
+  jq -rR "$log_format" <<<"$chunk" >>"$log" 2>/dev/null
 }
 
 run() {
@@ -166,6 +168,9 @@ trap 'stop_codex; exit 130' INT
 trap 'stop_codex; exit 143' TERM
 events="$work/events.jsonl"
 last="$work/last.txt"
+mkdir -p "$(dirname "$log")"
+[ ! -f "$log" ] || [ "$(wc -c <"$log")" -le "$log_max" ] || mv -f "$log" "$log.1"
+echo "== $(date '+%Y-%m-%d %H:%M:%S') $sub $$ $PWD" >>"$log"
 
 case "$sub" in
   explore)
