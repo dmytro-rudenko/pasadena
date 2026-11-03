@@ -434,8 +434,8 @@ rm -rf "$d"
 **Interfaces:**
 - Consumes: `codex.sh mode get|set <mode>` and `codex.sh available` (Task 1, existing), and `journal.sh codex-mode <explore|full>` (Task 3).
 
-- [ ] **Step 1: see the failing check.** Run `bash skills/skills.test.sh` and confirm the output contains `FAIL — commands/codex-mode.md: missing`.
-- [ ] **Step 2: implement.** Create `commands/codex-mode.md` with exactly:
+- [x] **Step 1: see the failing check.** Run `bash skills/skills.test.sh` and confirm the output contains `FAIL — commands/codex-mode.md: missing`.
+- [x] **Step 2: implement.** Create `commands/codex-mode.md` with exactly:
 
 ````markdown
 ---
@@ -480,7 +480,7 @@ Do exactly one of these, by the arguments:
 5. **Anything else.** List the valid forms above; run nothing.
 ````
 
-- [ ] **Step 3: run the check and watch it pass.** Run `bash skills/skills.test.sh` and confirm the output has no line starting `  FAIL — commands/codex-mode.md`.
+- [x] **Step 3: run the check and watch it pass.** Run `bash skills/skills.test.sh` and confirm the output has no line starting `  FAIL — commands/codex-mode.md`.
 
 ### Task 5: `sheldon` resolves `auto`
 

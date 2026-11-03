@@ -11,8 +11,8 @@ started: 2026-11-03
 Готово, коли режими зберігаються (глобально + поле `codex-mode:` журналу), skills їх дотримуються, тести зелені, README оновлено, версію піднято.
 
 ## Now
-Building. Wave 2 закрита (`ab47f43`, `f71c2ba`); codex і journal тести зелені, червоною лишилась лише acceptance-перевірка Task 4. GROUP_BASE: a5f16f6 (waves 1–3 покриє whole-branch review).
-Next: Wave 3 — Task 4 (`commands/codex-mode.md`), implementer один; перевірка `bash skills/skills.test.sh` → `All checks passed.`; потім Finish.
+Finish. Усі хвилі закриті (остання — Task 4 `202c3ac`), усі три набори тестів зелені.
+Next: whole-branch review (`sonnet` xhigh) + `security-review` над `git merge-base origin/main HEAD..HEAD`; Codex-рев'ю пропущено, бо `codex.sh available` повертає 1.
 
 ## Timeline
 
@@ -38,3 +38,6 @@ Next: Wave 3 — Task 4 (`commands/codex-mode.md`), implementer один; пер
 - 17:51 ✎ Wave 1: 8 задач; два дефекти плану вирішено ухвалами — raj без літерала journal.sh codex-mode, wolowitz >20000 байт (блок full перенесено в codex-tasks.md)
 - 17:55 ● ab47f43 feat(codex): codex.sh budget and cost for the Codex usage limit
 - 17:55 ● f71c2ba feat(journal): branch codex-mode field and digest line
+- 17:56 ● 84a3f75 chore(plan): close wave 2
+- 17:56 ✎ Wave 2: budget/cost і journal codex-mode зелені; ізоляція XDG_STATE_HOME прибрала 3 базові падіння; budget на реальних даних дає weekly_left=0
+- 17:57 ● 202c3ac feat(commands): /codex-mode shows and sets the Codex mode
