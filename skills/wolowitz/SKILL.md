@@ -27,8 +27,6 @@ allowed-tools:
   - Bash(gh pr comment *)
   - Bash(gh pr edit *)
   - Bash(gh pr ready *)
-  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/codex.sh *)
-  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/journal.sh *)
   - Bash(sha256sum *)
   - Bash(cp *)
   - Bash(make *)
