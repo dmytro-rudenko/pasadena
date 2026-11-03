@@ -1,0 +1,26 @@
+name: Feedback
+description: Share how pasadena worked for you, what got in the way, or what you would change
+labels: [feedback]
+body:
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Which part
+      options: [sheldon (spec), penny (prototype), leonard (plan), wolowitz (build), amy (TDD), leslie (debugging), bernie (e2e), stuart (layout), raj / journal, hooks, Codex delegation, whole workflow, other]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you tried, what you expected, what you got.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you change
+  - type: input
+    id: env
+    attributes:
+      label: Claude Code version, OS, Codex CLI (yes/no)
