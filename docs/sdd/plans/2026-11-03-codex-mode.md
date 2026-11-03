@@ -51,7 +51,7 @@ Serialized: Tasks 1 and 2 both write `hooks/codex.sh` and `hooks/codex.test.sh`,
 - "`README.md` і `README.uk.md`, розділ «Codex delegation»: три режими, команда"
 - "Версія `0.20.0` → `0.21.0`"
 
-- [ ] **Step 1: write the acceptance tests.** In `skills/skills.test.sh`, directly after the line `[ "$fails" -eq "$before" ] && ok "codex delegation documented"`, insert:
+- [x] **Step 1: write the acceptance tests.** In `skills/skills.test.sh`, directly after the line `[ "$fails" -eq "$before" ] && ok "codex delegation documented"`, insert:
 
 ```bash
 
@@ -88,7 +88,7 @@ done
 ```
 
   Also change the line `grep -qF '"version": "0.20.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.20.0"` to `grep -qF '"version": "0.21.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.21.0"`.
-- [ ] **Step 2: run them and watch them fail.** Run `bash skills/skills.test.sh` and expect last line `FAILED: 23`: 14 `require` lines, 1 missing command file, 6 README needles and 2 manifest versions. The behaviour is missing.
+- [x] **Step 2: run them and watch them fail.** Run `bash skills/skills.test.sh` and expect last line `FAILED: 23`: 14 `require` lines, 1 missing command file, 6 README needles and 2 manifest versions. The behaviour is missing.
 
 ### Task 1: `codex.sh mode`
 
