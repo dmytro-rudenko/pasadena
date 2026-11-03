@@ -9,6 +9,24 @@
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/journal.sh\" session-start",
             "shell": "bash",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/reuse.sh\" session-start",
+            "shell": "bash",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/reuse.sh\" subagent-start",
+            "shell": "bash",
+            "timeout": 10
           }
         ]
       }
