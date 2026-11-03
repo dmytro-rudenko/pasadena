@@ -18,3 +18,4 @@ Next: після схвалення — `leonard` пише план у `docs/sdd
 
 ### 2026-11-03
 - 17:23 ✎ Shaping: дизайн codex-mode (explore/full/auto) затверджено в чаті
+- 17:24 ● 5818fd3 docs(spec): codex-mode command with explore, full and auto modes

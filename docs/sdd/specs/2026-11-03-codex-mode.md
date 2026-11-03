@@ -45,7 +45,7 @@ Gate red, Gate green, хеші тестів, набір `**Writes:**`. Він ж
 | Режим | Читання | Реалізація | Фінальне ревʼю |
 |---|---|---|---|
 | `explore` | Codex (`codex.sh explore`) | як зараз: Codex лише для завдань, що проходять пʼять умов `leonard` | Claude `sonnet` + Codex review, як зараз |
-| `full` | Codex | Codex для кожного завдання, крім Task 0; Bounded теж через Codex | лише Claude: `sonnet` `xhigh` + `security-review` |
+| `full` | Codex | Codex для кожного завдання, крім Task 0, у межах бюджету лімітів (3.9); Bounded теж через Codex | лише Claude: `sonnet` `xhigh` + `security-review` |
 | `auto` | — | `sheldon` перетворює на `explore` або `full` (3.4) | — |
 
 `explore` — це рівно поточна поведінка, без жодних змін.
@@ -125,19 +125,31 @@ Claude діє як і зараз.
 ### 3.5 `full` у `leonard`
 
 Коли ефективний режим `full` і `codex.sh available` повертає 0, кожне
-завдання, крім Task 0, отримує `**Executor:** codex`. Пʼять умов відбору тоді
-не діють. Ще одна вимога: текст кожного такого завдання самодостатній,
+завдання, крім Task 0, є кандидатом на `**Executor:** codex`. Пʼять умов
+відбору тоді не діють. Які кандидати справді отримують `codex`, вирішує
+бюджет (3.9). Ще одна вимога: текст кожного такого завдання самодостатній,
 бо Codex не бачить ні розмови, ні специфікації, лише свій промпт.
 `**Complexity:**` пишеться як і зараз: від неї залежить модель
 Claude-відкату. В `explore` правило без змін.
 
 ### 3.6 `full` у `wolowitz`
 
-- **Executor під час build:** коли ефективний режим `full`, кожне завдання,
-  крім Task 0, іде через **Codex tasks**, навіть якщо в плані стоїть
-  `claude`, бо режим могли змінити після планування. Коли
-  `codex.sh available` повертає не 0, діє поточний відкат: завдання робить
-  Claude, а коментар хвилі це називає.
+- **Executor під час build:** коли ефективний режим `full`, а план
+  написано без рядка `Codex budget:` (план зроблено в `explore`, а режим
+  змінено пізніше), `wolowitz` розподіляє завдання за правилом 3.9 перед
+  першою хвилею і називає розподіл у коментарі до PR. Коли рядок є,
+  `wolowitz` виконує `**Executor:**` з плану. Коли `codex.sh available`
+  повертає не 0, діє поточний відкат: завдання робить Claude, а коментар
+  хвилі це називає.
+- **Сторож бюджету:** перед кожним Codex-завданням діє перевірка з 3.9. Якщо
+  вона не проходить, завдання і всі решта Codex-завдання плану йдуть до
+  Claude-імплементерів за **Models**, а коментар хвилі містить
+  `codex budget: exhausted (<window> <left>% < <need>%)`.
+- **Облік вартості:** після Gate green кожного Codex-завдання `wolowitz`
+  викликає `codex.sh cost add <routine|complex> <delta>`. `<delta>` — це
+  `weekly_used` після завдання мінус `weekly_used` перед `codex.sh red`, обидва
+  з `codex.sh budget`. Від'ємна різниця (тижневе вікно скинулося) не
+  записується.
 - **Порядок:** як і зараз, Codex-виклики йдуть по одному, після всіх
   Claude-імплементерів хвилі. У `full` хвиля з кількох Codex-завдань
   виконується послідовно.
@@ -165,16 +177,89 @@ Claude-відкату. В `explore` правило без змін.
    `amy` виправляє сама. Далі як завжди: **Verify before claiming**.
 4. `codex.sh` повертає не 0 → `amy` робить усе сама; на коді 75 вона
    один раз каже, що Codex вимкнено.
+5. Перед кроком 2 діє сторож бюджету з 3.9 з оцінкою для `routine`. Якщо
+   він не проходить, `amy` робить задачу сама і каже про це одним рядком.
+   Після Gate green вона записує вартість через `codex.sh cost add routine`,
+   як у 3.6.
 
 `amy`, викликана напряму, без `sheldon`, з ефективним `auto`, працює як
 `explore`, бо класифікації немає *(моє рішення)*. Імплементери, яких
 `amy` запускає з `wolowitz`, цього розділу не застосовують: там режимом
 керує сам `wolowitz`.
 
-### 3.8 Тести, документація, версія
+### 3.9 Бюджет Codex
 
-- `hooks/codex.test.sh`: `mode get` без файлу → `explore`; `set full`, потім
-  `get` → `full`; `set bogus` → код 2; `mode` не створює `codex.log`.
+Діє лише коли ефективний режим `full`, зокрема й виведений з `auto`. У
+`explore` нічого не змінюється.
+
+**Джерело.** Codex CLI записує ліміти ChatGPT-плану в rollout-файли
+`${CODEX_HOME:-$HOME/.codex}/sessions/YYYY/MM/DD/rollout-*.jsonl`, у полі
+`rate_limits`:
+- `primary` — 5-годинне вікно;
+- `secondary` — тижневе вікно.
+
+Кожне вікно має `used_percent`, `window_minutes` і `resets_at` (epoch).
+
+**`hooks/codex.sh budget`** читає останній за mtime rollout-файл, у якому є
+`rate_limits`, і бере з нього останній запис. Друкує один рядок:
+
+    weekly_left=<n> weekly_used=<n> five_hour_left=<n> five_hour_reset=<epoch>
+
+- `<n>` — ціле, `left = 100 - used_percent`, обмежене знизу нулем.
+- Вікно з `resets_at` у минулому вважається скинутим: `used` = 0,
+  `left` = 100.
+- Коли файлу з `rate_limits` немає або `jq` не розбирає запис, команда
+  виходить з кодом 1 без stdout.
+- Як і `mode`, підкоманда не пише в `codex.log` і не ставить `trap`.
+
+**`hooks/codex.sh cost add <routine|complex> <pct>`** дописує рядок
+`<epoch>\t<complexity>\t<pct>` у
+`${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex-cost.tsv`.
+`<pct>` — невід'ємне ціле.
+
+**`hooks/codex.sh cost estimate <routine|complex>`** друкує медіану
+останніх 10 записів цієї складності, округлену вгору, але не менше 1.
+Без записів друкує типове значення: `3` для `routine`, `6` для `complex`.
+Інший аргумент у будь-якій з підкоманд `cost` дає `usage` і код 2.
+
+**Розподіл у `leonard`.** Після того як кожне завдання має
+`**Complexity:**`, `leonard` один раз викликає `codex.sh budget` і
+`codex.sh cost estimate` для обох складностей. Далі:
+
+1. Запас: `headroom = weekly_left - 10`, де 10 — резерв.
+2. Кандидати з 3.5 сортуються: спершу `routine`, потім `complex`, а всередині
+   групи — за номером завдання.
+3. Кандидат отримує `codex`, поки сума його оцінки з уже розданими
+   вміщається в `headroom`.
+4. Хто не вмістився, отримує `**Executor:** claude`.
+5. Під заголовком плану `leonard` пише один рядок:
+   `Codex budget: weekly <left>% left, reserve 10%, <k>/<n> tasks to codex
+   (estimate <sum>%)`.
+6. Коли `codex.sh budget` повертає 1, бюджет невідомий. Тоді всі кандидати
+   отримують `codex`, а рядок має вигляд `Codex budget: unknown, all <n>
+   tasks to codex`. Сторож у build і код 75 лишаються захистом.
+
+Користувач бачить розподіл під час затвердження плану.
+
+**Сторож у build.** Перед кожним Codex-завданням `wolowitz` або `amy`
+викликає `codex.sh budget` і перевіряє обидві умови:
+- `weekly_left - 10 ≥ estimate`, з резервом;
+- `five_hour_left ≥ estimate`, без резерву.
+
+Оцінку дає `codex.sh cost estimate <complexity завдання>`. Коли
+`codex.sh budget` повертає 1, сторож пропускає завдання до Codex.
+
+### 3.10 Тести, документація, версія
+
+- `hooks/codex.test.sh`:
+  - `mode get` без файлу → `explore`; `set full`, потім `get` → `full`;
+    `set bogus` → код 2; `mode` не створює `codex.log`.
+  - `budget` на фікстурі rollout-файлу у тимчасовому `CODEX_HOME` → очікуваний
+    рядок.
+  - `budget`, коли `resets_at` у минулому → `left=100`.
+  - `budget` без файлів → код 1.
+  - `cost estimate routine` без історії → `3`; після записів 2, 4, 9 → `4`.
+  - `cost add routine -1` → код 2.
 - `hooks/journal.test.sh`: `codex-mode full` вставляє рядок після `plan:`;
   повторний виклик замінює, а не дублює; `auto` → код 2; без журналу → код 1;
   digest показує `Codex mode: full (branch).` і
@@ -185,6 +270,10 @@ Claude-відкату. В `explore` правило без змін.
   - `wolowitz "codex-mode full"`
   - `amy "codex.sh red"`
   - `raj "journal.sh codex-mode"`
+  - `leonard "Codex budget:"`
+  - `leonard "codex.sh cost estimate"`
+  - `wolowitz "codex budget: exhausted"`
+  - `wolowitz "codex.sh cost add"`
   - наявність `commands/codex-mode.md`.
 - `README.md` і `README.uk.md`, розділ «Codex delegation»: три режими,
   команда, таблиця з 3.1.
@@ -212,6 +301,12 @@ Claude-відкату. В `explore` правило без змін.
   Його звужує повторне використання циклу `codex-tasks.md`.
 - Межу «середньої» задачі визначає судження `sheldon` щодо ризиків. Це
   мʼякша межа, ніж формальне правило, але решту вирішує питання користувачу.
+- Бюджет читається з внутрішнього формату rollout-файлів Codex CLI, а не з
+  публічного API. Якщо формат зміниться, `codex.sh budget` поверне 1, і
+  Pasadena працюватиме як без бюджету: сторожем залишиться код 75.
+- Вартість завдання вимірюється грубо: `used_percent` змінюється цілими
+  відсотками, а паралельні Codex-сесії поза Pasadena потрапляють у різницю.
+  Медіана й резерв 10% згладжують це.
 
 ## 6. Verification
 
@@ -221,5 +316,8 @@ Claude-відкату. В `explore` правило без змін.
   нова сесія → digest `Codex mode: full (global).`;
   `/codex-mode explore --branch` у гілці з журналом → журнал має
   `codex-mode: explore`, digest `Codex mode: explore (branch).`.
+- Вручну, бюджет: `bash hooks/codex.sh budget` друкує ті самі відсотки, що й
+  `/status` у Codex CLI. План у `full` має рядок `Codex budget:`, і в ньому
+  стільки ж завдань із `codex`, скільки й у рядку.
 - Вручну, `auto`: `/pasadena` з Bounded-задачею → `sheldon` каже «Bounded,
   codex-mode full», і `amy` запускає `codex.sh red`.
