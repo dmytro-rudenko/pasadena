@@ -20,6 +20,7 @@ allowed-tools:
   - Bash(git commit *)
   - Bash(ls *)
   - Bash(cat docs/sdd/proto/*)
+  - Bash(cp -r docs/sdd/proto/*)
 disallowed-tools:
   - Agent
   - NotebookEdit
@@ -117,7 +118,10 @@ and the wireframe primitives `.mock-nav`/`.mock-sidebar`/`.mock-content`/`.mock-
 
 **Live variants** — `docs/sdd/proto/<slug>/variants/{a,b,c}/index.html`. Real
 working HTML/CSS/JS you can click through. Each carries its own design in place
-of `frame.css`, and that design is the thing under review.
+of `frame.css`, and that design is the thing under review. What every variant
+needs alike — reset, mock data, helpers — is written once in
+`docs/sdd/proto/<slug>/shared/` and linked as `../../shared/<file>`, so each
+`index.html` holds only what makes that variant different.
 
 `/` always serves the newest `.html` in the content directory, so writing a new
 screen moves the user's open tab to it. An explicit path remains fixed so a
@@ -134,7 +138,10 @@ variant the user is clicking through stays put.
 - **Write HTML to the file.** The user reads it in the browser, while the
   terminal remains for commands and concise updates.
 - **Always use a fresh filename.** `layout.html` → `layout-v2.html`. The history
-  of the iteration is worth as much as its result.
+  of the iteration is worth as much as its result. Start the next version as a
+  copy of the last one (`cp -r docs/sdd/proto/<slug>/variants/c
+  docs/sdd/proto/<slug>/variants/c2`) and change it with Edit; write it whole
+  only when most of it changes.
 - **Scale fidelity to the question.** A wireframe answers "where does it go";
   only a real prototype answers "does this feel right to use".
 
