@@ -11,7 +11,7 @@ started: 2026-11-03
 Готово, коли pasadena в кожній сесії й у кожному субагенті дає правило «спершу знайди готове», а субагенти отримують кешовану repomap з tokeneconomizer.
 
 ## Now
-Building: хвиля 0 закрита (9735ec2, acceptance tests червоні, FAILED: 35, лише через відсутній reuse.sh і реєстрацію). Baseline: journal.test.sh FAILED: 3 через чужу незакомічену правку hooks/journal.sh — не наше. Далі: хвиля 1, Tasks 1, 2, 3 паралельно; перевірка `bash hooks/reuse.test.sh` → All checks passed. Зберегти без змін: hooks/journal.sh має чужі незакомічені зміни — не комітити їх у цій гілці.
+Building: усі хвилі закриті (Task 1 ff0084c, Task 2 ec3fb4f, Task 3 a297a8b); reuse/nudge/skills тести зелені, journal.test.sh FAILED: 3 — baseline від чужої правки hooks/journal.sh. Далі: Finish — whole-branch review + security-review над `git merge-base origin/main HEAD..HEAD`, потім journal finish і `gh pr ready 30`. Зберегти без змін: hooks/journal.sh має чужі незакомічені зміни — не комітити їх у цій гілці.
 
 ## Timeline
 
@@ -23,3 +23,8 @@ Building: хвиля 0 закрита (9735ec2, acceptance tests червоні,
 - 17:58 ● b748313 docs(plan): reuse-first hook implementation plan
 - 17:58 ✎ План затверджено: 4 задачі, 2 хвилі (0 → 1,2,3 паралельно); усі executor claude, бо Codex off
 - 18:05 ● 9735ec2 test(hooks): acceptance tests for the reuse-first hook
+- 18:05 ● 4c2c46f docs(plan): close wave 0 and fix test counts
+- 18:05 ✎ Хвиля 0: acceptance tests після 2 раундів рев'ю ловлять пропущений cd "$cwd", виклик refresh, запасний шлях до te і точні exit-коди
+- 18:08 ● ff0084c feat(hooks): reuse-first rule and repomap for subagents
+- 18:08 ● ec3fb4f feat(hooks): register reuse.sh for SessionStart and SubagentStart
+- 18:08 ● a297a8b chore(release): 0.21.0 and document the reuse hook

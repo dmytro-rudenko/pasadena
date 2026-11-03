@@ -210,8 +210,8 @@ echo "All checks passed."
 **Interfaces:**
 - Produces: `bash hooks/reuse.sh session-start|subagent-start`, stdin = JSON події Claude Code (`.cwd`, `.agent_type`), stdout = `{"hookSpecificOutput":{"hookEventName":"SessionStart"|"SubagentStart","additionalContext":"…"}}` або нічого.
 
-- [ ] **Step 1: run the acceptance tests, watch them fail** — `bash hooks/reuse.test.sh`, останній рядок `FAILED: …`, падають session-start і subagent-start.
-- [ ] **Step 2: implement** — створити `hooks/reuse.sh`:
+- [x] **Step 1: run the acceptance tests, watch them fail** — `bash hooks/reuse.test.sh`, останній рядок `FAILED: …`, падають session-start і subagent-start.
+- [x] **Step 2: implement** — створити `hooks/reuse.sh`:
 ```bash
 #!/usr/bin/env bash
 set -uo pipefail
@@ -276,7 +276,7 @@ esac
 exit 0
 ```
 Fake `te` у тесті робить `exec sleep`, тож `timeout` убиває саме процес, що тримає pipe. Якщо тест таймауту займає ≥ 4 с, причина в дочірньому процесі, який тримає stdout. Тоді треба шукати першопричину через `leslie`, а не піднімати поріг.
-- [ ] **Step 3: run them, watch them pass** — `bash hooks/reuse.test.sh`: усі перевірки, крім розділу `== registration ==`, мають `ok`. Останній рядок `FAILED: 7`, якщо Task 2 ще не злитий у worktree (усі перевірки розділу `== registration ==`, крім `journal.sh stays first`), і `All checks passed.`, якщо злитий.
+- [x] **Step 3: run them, watch them pass** — `bash hooks/reuse.test.sh`: усі перевірки, крім розділу `== registration ==`, мають `ok`. Останній рядок `FAILED: 7`, якщо Task 2 ще не злитий у worktree (усі перевірки розділу `== registration ==`, крім `journal.sh stays first`), і `All checks passed.`, якщо злитий.
 
 ### Task 2: реєстрація хуків
 
@@ -289,8 +289,8 @@ Fake `te` у тесті робить `exec sleep`, тож `timeout` убиває
 **Interfaces:**
 - Consumes: шлях і аргументи `hooks/reuse.sh session-start|subagent-start` (Task 1).
 
-- [ ] **Step 1: run the acceptance tests, watch registration fail** — `bash hooks/reuse.test.sh 2>&1 | grep -A1 'registers reuse.sh'`, очікувано `FAIL`.
-- [ ] **Step 2: implement** — у `hooks/claude-hooks.json`:
+- [x] **Step 1: run the acceptance tests, watch registration fail** — `bash hooks/reuse.test.sh 2>&1 | grep -A1 'registers reuse.sh'`, очікувано `FAIL`.
+- [x] **Step 2: implement** — у `hooks/claude-hooks.json`:
   1. У `.hooks.SessionStart[0].hooks` після наявного об'єкта `journal.sh session-start` додати другий елемент:
 ```json
           {
@@ -315,7 +315,7 @@ Fake `te` у тесті робить `exec sleep`, тож `timeout` убиває
       }
     ],
 ```
-- [ ] **Step 3: watch it pass** — `jq . hooks/claude-hooks.json >/dev/null && bash hooks/reuse.test.sh 2>&1 | sed -n '/== registration ==/,$p' | grep -c 'FAIL —'` → `0`; `bash hooks/nudge.test.sh` і `bash hooks/journal.test.sh` → `All checks passed.`
+- [x] **Step 3: watch it pass** — `jq . hooks/claude-hooks.json >/dev/null && bash hooks/reuse.test.sh 2>&1 | sed -n '/== registration ==/,$p' | grep -c 'FAIL —'` → `0`; `bash hooks/nudge.test.sh` і `bash hooks/journal.test.sh` → `All checks passed.`
 
 ### Task 3: версія 0.21.0 і документація
 
@@ -326,7 +326,7 @@ Fake `te` у тесті робить `exec sleep`, тож `timeout` убиває
 **Complexity:** routine
 **Satisfies:** нічого з Task 0. Перевірку задача додає в `skills/skills.test.sh` сама.
 
-- [ ] **Step 1: write the failing test** — у `skills/skills.test.sh`:
+- [x] **Step 1: write the failing test** — у `skills/skills.test.sh`:
   - рядок 215: `'"version": "0.20.0"'` → `'"version": "0.21.0"'`, повідомлення `not on 0.20.0` → `not on 0.21.0`;
   - одразу після рядка 139 (`[ "$fails" -eq "$before" ] && ok "codex delegation documented"`) додати:
 ```bash
@@ -342,8 +342,8 @@ grep -qF 'Pasadena uses six hooks' "$ROOT/README.md" || fail "README.md: hook co
 grep -qF "Pasadena використовує шість hooks" "$ROOT/README.uk.md" || fail "README.uk.md: hook count is not six"
 [ "$fails" -eq "$before" ] && ok "reuse hook documented"
 ```
-- [ ] **Step 2: run it, watch it fail** — `bash skills/skills.test.sh`, останній рядок `FAILED: …`, серед помилок `not on 0.21.0` і `missing "PASADENA_REUSE="`.
-- [ ] **Step 3: implement**
+- [x] **Step 2: run it, watch it fail** — `bash skills/skills.test.sh`, останній рядок `FAILED: …`, серед помилок `not on 0.21.0` і `missing "PASADENA_REUSE="`.
+- [x] **Step 3: implement**
   - `.claude-plugin/plugin.json:4` і `.claude-plugin/marketplace.json:12`: `"version": "0.20.0"` → `"version": "0.21.0"`.
   - `README.md`:
     - `Pasadena uses five hooks:` → `Pasadena uses six hooks:`;
@@ -359,4 +359,4 @@ grep -qF "Pasadena використовує шість hooks" "$ROOT/README.uk.m
     - після `` `PASADENA_NUDGE=0` вимикає нагадування `UserPromptSubmit`. `` додати: `` `PASADENA_REUSE=0` вимикає правило перевикористання й карту для субагентів. `PASADENA_REUSE_HINT=0` ховає лише підказку ввімкнути repomap у tokeneconomizer. `PASADENA_REUSE_SKIP` — regex типів субагентів, які не отримують ні того, ні іншого (за замовчуванням `Explore|Plan|claude-code-guide|statusline-setup|web-fetch`; порожнє значення вимикає фільтр). ``;
     - після `bash hooks/nudge.test.sh` додати `bash hooks/reuse.test.sh`;
     - після речення про четверту перевірку: `Перевірки reuse запускають \`hooks/reuse.sh\` з фейковим \`te\` і покривають правило, підказку, карту й фільтр субагентів, таймаут, випадки мовчання та реєстрацію хука.`
-- [ ] **Step 4: run it, watch it pass** — `bash skills/skills.test.sh` → `All checks passed.`
+- [x] **Step 4: run it, watch it pass** — `bash skills/skills.test.sh` → `All checks passed.`
