@@ -45,6 +45,41 @@ added to code that already exists.
 
 Only the stated exceptions alter the TDD sequence.
 
+## Codex mode `full` on a bounded change
+
+This section applies only when `sheldon` handed you an approved Bounded design
+with the effective Codex mode `full` — explicit, or resolved from `auto` — and
+`codex.sh available` (beside `journal.sh`) exits 0. A test writer or
+implementer dispatched by `wolowitz` skips it: there the builder runs Codex.
+Invoked directly, with no classification, `auto` works as `explore` and this
+section does not apply.
+
+1. **Budget guard.** Run `codex.sh budget` and
+   `codex.sh cost estimate routine`. Go on when `weekly_left` − 10 ≥ estimate
+   and `five_hour_left` ≥ estimate, or when `codex.sh budget` exits 1.
+   Otherwise say in one line that the Codex budget is short and do the change
+   yourself.
+2. **Writes.** The file paths listed in the approved design, the test file
+   included, are the change's `**Writes:**`; the verification command is the
+   one you would run for these tests.
+3. **The cycle.** Follow `skills/wolowitz/references/codex-tasks.md` under the
+   plugin root: `codex.sh red`, Gate red, `codex.sh green`, Gate green, fix
+   rounds 1–2 through `codex.sh green`. The prompt file holds this skill's full
+   text, then the approved design, in place of `implementer-prompt-codex.md`.
+   After round 2, or when any `codex.sh` call exits non-zero, finish the change
+   yourself through this skill; on exit `75` tell the user once that Codex is
+   off and Claude usage is no longer being saved.
+4. **Review.** After Gate green, dispatch a `sonnet` reviewer with
+   `skills/wolowitz/reviewer-prompt.md`: the commit before the change as
+   `BASE`, the approved design in place of the plan and the spec, `-` for task
+   numbers and waves. Fix its findings yourself through this skill. Without
+   the Agent tool, review the diff yourself.
+5. **Cost.** Run `codex.sh cost add routine <delta>`, `<delta>` being
+   `weekly_used` from a fresh `codex.sh budget` minus the one from step 1. Skip
+   it when negative or when either run exited 1.
+
+Then **Verify before claiming**, as always.
+
 ## Any runner counts
 
 TDD is a sequence that works with any framework. Use whatever the repo already
