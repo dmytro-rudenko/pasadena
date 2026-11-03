@@ -13,9 +13,9 @@ cwd="$(printf "%s" "$input" | jq -r '.cwd // empty' 2>/dev/null)"
 inside="$(git -C "$cwd" rev-parse --is-inside-work-tree 2>/dev/null)"
 [ "$inside" = "true" ] || exit 0
 
-trimmed="${prompt#"${prompt%%[![:space:]]*}"}"
-[ "${trimmed:0:1}" = "/" ] && exit 0
 shopt -s nocasematch
+slash_re='^[[:space:]]*/'
+[[ $prompt =~ $slash_re ]] && exit 0
 skills_re='leslie|amy|pasadena:|sheldon|leonard|wolowitz|penny|bernie|stuart|(^|[^[:alnum:]_])raj([^[:alnum:]_]|$)'
 [[ $prompt =~ $skills_re ]] && exit 0
 
