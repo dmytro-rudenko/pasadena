@@ -109,10 +109,11 @@ and Claude usage is no longer being saved. Exit `1` from `codex.sh review` with
 `codex: nothing to review` means an empty diff; skip the Codex review. Start
 every `codex.sh` call through Bash with `run_in_background`.
 
-A task with `**Executor:** codex` runs as two Codex calls with your own gates
-between them. Before a wave's first such task, read
-`references/codex-tasks.md` in this skill's directory, and read it again after a
-compaction.
+An `**Executor:** codex` task is two Codex calls with your gates between.
+Before a wave's first such task, or Wave 1 in `Codex mode: full`
+(`codex budget: exhausted`, `codex.sh cost add`,
+`codex review: skipped (codex-mode full)`), read
+`references/codex-tasks.md`; reread it after compaction.
 
 ## Test writer and implementer
 
@@ -352,7 +353,8 @@ When the last wave is closed:
 
    Fill `reviewer-prompt.md` for the whole branch — the merge-base as
    `BASE`, the plan's path, every task number, waves `0`–`<last>` as
-   `<a>`–`<b>`, the spec's path. When `codex.sh available` exits 0, write a
+   `<a>`–`<b>`, the spec's path. When `codex.sh available` exits 0 outside
+   `Codex mode: full`, write a
    Codex copy to a prompt file in the scratchpad, replacing the `**The diff:**` line with: the
    diff arrives on stdin as a `<stdin>` block — review that diff; read local
    files only for context. Keep "Do not re-run the tests". Run

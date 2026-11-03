@@ -56,3 +56,35 @@ fresh Claude implementer. When `codex.sh` exits non-zero, the task goes to a
 Claude implementer at once and the wave's PR comment names the exit code. The
 wave's PR comment sums the `codex usage:` lines its Codex calls printed on
 stderr.
+
+## Codex mode full
+
+**Codex mode `full`.** The session-start digest names the effective mode.
+When it says `Codex mode: full`:
+
+- **Executor.** A plan with a `Codex budget:` line already carries the split:
+  follow each task's `**Executor:**`. A plan without one was written in
+  `explore`; before Wave 1, split it yourself. Every task except Task 0 is a
+  candidate. Run `codex.sh budget` and
+  `codex.sh cost estimate routine|complex`. Give candidates `codex` in order —
+  `routine` first, then `complex`, each by task number — while the sum of
+  their estimates fits in `weekly_left` − 10. The rest stay with Claude.
+  When `codex.sh budget` exits 1, all of them go to `codex`. Name the split in
+  the Wave 1 PR comment.
+- **Budget guard.** Before each Codex task's `codex.sh red`, run
+  `codex.sh budget` and `codex.sh cost estimate <the task's complexity>`; a
+  task with no `**Complexity:**` line is `complex`. The task goes to Codex when
+  `weekly_left` − 10 ≥ estimate and `five_hour_left` ≥ estimate, or when
+  `codex.sh budget` exits 1. Otherwise that task and every remaining Codex
+  task of the plan go to Claude per **Test writer and implementer**, and the
+  wave's PR comment carries
+  `codex budget: exhausted (<weekly|five_hour> <left>% < <need>%)`.
+- **Cost.** After each Codex task's Gate green, run
+  `codex.sh cost add <the task's complexity> <delta>`. `<delta>` is
+  `weekly_used` from a fresh `codex.sh budget` minus `weekly_used` from the
+  guard's run. Skip it when the delta is negative (the week reset) or when
+  either `codex.sh budget` run exited 1.
+- **Finish.** No Codex review; the final PR comment carries
+  `codex review: skipped (codex-mode full)`.
+
+In `explore`, none of this applies.
