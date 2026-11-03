@@ -10,6 +10,17 @@ A spec says what you intend to build. Git history says what you merged. Neither 
 
 Pasadena stores that working context in `.pasadena/journal/<branch>.md`. The journal travels with the task branch and is removed before merge, after its useful summary moves to the pull request. Existing `.claude/journal/` files remain readable as legacy journals.
 
+## Coming from obra/superpowers
+
+Pasadena grew out of daily work with [obra/superpowers](https://github.com/obra/superpowers). It keeps the same idea of skills that steer the agent, and changes what I kept missing:
+
+- **Plan mode for the plan.** After the spec is agreed, `leonard` writes the plan inside Claude Code's native plan mode.
+- **Codex as a helper.** When the Codex CLI is installed, skills hand it read-only lookups, a second branch review and marked tasks. Claude checks every result.
+- **Spec-driven plus test-driven.** `sheldon` agrees the spec first, then `amy` writes failing tests before any production code.
+- **Parallel subagents.** `leonard` declares file sets per task and groups independent tasks into waves; `wolowitz` runs each wave in parallel.
+
+Feedback is welcome: open an [issue](https://github.com/dmytro-rudenko/pasadena/issues/new/choose).
+
 ## Workflow
 
 Run `/pasadena` to continue from the branch's current stage. `/bazinga` remains an alias.
@@ -161,6 +172,18 @@ When the Codex CLI is installed and logged in, the skills hand part of the work 
 - **review** — `wolowitz` runs one Codex review of the whole branch at the finish, beside the `sonnet` reviewer; only findings Claude confirms count.
 - **implement** — plan tasks marked `**Executor:** codex` are written by Codex in two calls, tests first and then code, with Claude running the tests between them.
 
+### Modes
+
+`/codex-mode` shows the current mode; `/codex-mode explore|full|auto` sets the global one, kept in `pasadena/codex-mode` under `${XDG_STATE_HOME:-~/.local/state}`; `/codex-mode explore|full --branch` sets it for the current branch in the journal's `codex-mode:` line, which wins on that branch. The session-start digest names the effective mode.
+
+| Mode | Reading | Implementation | Final review |
+|---|---|---|---|
+| `explore` (default) | Codex | Codex only for tasks marked `**Executor:** codex` | Claude `sonnet` + Codex |
+| `full` | Codex | Codex for every task except Task 0, and for bounded fixes, within the usage budget | Claude only |
+| `auto` | — | `sheldon` picks: spike → `explore`, bounded → `full`, architectural with concurrency, persisted state, security or a shared interface → `explore`, other architectural → asks | — |
+
+In `full`, `bash hooks/codex.sh budget` reads the remaining 5-hour and weekly limits from Codex's own session files under `${CODEX_HOME:-~/.codex}/sessions`. `leonard` hands Codex only as many tasks as fit in the weekly limit minus a 10% reserve and names the split in the plan's `Codex budget:` line; `wolowitz` checks again before each Codex task and gives the rest to Claude when the limit runs short. A task's cost is learned from how far the weekly limit moved: `pasadena/codex-cost.tsv` under the state directory keeps the history, and the estimate is the median of the last ten tasks (3% routine, 6% complex until there is history).
+
 While Codex works, `hooks/codex.sh` appends a compact session log to `pasadena/codex.log` under `${XDG_STATE_HOME:-~/.local/state}`: a `== ` header per call, then one `codex › ` line per command, failed exit code, file change, reasoning summary, message or error, cut to 200 characters. Follow it with `tail -f`. The log stays out of the script's output so Claude reads only the final answer on stdout and the `codex usage:`, `codex changed:` and error lines on stderr. Past 1 MB the log moves to `codex.log.1`. It holds the commands Codex ran and its messages, so it is created readable by you only.
 
 | Variable | Default | Effect |
@@ -186,7 +209,7 @@ bash hooks/codex.test.sh
 
 The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration. The reuse checks run `hooks/reuse.sh` against a fake `te` and cover the rule, the hint, the subagent map and filter, the timeout, the silent cases, and hook registration. The Codex checks run `hooks/codex.sh` against a fake `codex` and cover availability, each subcommand's flags, the session log, the idle stop and the usage-limit marker.
 
-For the full design, read [docs/design.md](docs/design.md).
+Specs and plans for each change live in [docs/sdd/specs](docs/sdd/specs) and [docs/sdd/plans](docs/sdd/plans).
 
 ## License
 

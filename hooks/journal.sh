@@ -6,9 +6,9 @@ set -uo pipefail
 sub="${1:-}"
 arg="${2:-}"
 
-# Hook subcommands get JSON on stdin. `note` is invoked by hand and would block on it.
+# Hook subcommands get JSON on stdin. `note` and `codex-mode` are invoked by hand and would block on it.
 case "$sub" in
-  note) input='{}' ;;
+  note | codex-mode) input='{}' ;;
   *) input="$(cat)" ;;
 esac
 
@@ -118,13 +118,19 @@ emit_context() {
 }
 
 codex_line() {
-  local sh
+  local sh m="" src=global
   sh="$(dirname "$0")/codex.sh"
   if bash "$sh" available >/dev/null 2>&1; then
     printf 'Codex: available — send read-only code lookups to `bash %s explore <prompt-file>` instead of Explore or a read-only fork.' "$sh"
   else
     printf 'Codex: off — do code lookups yourself.'
   fi
+  [ -f "$file" ] && m="$(frontmatter codex-mode)"
+  case "$m" in
+    explore | full) src=branch ;;
+    *) m="$(bash "$sh" mode get 2>/dev/null)"; [ -n "$m" ] || m=explore ;;
+  esac
+  printf '\nCodex mode: %s (%s).' "$m" "$src"
 }
 
 cmd_session_start() {
@@ -246,6 +252,30 @@ cmd_note() {
   exit 0
 }
 
+cmd_codex_mode() {
+  case "$arg" in
+    explore | full) ;;
+    *) echo "usage: journal.sh codex-mode explore|full" >&2; exit 2 ;;
+  esac
+  if [ ! -f "$file" ]; then
+    echo "no journal for $branch" >&2
+    exit 1
+  fi
+  if [ "$(head -1 "$file")" != "---" ]; then
+    echo "journal has no frontmatter" >&2
+    exit 1
+  fi
+  awk -v m="$arg" '
+    NR == 1 && $0 == "---" { inside = 1; print; next }
+    inside && index($0, "codex-mode: ") == 1 { next }
+    inside && index($0, "plan: ") == 1 { print; print "codex-mode: " m; done = 1; next }
+    inside && $0 == "---" { if (!done) print "codex-mode: " m; inside = 0; print; next }
+    { print }
+  ' "$file" >"$file.tmp" && mv "$file.tmp" "$file"
+  append_line "- $(date +%H:%M) ✎ codex-mode: $arg"
+  exit 0
+}
+
 # Never write two stop markers in a row — SessionEnd can follow StopFailure.
 # The ↳ continuation sits below the marker, so it is skipped when looking back.
 last_is_stop() { grep -v '^  ↳' "$file" | tail -1 | grep -qE '⏸|✖'; }
@@ -278,6 +308,7 @@ case "$sub" in
   session-start) cmd_session_start ;;
   commit) cmd_commit ;;
   note) cmd_note ;;
+  codex-mode) cmd_codex_mode ;;
   session-end) cmd_session_end ;;
   stop-failure) cmd_stop_failure ;;
   *) exit 0 ;;

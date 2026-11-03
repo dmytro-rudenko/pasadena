@@ -149,6 +149,37 @@ grep -qF 'Pasadena uses six hooks' "$ROOT/README.md" || fail "README.md: hook co
 grep -qF "Pasadena використовує шість hooks" "$ROOT/README.uk.md" || fail "README.uk.md: hook count is not six"
 [ "$fails" -eq "$before" ] && ok "reuse hook documented"
 
+echo "Codex mode"
+before=$fails
+require sheldon "Codex mode: auto"
+require sheldon "journal.sh codex-mode"
+require sheldon "codex.sh mode get"
+require raj "journal.sh codex-mode"
+require leonard "Codex mode: full"
+require leonard "Codex budget:"
+require leonard "codex.sh budget"
+require leonard "codex.sh cost estimate"
+require wolowitz "Codex mode: full"
+require wolowitz "codex budget: exhausted"
+require wolowitz "codex.sh cost add"
+require wolowitz "codex review: skipped (codex-mode full)"
+require amy "codex.sh red"
+require amy "codex.sh budget"
+mode_cmd="$ROOT/commands/codex-mode.md"
+if [ -f "$mode_cmd" ]; then
+  for needle in "argument-hint:" "codex.sh mode set" "journal.sh codex-mode" "--branch"; do
+    grep -qF -- "$needle" "$mode_cmd" || fail "commands/codex-mode.md: missing \"$needle\""
+  done
+else
+  fail "commands/codex-mode.md: missing"
+fi
+for readme in README.md README.uk.md; do
+  for needle in "/codex-mode" "codex.sh budget" "codex-cost.tsv"; do
+    grep -qF -- "$needle" "$ROOT/$readme" || fail "$readme: missing \"$needle\""
+  done
+done
+[ "$fails" -eq "$before" ] && ok "codex mode documented"
+
 echo "Frontmatter models"
 before=$fails
 for file in "$SKILLS"/*/SKILL.md; do
@@ -223,7 +254,7 @@ grep -qF '| Implementer, `complex`-задача, раунд 3, фінальни�
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.21.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.21.0"
+  grep -qF '"version": "0.22.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.22.0"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"

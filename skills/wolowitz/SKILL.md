@@ -104,15 +104,16 @@ amy.
 
 `codex.sh` lives beside `journal.sh`; the session-start digest names that
 directory. On any `codex.sh` call, exit `75` means the ChatGPT plan's usage
-limit: tell the user in one line that Codex is off for the rest of the session
-and Claude usage is no longer being saved. Exit `1` from `codex.sh review` with
-`codex: nothing to review` means an empty diff; skip the Codex review. Start
-every `codex.sh` call through Bash with `run_in_background`.
+limit: tell the user in one line that Codex is off for this session.
+Exit `1` from `codex.sh review` with `codex: nothing to review` means an empty
+diff; skip the Codex review. Start every `codex.sh` call through Bash with
+`run_in_background`.
 
-A task with `**Executor:** codex` runs as two Codex calls with your own gates
-between them. Before a wave's first such task, read
-`references/codex-tasks.md` in this skill's directory, and read it again after a
-compaction.
+An `**Executor:** codex` task is two Codex calls with your gates between.
+Full mode: the effective mode, the journal's `codex-mode:` line or else
+`codex.sh mode get`, is `full` (`Codex mode: full`). Before a wave's first such
+task, or Wave 1 in full mode (`codex budget: exhausted`, `codex.sh cost add`),
+read `references/codex-tasks.md`; reread it after compaction.
 
 ## Test writer and implementer
 
@@ -342,24 +343,27 @@ When the last wave is closed:
 1. First run `git fetch origin <trunk>`. When the fetch fails or
    `origin/<trunk>` does not exist, use the local trunk as the base instead and
    say so in the final PR comment.
-   **Three reviews at once.** In one message, dispatch the **whole-branch
+   **Reviews at once.** In one message, dispatch the **whole-branch
    review** with `reviewer-prompt.md`, filled as below, over
    `git merge-base origin/<trunk> HEAD..HEAD` on `sonnet` at
-   `effort: "xhigh"` in the background, and start the Codex review below.
+   `effort: "xhigh"` in the background, and start the Codex review below; in
+   full mode skip it, and the final PR comment carries
+   `codex review: skipped (codex-mode full)`.
    Then, while the reviews run, invoke the `security-review` skill with the
    Skill tool on the branch diff; when the skill is unavailable, say so once
    and note the skip in the PR comment.
 
    Fill `reviewer-prompt.md` for the whole branch — the merge-base as
    `BASE`, the plan's path, every task number, waves `0`–`<last>` as
-   `<a>`–`<b>`, the spec's path. When `codex.sh available` exits 0, write a
+   `<a>`–`<b>`, the spec's path. When `codex.sh available` exits 0 outside
+   full mode, write a
    Codex copy to a prompt file in the scratchpad, replacing the `**The diff:**` line with: the
    diff arrives on stdin as a `<stdin>` block — review that diff; read local
    files only for context. Keep "Do not re-run the tests". Run
    `codex.sh review $(git merge-base origin/<trunk> HEAD) <prompt-file>` in the
    background in the same message as the `sonnet` dispatch. Every `sonnet`
    finding goes to the fix wave. A Codex finding goes there only after you
-   confirm it yourself at its `file:line`; drop the unconfirmed ones with a
+   confirm it at its `file:line`; drop the unconfirmed ones with a
    one-line note in the final PR comment. The `sonnet` verdict stays the
    verdict. The final PR comment carries the review's `codex usage:` line.
    Decide every `Declined to judge` item from either review yourself, as in
