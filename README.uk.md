@@ -166,6 +166,16 @@ Advisor (`--advisor opus`) необовʼязковий, і Pasadena від нь
 
 Якщо Codex CLI встановлено і в ньому виконано вхід, skills віддають частину роботи в `codex exec`, щоб заощадити ліміти Claude. Claude лишається оркестратором і сам перевіряє кожен результат. Codex тут виконавець, а не хост плагіна.
 
+Кожен виклик `codex.sh` задає власний `model_reasoning_effort`. Модель береться з `~/.codex/config.toml`, якщо її не задає одна зі змінних нижче.
+
+| Виклик | Claude-роль | Effort |
+|---|---|---|
+| `explore` | `Explore` | `medium` |
+| `review` | рецензія хвилі | `high` |
+| `red` | test writer | `xhigh` |
+| `green … routine` | implementer `routine`-задачі | `high` |
+| `green … complex` | implementer `complex`-задачі | `xhigh` |
+
 - **explore** — `leonard`, `leslie`, `sheldon` і `wolowitz` віддають Codex об'ємні read-only пошуки й отримують факти з `file:line`.
 - **review** — `wolowitz` запускає одне Codex-ревʼю всієї гілки у фіналі, поруч із ревʼюером `sonnet`; зараховуються лише знахідки, які підтвердив Claude.
 - **implement** — задачі плану з `**Executor:** codex` Codex пише у два виклики: спершу тести, потім код, а Claude між ними сам запускає тести.
@@ -190,6 +200,8 @@ Advisor (`--advisor opus`) необовʼязковий, і Pasadena від нь
 | `PASADENA_CODEX_IDLE` | `120` | секунд без подій від Codex, після яких виклик зупиняється |
 | `PASADENA_CODEX_CMD_IDLE` | `600` | той самий ліміт, поки Codex виконує команду |
 | `PASADENA_CODEX_MODEL` | — | передається в Codex як `-m` |
+| `PASADENA_CODEX_MODEL_COMPLEX` | `PASADENA_CODEX_MODEL` | модель для `red` і `complex` `green`, аналог `opus` |
+| `PASADENA_CODEX_MODEL_ROUTINE` | `PASADENA_CODEX_MODEL` | модель для `routine` `green`, аналог `sonnet` |
 | `PASADENA_CODEX_LOG` | `pasadena/codex.log` у каталозі стану | куди пишеться лог сесії |
 
 Codex витрачає ліміти вашого ChatGPT-плану. Коли вони закінчуються, `hooks/codex.sh` завершується з кодом `75`, skills один раз про це кажуть, і делегування вимикається на шість годин або доки ви не видалите `pasadena/codex-exhausted` у `${XDG_STATE_HOME:-~/.local/state}`.
