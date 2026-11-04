@@ -254,7 +254,7 @@ grep -qF '| Implementer, `complex`-задача, раунд 3, фінальни�
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.22.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.22.0"
+  grep -qF '"version": "0.23.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.23.0"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"

@@ -63,8 +63,8 @@ section does not apply.
    included, are the change's `**Writes:**`; the verification command is the
    one you would run for these tests.
 3. **The cycle.** Follow `skills/wolowitz/references/codex-tasks.md` under the
-   plugin root: `codex.sh red`, Gate red, `codex.sh green`, Gate green, fix
-   rounds 1–2 through `codex.sh green`. The prompt file holds this skill's full
+   plugin root: `codex.sh red`, Gate red, `codex.sh green` with `routine`,
+   Gate green, fix rounds 1–2 through `codex.sh green`. The prompt file holds this skill's full
    text, then the approved design, in place of `implementer-prompt-codex.md`.
    After round 2, or when any `codex.sh` call exits non-zero, finish the change
    yourself through this skill; on exit `75` tell the user once that Codex is

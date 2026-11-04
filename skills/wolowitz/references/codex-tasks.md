@@ -26,11 +26,13 @@ change it lists to that call.
      file itself does not count;
    - record `sha256sum` of the task's test files and copy those files into
      the scratchpad.
-   When the gate fails, run `codex.sh green <thread-id> <prompt-file>` with a
+   When the gate fails, run `codex.sh green <thread-id> <prompt-file> <complexity>` with a
    prompt that names the problem and says to fix the tests only, then run Gate
    red again. At most two such retries; after that the task goes to a fresh
    Claude implementer.
-3. **Green.** Run `codex.sh green <thread-id> <prompt-file>` with a prompt that
+   `<complexity>` is the task's `routine` or `complex` from the plan; it sets
+   Codex's model and effort.
+3. **Green.** Run `codex.sh green <thread-id> <prompt-file> <complexity>` with a prompt that
    says: write the minimum code that makes these tests pass; do not edit the
    tests.
 4. **Gate green.**
@@ -47,7 +49,7 @@ restored.
 
 Fix loop: a Gate green failure right after step 3 counts as round 1, and its
 findings are the gate's output. Rounds 1–2 go to
-`codex.sh green <thread-id> <prompt-file>`, the prompt file holding the
+`codex.sh green <thread-id> <prompt-file> <complexity>`, the prompt file holding the
 findings verbatim; round 3 goes to a fresh Claude implementer per **Models**.
 After each round sent to `codex.sh green`, run Gate green again before
 the wave goes on. A Gate green failure of any kind — checksum, `**Writes:**`

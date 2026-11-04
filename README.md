@@ -168,6 +168,16 @@ The advisor (`--advisor opus`) is optional and Pasadena does not depend on it: p
 
 When the Codex CLI is installed and logged in, the skills hand part of the work to `codex exec` to save Claude usage. Claude stays the orchestrator and checks every result itself. Codex runs here as a worker, not as a plugin host.
 
+Each `codex.sh` call sets its own `model_reasoning_effort`; the model comes from `~/.codex/config.toml` unless a variable below sets it.
+
+| Call | Claude role | Effort |
+|---|---|---|
+| `explore` | `Explore` | `medium` |
+| `review` | wave review | `high` |
+| `red` | test writer | `xhigh` |
+| `green … routine` | `routine` implementer | `high` |
+| `green … complex` | `complex` implementer | `xhigh` |
+
 - **explore** — `leonard`, `leslie`, `sheldon` and `wolowitz` send bulk read-only lookups to Codex and get back facts with `file:line`.
 - **review** — `wolowitz` runs one Codex review of the whole branch at the finish, beside the `sonnet` reviewer; only findings Claude confirms count.
 - **implement** — plan tasks marked `**Executor:** codex` are written by Codex in two calls, tests first and then code, with Claude running the tests between them.
@@ -192,6 +202,8 @@ While Codex works, `hooks/codex.sh` appends a compact session log to `pasadena/c
 | `PASADENA_CODEX_IDLE` | `120` | seconds without a Codex event before the call is stopped |
 | `PASADENA_CODEX_CMD_IDLE` | `600` | the same limit while Codex runs a command |
 | `PASADENA_CODEX_MODEL` | — | passed to Codex as `-m` |
+| `PASADENA_CODEX_MODEL_COMPLEX` | `PASADENA_CODEX_MODEL` | model for `red` and `complex` `green`, the analogue of `opus` |
+| `PASADENA_CODEX_MODEL_ROUTINE` | `PASADENA_CODEX_MODEL` | model for `routine` `green`, the analogue of `sonnet` |
 | `PASADENA_CODEX_LOG` | `pasadena/codex.log` under the state directory | where the session log goes |
 
 Codex spends your ChatGPT plan's usage. When it runs out, `hooks/codex.sh` exits `75`, the skills tell you once, and delegation stays off for six hours or until you delete `pasadena/codex-exhausted` under `${XDG_STATE_HOME:-~/.local/state}`.

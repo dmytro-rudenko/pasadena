@@ -12,7 +12,7 @@ cost_file="${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/codex-cost.tsv"
 codex_home="${CODEX_HOME:-$HOME/.codex}"
 
 usage() {
-  echo "usage: codex.sh available | explore <prompt-file> | review <base> <prompt-file> | red <prompt-file> | green <thread-id> <prompt-file> | mode [get | set <explore|full|auto>] | budget | cost add <routine|complex> <pct> | cost estimate <routine|complex>" >&2
+  echo "usage: codex.sh available | explore <prompt-file> | review <base> <prompt-file> | red <prompt-file> | green <thread-id> <prompt-file> <routine|complex> | mode [get | set <explore|full|auto>] | budget | cost add <routine|complex> <pct> | cost estimate <routine|complex>" >&2
   exit 2
 }
 
@@ -91,8 +91,11 @@ cmd_cost() {
   exit 0
 }
 
-model_args=()
-[ -n "${PASADENA_CODEX_MODEL:-}" ] && model_args=(-m "$PASADENA_CODEX_MODEL")
+set_model() {
+  model_args=()
+  [ -z "$1" ] || model_args=(-m "$1")
+  model_args+=(-c "model_reasoning_effort=\"$2\"")
+}
 
 codex_pid=""
 
@@ -244,7 +247,8 @@ echo "== $(date '+%Y-%m-%d %H:%M:%S') $sub $$ $PWD" >>"$log"
 case "$sub" in
   explore)
     [ -f "${2:-}" ] || usage
-    run "$2" exec -s read-only -C "$PWD" ${model_args[@]+"${model_args[@]}"} --json -o "$last" - || exit $?
+    set_model "${PASADENA_CODEX_MODEL:-}" medium
+    run "$2" exec -s read-only -C "$PWD" --json -o "$last" "${model_args[@]}" - || exit $?
     print_last
     ;;
   review)
@@ -259,14 +263,16 @@ case "$sub" in
       echo "codex: nothing to review" >&2
       exit 1
     fi
-    run "$work/diff" exec -s read-only -C "$PWD" ${model_args[@]+"${model_args[@]}"} --json -o "$last" "$(cat "$3")" || exit $?
+    set_model "${PASADENA_CODEX_MODEL:-}" high
+    run "$work/diff" exec -s read-only -C "$PWD" --json -o "$last" "${model_args[@]}" "$(cat "$3")" || exit $?
     print_last
     ;;
   red)
     [ -f "${2:-}" ] || usage
+    set_model "${PASADENA_CODEX_MODEL_COMPLEX:-${PASADENA_CODEX_MODEL:-}}" xhigh
     snapshot "$work/before"
     track=1
-    run "$2" exec -s workspace-write -C "$PWD" ${model_args[@]+"${model_args[@]}"} --json -o "$last" - || exit $?
+    run "$2" exec -s workspace-write -C "$PWD" --json -o "$last" "${model_args[@]}" - || exit $?
     if [ -z "$thread" ]; then
       echo "codex: no thread id" >&2
       exit 1
@@ -275,9 +281,14 @@ case "$sub" in
     ;;
   green)
     [[ "${2:-}" =~ ^[A-Za-z0-9][A-Za-z0-9-]*$ ]] && [ -f "${3:-}" ] || usage
+    case "${4:-}" in
+      routine) set_model "${PASADENA_CODEX_MODEL_ROUTINE:-${PASADENA_CODEX_MODEL:-}}" high ;;
+      complex) set_model "${PASADENA_CODEX_MODEL_COMPLEX:-${PASADENA_CODEX_MODEL:-}}" xhigh ;;
+      *) usage ;;
+    esac
     snapshot "$work/before"
     track=1
-    run "$3" exec resume "$2" -c 'sandbox_mode="workspace-write"' ${model_args[@]+"${model_args[@]}"} --json -o "$last" - || exit $?
+    run "$3" exec resume "$2" -c 'sandbox_mode="workspace-write"' --json -o "$last" "${model_args[@]}" - || exit $?
     print_last
     ;;
 esac

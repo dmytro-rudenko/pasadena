@@ -161,6 +161,7 @@ assert_contains "$(tail -n 1 <<<"$out")" "codex usage:" "explore usage line is i
 : >"$FAKE_LOG"
 cx PASADENA_CODEX_MODEL=gpt-test explore "$prompt" >/dev/null 2>&1
 assert_contains "$(cat "$FAKE_LOG")" "-m gpt-test" "PASADENA_CODEX_MODEL adds -m"
+assert_contains "$(cat "$FAKE_LOG")" 'model_reasoning_effort="medium"' "explore runs at medium effort"
 
 echo "== review =="
 : >"$FAKE_LOG"
@@ -173,6 +174,7 @@ cx review "$base" "$prompt" >/dev/null 2>&1; st=$?
 assert_eq "$st" 0 "review exits 0"
 assert_contains "$(cat "$FAKE_LOG")" "exec -s read-only -C $repo --json -o" "review runs read-only"
 assert_contains "$(cat "$FAKE_LOG")" "PROMPT-MARKER" "review passes the prompt as the argument"
+assert_contains "$(cat "$FAKE_LOG")" 'model_reasoning_effort="high"' "review runs at high effort"
 line="$(cat "$FAKE_LOG")"
 [ -n "$line" ] && [ "${line: -2}" != " -" ]; assert_eq "$?" 0 "review does not read the prompt from stdin (-)"
 assert_contains "$(cat "$FAKE_LOG.stdin")" "+second" "review pipes the local diff on stdin"
@@ -195,6 +197,7 @@ assert_eq "$(sed -n 2p <<<"$out")" "final answer" "red prints the final message 
 assert_contains "$(cat "$FAKE_LOG")" "exec -s workspace-write -C $repo --json -o" "red runs workspace-write"
 line="$(cat "$FAKE_LOG")"
 assert_eq "${line: -2}" " -" "red reads the prompt from stdin (-)"
+assert_contains "$line" 'model_reasoning_effort="xhigh"' "red runs at xhigh effort"
 out="$(cx red "$prompt" 2>&1)"
 assert_eq "$(sed -n 1p <<<"$out")" "fake-thread-1" "red prints the thread id first even with stderr merged"
 assert_contains "$(tail -n 1 <<<"$out")" "codex usage:" "usage line comes last"
@@ -213,17 +216,33 @@ assert_contains "$changed" " made-by-codex.txt" "change list names a new file"
 rm -f "$repo/made-by-codex.txt"
 
 : >"$FAKE_LOG"
-cx green --dangerously-bypass-approvals-and-sandbox "$prompt" >/dev/null 2>&1; assert_eq "$?" 2 "green rejects a thread id that looks like a flag"
+cx green --dangerously-bypass-approvals-and-sandbox "$prompt" routine >/dev/null 2>&1; assert_eq "$?" 2 "green rejects a thread id that looks like a flag"
 assert_eq "$(cat "$FAKE_LOG")" "" "green with a bad thread id does not call codex"
 
 : >"$FAKE_LOG"
-out="$(cx green fake-thread-1 "$prompt" 2>/dev/null)"; st=$?
+out="$(cx green fake-thread-1 "$prompt" routine 2>/dev/null)"; st=$?
 assert_eq "$st" 0 "green exits 0"
 assert_eq "$out" "final answer" "green prints the final message"
 assert_contains "$(cat "$FAKE_LOG")" 'exec resume fake-thread-1 -c sandbox_mode="workspace-write" --json -o' "green resumes the thread with workspace-write"
 line="$(cat "$FAKE_LOG")"
 assert_eq "${line: -2}" " -" "green reads the prompt from stdin (-)"
 assert_contains "$(cat "$FAKE_LOG.stdin")" "PROMPT-MARKER" "green passes the prompt file on stdin"
+assert_contains "$line" 'model_reasoning_effort="high"' "routine green runs at high effort"
+
+: >"$FAKE_LOG"
+cx green fake-thread-1 "$prompt" >/dev/null 2>&1; assert_eq "$?" 2 "green without a complexity is a usage error"
+cx green fake-thread-1 "$prompt" hard >/dev/null 2>&1; assert_eq "$?" 2 "green rejects an unknown complexity"
+assert_eq "$(cat "$FAKE_LOG")" "" "green with a bad complexity does not call codex"
+
+: >"$FAKE_LOG"
+cx PASADENA_CODEX_MODEL=gpt-base PASADENA_CODEX_MODEL_COMPLEX=gpt-big green fake-thread-1 "$prompt" complex >/dev/null 2>&1
+assert_contains "$(cat "$FAKE_LOG")" '-m gpt-big -c model_reasoning_effort="xhigh"' "complex green takes the complex model at xhigh effort"
+: >"$FAKE_LOG"
+cx PASADENA_CODEX_MODEL=gpt-base PASADENA_CODEX_MODEL_COMPLEX=gpt-big green fake-thread-1 "$prompt" routine >/dev/null 2>&1
+assert_contains "$(cat "$FAKE_LOG")" '-m gpt-base -c model_reasoning_effort="high"' "routine green falls back to PASADENA_CODEX_MODEL"
+: >"$FAKE_LOG"
+cx PASADENA_CODEX_MODEL_ROUTINE=gpt-small green fake-thread-1 "$prompt" routine >/dev/null 2>&1
+assert_contains "$(cat "$FAKE_LOG")" "-m gpt-small" "routine green takes PASADENA_CODEX_MODEL_ROUTINE"
 
 echo "== session log =="
 codex_log="$XDG_STATE_HOME/pasadena/codex.log"
