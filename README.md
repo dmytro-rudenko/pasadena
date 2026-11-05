@@ -208,6 +208,16 @@ While Codex works, `hooks/codex.sh` appends a compact session log to `pasadena/c
 
 Codex spends your ChatGPT plan's usage. When it runs out, `hooks/codex.sh` exits `75`, the skills tell you once, and delegation stays off for six hours or until you delete `pasadena/codex-exhausted` under `${XDG_STATE_HOME:-~/.local/state}`.
 
+## Benchmarks
+
+`bench/` measures whether the Pasadena workflow changes the result on real tasks from this repository's history. Each run starts a headless `claude -p` session in a throwaway tree at the commit that added the spec, then scores the result with the tests from the PR that implemented it. The `baseline` cell runs the same task with both `pasadena@pasadena` and `pasadena@synced` disabled. Results stay outside git under `BENCH_DIR` (`${XDG_STATE_HOME:-~/.local/state}/pasadena/bench`): `runs.jsonl`, `calibration.log` and `reports/`. Every run is capped by `BENCH_BUDGET` (USD, default 15) and `BENCH_TIMEOUT` (seconds, default 5400), but it uses `bypassPermissions`, so the agent can do anything as you; run it only on a machine you accept that on. The pilot goes in stages: after each one `bench/report.sh` writes a report with a cost forecast for the next stage, and nothing further starts until you approve it.
+
+```bash
+bash bench/calibrate.sh
+bash bench/matrix.sh --tasks model-routing --reps 1
+bash bench/report.sh --next "--reps 3" --out "$BENCH_DIR/reports/02-one-task.md"
+```
+
 ## Checks
 
 ```bash
@@ -217,9 +227,10 @@ bash proto/server.test.sh
 bash hooks/nudge.test.sh
 bash hooks/reuse.test.sh
 bash hooks/codex.test.sh
+bash bench/bench.test.sh
 ```
 
-The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration. The reuse checks run `hooks/reuse.sh` against a fake `te` and cover the rule, the hint, the subagent map and filter, the timeout, the silent cases, and hook registration. The Codex checks run `hooks/codex.sh` against a fake `codex` and cover availability, each subcommand's flags, the session log, the idle stop and the usage-limit marker.
+The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration. The reuse checks run `hooks/reuse.sh` against a fake `te` and cover the rule, the hint, the subagent map and filter, the timeout, the silent cases, and hook registration. The Codex checks run `hooks/codex.sh` against a fake `codex` and cover availability, each subcommand's flags, the session log, the idle stop and the usage-limit marker. The bench checks run `bench/` against a fake `claude` and `codex` and cover the verdicts, scoring, calibration, matrix resume and the report.
 
 Specs and plans for each change live in [docs/sdd/specs](docs/sdd/specs) and [docs/sdd/plans](docs/sdd/plans).
 
