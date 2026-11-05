@@ -209,3 +209,22 @@ mkrun "$d"
 first="$(score_run "$d")"
 second="$(score_run "$d")"
 assert_eq "$([ -n "$first" ] && [ "$first" = "$second" ] && echo same)" same "score is byte-for-byte stable across runs"
+
+d="$tmp/score/scalars"
+mkrun "$d"
+{
+  echo 42
+  score_init "$tmp/plugin"
+  echo '"x"'
+  jq -c . "$FIXTURES/assistant.json"
+  echo '[1]'
+  jq -c . "$FIXTURES/assistant.json"
+  echo 42
+  jq -c . "$FIXTURES/result-success.json"
+  echo '[1]'
+} >"$d/claude.jsonl"
+out="$(score_run "$d")"
+assert_eq "$(score_field "$out" ".cost_usd == $(jq .total_cost_usd "$FIXTURES/result-success.json")")" true "score with scalar lines keeps fixture cost_usd"
+assert_eq "$(score_field "$out" .subagent_calls)" 2 "score with scalar lines subagent_calls is 2"
+assert_eq "$(score_field "$out" '.plugins | length > 0')" true "score with scalar lines plugins non-empty"
+assert_eq "$(score_field "$out" .verdict)" '"pass"' "score with scalar lines verdict is pass"

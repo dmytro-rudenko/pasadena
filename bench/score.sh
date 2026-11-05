@@ -7,15 +7,25 @@ if [ -z "$run" ] || [ ! -f "$run/meta.json" ]; then
   exit 2
 fi
 
-meta="$(jq -c . "$run/meta.json" 2>/dev/null)" || { echo "bad meta.json" >&2; exit 2; }
+work="$(mktemp -d)"
+trap 'rm -rf "$work"' EXIT
 
-ev="$(jq -cR 'fromjson? // empty' "$run/claude.jsonl" 2>/dev/null)"
-init="$(printf '%s\n' "$ev" | jq -cs '[.[] | select(.type=="system" and .subtype=="init")] | last // null' 2>/dev/null)"
-result="$(printf '%s\n' "$ev" | jq -cs '[.[] | select(.type=="result")] | last // null' 2>/dev/null)"
-subagents="$(printf '%s\n' "$ev" | jq -s '[.[] | select(.type=="assistant") | .message.content[]? | select(.type=="tool_use" and (.name=="Agent" or .name=="Task"))] | length' 2>/dev/null)"
-[ -n "$init" ] || init=null
-[ -n "$result" ] || result=null
+jq -c . "$run/meta.json" >"$work/meta.json" 2>/dev/null || { echo "bad meta.json" >&2; exit 2; }
+meta="$(cat "$work/meta.json")"
+
+jq -cR 'fromjson? | objects' "$run/claude.jsonl" >"$work/events.jsonl" 2>/dev/null
+ev=""
+[ -s "$work/events.jsonl" ] && ev=1
+jq -cs '[.[] | select(.type=="system" and .subtype=="init")] | last // null' "$work/events.jsonl" >"$work/init.json" 2>/dev/null
+jq -cs '[.[] | select(.type=="result")] | last // null' "$work/events.jsonl" >"$work/result.json" 2>/dev/null
+subagents="$(jq -s '[.[] | select(.type=="assistant") | .message.content[]? | select(.type=="tool_use" and (.name=="Agent" or .name=="Task"))] | length' "$work/events.jsonl" 2>/dev/null)"
+[ -s "$work/init.json" ] || echo null >"$work/init.json"
+[ -s "$work/result.json" ] || echo null >"$work/result.json"
 [ -n "$subagents" ] || subagents=0
+init="$(cat "$work/init.json")"
+result_subtype="$(jq -r '.subtype? // ""' "$work/result.json")"
+has_result=0
+[ "$(cat "$work/result.json")" != null ] && has_result=1
 
 claude_exit="$(tr -d '[:space:]' <"$run/claude.exit" 2>/dev/null)"
 err_file="$run/claude.err"
@@ -26,7 +36,7 @@ mode="$(jq -r '.mode // ""' <<<"$meta")"
 want_path="$(realpath -m "$(jq -r '.plugin_path // ""' <<<"$meta")")"
 mismatch=0
 if [ "$init" != null ]; then
-  mapfile -t pas_paths < <(jq -r '.plugins[]? | select(.name | startswith("pasadena")) | .path' <<<"$init")
+  mapfile -t pas_paths < <(jq -r '.plugins[]? | select(.name | startswith("pasadena")) | .path' "$work/init.json")
   if [ "$mode" = off ]; then
     [ "${#pas_paths[@]}" -gt 0 ] && mismatch=1
   else
@@ -43,9 +53,9 @@ fi
 cap=""
 if [ "$claude_exit" = 124 ]; then
   cap=timeout
-elif [ "$(jq -r '.subtype // ""' <<<"$result")" = error_max_budget_usd ]; then
+elif [ "$result_subtype" = error_max_budget_usd ]; then
   cap=budget
-elif [ "$result" = null ] && grep -q budget "$err_file" 2>/dev/null; then
+elif [ "$has_result" = 0 ] && grep -q budget "$err_file" 2>/dev/null; then
   cap=budget
 fi
 
@@ -62,9 +72,8 @@ elif [ -s "$err_file" ]; then
   error="$(head -n1 "$err_file")"
 fi
 
-oracle="$(awk -F'\t' 'NF>=2 {printf "%s\t%s\n", $1, $2}' "$run/oracle.exit" 2>/dev/null \
-  | jq -cR 'split("\t") | {path: .[0], code: .[1]}' | jq -cs .)"
-[ -n "$oracle" ] || oracle='[]'
+awk -F'\t' 'NF>=2 {printf "%s\t%s\n", $1, $2}' "$run/oracle.exit" 2>/dev/null \
+  | jq -cR 'split("\t") | {path: .[0], code: .[1]}' | jq -cs . >"$work/oracle.json"
 
 diff_file="$run/diff.patch"
 diff_files="$(grep -c '^diff --git' "$diff_file" 2>/dev/null)"
@@ -98,14 +107,16 @@ if [ -f "$run/codex-before.txt" ] && [ -f "$run/codex-after.txt" ]; then
   [ -n "$b" ] && [ -n "$a" ] && codex_usage=$((a - b))
 fi
 
+printf '%s' "$error" >"$work/error.txt"
+
 hard_error=0
 { [ -n "$error_txt" ] || [ "$claude_exit" = skipped ] || [ -z "$ev" ] || [ "$mismatch" = 1 ]; } && hard_error=1
 
 jq -nc \
-  --argjson meta "$meta" \
-  --argjson init "$init" \
-  --argjson result "$result" \
-  --argjson oracle "$oracle" \
+  --slurpfile meta "$work/meta.json" \
+  --slurpfile init "$work/init.json" \
+  --slurpfile result "$work/result.json" \
+  --slurpfile oracle "$work/oracle.json" \
   --argjson subagents "$subagents" \
   --argjson hard_error "$hard_error" \
   --argjson diff_empty "$diff_empty" \
@@ -114,9 +125,10 @@ jq -nc \
   --argjson dup_symbols "${dup_symbols:-0}" \
   --argjson codex_usage "$codex_usage" \
   --arg cap "$cap" \
-  --arg error "$error" \
+  --rawfile error "$work/error.txt" \
   '
-  ($oracle | map(select(.code == "0")) | length) as $passed
+  $meta[0] as $meta | $init[0] as $init | $result[0] as $result | ($oracle[0] // []) as $oracle
+  |  ($oracle | map(select(.code == "0")) | length) as $passed
   | ($oracle | length) as $total
   | (if $hard_error == 1 then "error"
      elif $diff_empty == 1 then "refused"
