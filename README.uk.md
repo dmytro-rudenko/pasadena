@@ -208,9 +208,10 @@ Codex витрачає ліміти вашого ChatGPT-плану. Коли в
 
 ## Бенчмарки
 
-`bench/` вимірює, чи змінює робочий процес Pasadena результат на реальних задачах з історії цього репозиторію. Кожен прогін запускає headless-сесію `claude -p` у тимчасовому дереві на коміті, що додав специфікацію, а потім оцінює результат тестами з PR, який її реалізував. Комірка `baseline` виконує ту саму задачу з вимкненими `pasadena@pasadena` і `pasadena@synced`. Результати лежать поза git у `BENCH_DIR` (`${XDG_STATE_HOME:-~/.local/state}/pasadena/bench`): `runs.jsonl`, `calibration.log` і `reports/`. Кожен прогін обмежують `BENCH_BUDGET` (USD, за замовчуванням 15) і `BENCH_TIMEOUT` (секунди, за замовчуванням 5400), але він працює з `bypassPermissions`, тож агент може робити будь-що від вашого імені; запускайте його лише на машині, де ви на це згодні. Пілот іде етапами: після кожного `bench/report.sh` пише звіт із прогнозом вартості наступного етапу, і нічого далі не стартує, доки ви не погодите.
+`bench/` вимірює, чи змінює робочий процес Pasadena результат на реальних задачах з історії цього репозиторію. Кожен прогін запускає headless-сесію `claude -p` у тимчасовому дереві на коміті, що додав специфікацію, а потім оцінює результат тестами з PR, який її реалізував. Комірка `baseline` виконує ту саму задачу з вимкненими `pasadena@pasadena` і `pasadena@synced`. Результати лежать поза git у `BENCH_DIR` (`${XDG_STATE_HOME:-~/.local/state}/pasadena/bench`): `runs.jsonl`, `calibration.log` і `reports/`. Кожен прогін обмежують `BENCH_BUDGET` (USD, за замовчуванням 15) і `BENCH_TIMEOUT` (секунди, за замовчуванням 5400), але він працює з `bypassPermissions`, тож агент може робити будь-що від вашого імені; запускайте його лише на машині, де ви на це згодні. Пілот іде етапами: після кожного `bench/report.sh` пише звіт із прогнозом вартості наступного етапу, і нічого далі не стартує, доки ви не погодите. Потрібні bash 4+, `jq`, GNU coreutils (`timeout`, `realpath`) і `claude` CLI з виконаним входом.
 
 ```bash
+export BENCH_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/bench"
 bash bench/calibrate.sh
 bash bench/matrix.sh --tasks model-routing --reps 1
 bash bench/report.sh --next "--reps 3" --out "$BENCH_DIR/reports/02-one-task.md"

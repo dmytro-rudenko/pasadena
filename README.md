@@ -210,9 +210,10 @@ Codex spends your ChatGPT plan's usage. When it runs out, `hooks/codex.sh` exits
 
 ## Benchmarks
 
-`bench/` measures whether the Pasadena workflow changes the result on real tasks from this repository's history. Each run starts a headless `claude -p` session in a throwaway tree at the commit that added the spec, then scores the result with the tests from the PR that implemented it. The `baseline` cell runs the same task with both `pasadena@pasadena` and `pasadena@synced` disabled. Results stay outside git under `BENCH_DIR` (`${XDG_STATE_HOME:-~/.local/state}/pasadena/bench`): `runs.jsonl`, `calibration.log` and `reports/`. Every run is capped by `BENCH_BUDGET` (USD, default 15) and `BENCH_TIMEOUT` (seconds, default 5400), but it uses `bypassPermissions`, so the agent can do anything as you; run it only on a machine you accept that on. The pilot goes in stages: after each one `bench/report.sh` writes a report with a cost forecast for the next stage, and nothing further starts until you approve it.
+`bench/` measures whether the Pasadena workflow changes the result on real tasks from this repository's history. Each run starts a headless `claude -p` session in a throwaway tree at the commit that added the spec, then scores the result with the tests from the PR that implemented it. The `baseline` cell runs the same task with both `pasadena@pasadena` and `pasadena@synced` disabled. Results stay outside git under `BENCH_DIR` (`${XDG_STATE_HOME:-~/.local/state}/pasadena/bench`): `runs.jsonl`, `calibration.log` and `reports/`. Every run is capped by `BENCH_BUDGET` (USD, default 15) and `BENCH_TIMEOUT` (seconds, default 5400), but it uses `bypassPermissions`, so the agent can do anything as you; run it only on a machine you accept that on. The pilot goes in stages: after each one `bench/report.sh` writes a report with a cost forecast for the next stage, and nothing further starts until you approve it. It needs bash 4+, `jq`, GNU coreutils (`timeout`, `realpath`) and the `claude` CLI logged in.
 
 ```bash
+export BENCH_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/bench"
 bash bench/calibrate.sh
 bash bench/matrix.sh --tasks model-routing --reps 1
 bash bench/report.sh --next "--reps 3" --out "$BENCH_DIR/reports/02-one-task.md"
