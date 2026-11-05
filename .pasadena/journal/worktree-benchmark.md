@@ -27,3 +27,5 @@ Shaping завершено: spec записана і пройшла builder chec
 - 13:32 ● b1af99a feat(hooks): set per-call reasoning effort and model overrides for Codex delegation
 - 13:32 ● a0d543f Merge pull request #35 from dmytro-rudenko/worktree-codex-model
 - 13:46 ✎ Spec погоджено в діалозі: workflow-промпт для plugin-комірок, Codex лише в codexfull, оракул — кінчик гілки PR з калібруванням, ізоляція історії
+- 13:46 ● 95e3e28 docs(spec): benchmark harness pilot for measuring Pasadena against plain Claude Code
+- 13:51 ✎ Spec: пілот іде етапами 0–5, після кожного — звіт report.sh у PR і зупинка до погодження користувача
