@@ -10,7 +10,7 @@ started: 2026-11-05
 Пілот benchmark harness для Pasadena: replay власних задач із docs/sdd (spec → claude -p у worktree батьківського коміту, оракул — тести з коміту), кілька конфігурацій-перемикачів, JSONL на прогін і таблиця звіту (якість, токени, USD, час). Готово, коли пілот показує різницю між конфігураціями з повторами.
 
 ## Now
-Building. План погоджено (9 задач, 5 хвиль), wolowitz стартує з Wave 0. Task 0 — реальний сухий прогін claude -p (формат stream-json, --plugin-dir поверх enabledPlugins:false), фікстури й приймальні тести; стоп-умова: Pasadena не з BENCH_PLUGIN → питання користувачу. Наступне: Wave 0, перевірка `bash bench/bench.test.sh` (очікувано FAILED). Зберегти: збірка закінчується етапом 0 (калібрування) і зупинкою до погодження етапу 1.
+Building. Wave 0 закрита: Task 0 закомічено, `bash bench/bench.test.sh` червоний рівно на 21 приймальній перевірці; знімок тестів і sha256 — scratchpad/t0. Наступне: Wave 1 — задачі 1 (lib.sh+tsv), 2 (score.sh), 7 (README+0.24.0) паралельно; перевірка `bash bench/bench.test.sh && bash skills/skills.test.sh`. Зберегти: --settings вимикає обидва ключі pasadena@pasadena і pasadena@synced; збірка закінчується етапом 0 і зупинкою до погодження етапу 1.
 
 ## Timeline
 
@@ -36,3 +36,6 @@ Building. План погоджено (9 задач, 5 хвиль), wolowitz с�
 - 14:00 ⏸ pause · exit · HEAD=cb9e526
   ↳ Building. План погоджено (9 задач, 5 хвиль), wolowitz стартує з Wave 0. Task 0 — реальний сухий прогін claude -p (формат stream-json, --plugin-dir поверх enabledPlugins:false), фікстури й приймальні т
 - 14:01 ✎ Сухий прогін: встановлена Pasadena має джерело pasadena@synced — вимикаємо обидва ключі; --plugin-dir бере worktree; при бюджет-стопі usage=0, токени з modelUsage
+- 14:01 ● afb3d6b docs(spec): disable both Pasadena sources in the baseline and read budget-stop tokens from modelUsage
+- 14:05 ● ba971a4 test(bench): acceptance tests and stream-json fixtures from a real dry run
+- 14:06 ✎ Wave 0: приймальні тести й фікстури з реального сухого прогону; червоні рівно 21 перевірка з передбачених причин

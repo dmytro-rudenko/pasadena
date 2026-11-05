@@ -60,7 +60,7 @@ Pasadena не має виміру того, чи покращує вона ро�
 - «`bench/report.sh --next "--tasks model-routing --reps 1"` після сухих прогонів друкує таблицю з рядками `baseline` і `plugin`, рядок на кожен прогін, суму витрат і прогноз на 3 прогони етапу 2.»
 - «Після кожного етапу з §3.8 у `$BENCH_DIR/reports/` лежить його звіт…» (`--out`; PR-коментар і зупинка — у Task 8 та в етапах після збірки)
 
-- [ ] **Step 1: звірити формат stream-json на реальному `claude`** (≈ $0.05). У `d=$(mktemp -d)`: `git -C "$d" init -q`, потім з `cd "$d"` три виклики на `--model haiku`, кожен з `--output-format stream-json --verbose --no-session-persistence --settings '{"enabledPlugins":{"pasadena@pasadena":false,"pasadena@synced":false}}'`:
+- [x] **Step 1: звірити формат stream-json на реальному `claude`** (≈ $0.05). У `d=$(mktemp -d)`: `git -C "$d" init -q`, потім з `cd "$d"` три виклики на `--model haiku`, кожен з `--output-format stream-json --verbose --no-session-persistence --settings '{"enabledPlugins":{"pasadena@pasadena":false,"pasadena@synced":false}}'`:
   - `claude -p "Reply with the word OK." --max-budget-usd 0.5 --plugin-dir <корінь worktree> > plugin.jsonl`
   - той самий без `--plugin-dir` `> off.jsonl`
   - `claude -p "Write a 300-word story." --max-budget-usd 0.0001 > budget.jsonl`
@@ -71,11 +71,11 @@ Pasadena не має виміру того, чи покращує вона ро�
   - `subtype` результату при зупинці бюджетом (очікується `error_max_budget_usd`).
 
   **Стоп-умова:** якщо в `plugin.jsonl` Pasadena відсутня або її шлях не корінь worktree, або в `off.jsonl` Pasadena є — не писати тести, повернути питання користувачу. Якщо вкладений `claude` відмовився стартувати, повторити з `env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT` і записати це. Будь-яку розбіжність назв з очікуваними оркестратор вносить у текст Task 2 до його запуску.
-- [ ] **Step 2: фікстури.** З реальних подій через `jq -c` зберегти по одному рядку, лишивши лише поля, які читає `score.sh`, і замінивши шляхи на `/fixture/...`:
+- [x] **Step 2: фікстури.** З реальних подій через `jq -c` зберегти по одному рядку, лишивши лише поля, які читає `score.sh`, і замінивши шляхи на `/fixture/...`:
   - `init.json` — `{type, subtype, plugins}`;
   - `assistant.json` — `{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Agent","input":{}}]}}`;
   - `result-success.json`, `result-budget.json` — `{type, subtype, is_error, total_cost_usd, duration_ms, num_turns, usage, modelUsage}` з реальними значеннями (у `modelUsage` лишити лише поля токенів).
-- [ ] **Step 3: раннер `bench/bench.test.sh`.** Заголовок як у `hooks/codex.test.sh:1-30` (`assert_eq`, `assert_contains`, `fails`), підсумок як у `hooks/codex.test.sh` (`FAILED: N` / `All checks passed.`). Раннер готує:
+- [x] **Step 3: раннер `bench/bench.test.sh`.** Заголовок як у `hooks/codex.test.sh:1-30` (`assert_eq`, `assert_contains`, `fails`), підсумок як у `hooks/codex.test.sh` (`FAILED: N` / `All checks passed.`). Раннер готує:
   - `tmp=$(mktemp -d)`, `bin=$tmp/bin` на початку `PATH`;
   - **репозиторій задач** `$tmp/repo`: коміт `base` додає `spec.md` і `src/a.sh` з `helper() { :; }`; коміт `oracle` додає `t/one.test.sh` (`grep -qx done feature.txt`) і `t/two.test.sh` (`grep -qx done feature2.txt`), а також `feature.txt` і `feature2.txt` з `done`. Хеші — в `BASE`, `ORACLE`;
   - **`$tmp/tasks.tsv`:** заголовок `id base spec oracle tests holdout`, далі `t1 $BASE spec.md $ORACLE t/one.test.sh,t/two.test.sh 0` і `t2 $BASE spec.md $ORACLE t/one.test.sh 1`;
@@ -88,12 +88,12 @@ Pasadena не має виміру того, чи покращує вона ро�
     - режими `FAKE_CLAUDE`: `budget` (друкує `result-budget.json`), `hang` (`exec sleep 30`), `empty` (`exit 1` без виводу), `wrongplugin` (шлях `/elsewhere`);
   - **helper-и:** `fresh_bench` (`rm -rf "$BENCH_DIR"; : >"$FAKE_LOG"`) і `last_run <jq-filter>` (`tail -1 "$BENCH_DIR/runs.jsonl" | jq -r <filter>`);
   - **підключення частин:** `for part in "$ROOT"/bench/test/*.sh; do [ -e "$part" ] && source "$part"; done`, потім `rm -rf "$tmp"` і підсумок.
-- [ ] **Step 4: `bench/test/00-acceptance.sh`.**
+- [x] **Step 4: `bench/test/00-acceptance.sh`.**
   - `fresh_bench`; `FAKE_WRITES="feature.txt=done feature2.txt=done" bash "$ROOT/bench/run.sh" t1 plugin 1`: exit 0; `last_run .verdict` = `pass`; `.cost_usd`, `.duration_s`, `.output_tokens` > 0 (`jq -e '. > 0'`); `.plugins[] | select(.name=="pasadena") | .path` = `realpath $tmp/plugin`.
   - Те саме з `baseline`: `last_run '[.plugins[]|select(.name=="pasadena")]|length'` = `0`, verdict `pass`.
   - До `$tmp/tasks.tsv` додати `t3 $ORACLE spec.md $ORACLE t/one.test.sh 0` (на `base` тести вже проходять). `bash "$ROOT/bench/calibrate.sh"`: exit 0; `calibration.log` містить `t3` і `passes on base`; рядок t3 у `tasks.tsv` має `holdout` = `x`. Потім прибрати t3.
   - `out=$(bash "$ROOT/bench/report.sh" --tasks t1 --next "--tasks t1 --reps 1" --out "$BENCH_DIR/reports/01-dry.md")`: `$out` містить `| baseline |`, `| plugin |`, `## Runs`, два рядки з `| t1 |`, `## Spend`, `## Forecast` і `pending runs: 3`; файл `$BENCH_DIR/reports/01-dry.md` дорівнює `$out`.
-- [ ] **Step 5: побачити, що падає** — `bash bench/bench.test.sh`, очікувано `FAILED: N` (N > 0): скриптів ще немає.
+- [x] **Step 5: побачити, що падає** — `bash bench/bench.test.sh`, очікувано `FAILED: N` (N > 0): скриптів ще немає.
 
 ### Task 1: `bench/lib.sh`, `tasks.tsv`, `configs.tsv`
 
