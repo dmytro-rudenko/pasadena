@@ -1,0 +1,8 @@
+id	base	spec	oracle	tests	holdout
+testing-skills	8b98483	docs/sdd/specs/2026-10-21-testing-skills.md	4ade52f	hooks/nudge.test.sh,skills/skills.test.sh	0
+codex-exec	fb50e05	docs/sdd/specs/2026-10-23-codex-exec-delegation.md	3f598a7	hooks/codex.test.sh,skills/skills.test.sh	0
+model-routing	4ab6c1c	docs/sdd/specs/2026-11-01-skill-model-routing.md	d97c752	skills/skills.test.sh	0
+frontmatter-models	ab745d2	docs/sdd/specs/2026-11-02-skill-frontmatter-models.md	0ce2564	skills/skills.test.sh	0
+faster-review	1fd091f	docs/sdd/specs/2026-11-02-faster-review.md	f4e6979	skills/skills.test.sh	0
+codex-mode	5818fd3	docs/sdd/specs/2026-11-03-codex-mode.md	93daf54	hooks/codex.test.sh,hooks/journal.test.sh,skills/skills.test.sh	0
+reuse-first	5035f55	docs/sdd/specs/2026-11-03-reuse-first.md	74bf39c	hooks/reuse.test.sh,skills/skills.test.sh	1
