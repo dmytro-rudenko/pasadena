@@ -46,7 +46,7 @@ prog="$(cat <<'JQ'
 def cfgidx: . as $c | ($order | index($c)) // 999;
 def money:
   (. * 100 | round) as $c
-  | ($c | abs) as $a
+  | (if $c < 0 then -$c else $c end) as $a
   | (if $c < 0 then "-" else "" end)
     + (($a / 100 | floor) | tostring) + "."
     + (($a % 100) | tostring | if length < 2 then "0" + . else . end);
@@ -88,7 +88,7 @@ def cellline:
 
 def delta($plugin):
   (.pass - $plugin.pass) as $d
-  | "\(.name): pass \(if $d >= 0 then "+" else "" end)\($d) vs plugin\(if ($d | abs) <= 3 then " (noise)" else "" end)";
+  | "\(.name): pass \(if $d >= 0 then "+" else "" end)\($d) vs plugin\(if (if $d < 0 then -$d else $d end) <= 3 then " (noise)" else "" end)";
 
 def runline:
   "| \(.task) | \(.config) | \(.rep) | \(.verdict) | \(if .capped == true then "yes" else "no" end)"
