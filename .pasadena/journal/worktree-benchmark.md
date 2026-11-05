@@ -10,7 +10,7 @@ started: 2026-11-05
 Пілот benchmark harness для Pasadena: replay власних задач із docs/sdd (spec → claude -p у worktree батьківського коміту, оракул — тести з коміту), кілька конфігурацій-перемикачів, JSONL на прогін і таблиця звіту (якість, токени, USD, час). Готово, коли пілот показує різницю між конфігураціями з повторами.
 
 ## Now
-Building. Waves 0–1 закриті (Task 0, 1, 2, 7): lib/score/skills зелені, червоні лише 21 приймальна перевірка. GROUP_BASE: dae81ba. Наступне: Wave 2 — задачі 3 (run.sh), 4 (calibrate.sh), 5 (matrix.sh) паралельно; перевірка `bash bench/bench.test.sh && bash skills/skills.test.sh`. Зберегти: --settings вимикає обидва ключі pasadena@pasadena і pasadena@synced; збірка закінчується етапом 0 і зупинкою до погодження етапу 1.
+Building. Waves 0–2 закриті (Task 0–5, 7): червоні лише 8 приймальних перевірок report. GROUP_BASE: dae81ba. Наступне: Wave 3 — Task 6 (report.sh), потім групове рев'ю хвиль 1–3 (git diff dae81ba; окремо — порядок no events/timeout у score.sh); перевірка `bash bench/bench.test.sh && bash skills/skills.test.sh`. Зберегти: --settings вимикає обидва ключі pasadena@pasadena і pasadena@synced; збірка закінчується етапом 0 і зупинкою до погодження етапу 1.
 
 ## Timeline
 
@@ -44,3 +44,8 @@ Building. Waves 0–1 закриті (Task 0, 1, 2, 7): lib/score/skills зел�
 - 14:10 ● 4852d27 feat(bench): score a stored run without regenerating it
 - 14:10 ● 629ee61 docs: document the benchmark harness and bump to 0.24.0
 - 14:10 ✎ Wave 1: lib.sh, score.sh і README/0.24.0 зелені; score детермінований і бере токени з modelUsage при бюджет-стопі
+- 14:10 ● 0188519 chore(plan): close wave 1
+- 14:16 ● 2774cb8 feat(bench): run one task in one cell end to end
+- 14:16 ● 4b753d5 feat(bench): calibrate oracles before the pilot
+- 14:16 ● 7616227 feat(bench): resumable matrix of tasks, cells and reps
+- 14:16 ✎ Wave 2: run.sh, calibrate.sh, matrix.sh зелені; приймальні 1–3 зелені; холдаут переходить на останню збережену задачу

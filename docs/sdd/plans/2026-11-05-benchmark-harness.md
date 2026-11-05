@@ -178,7 +178,7 @@ Pasadena не має виміру того, чи покращує вона ро�
 - Consumes: `lib.sh` (Task 1), `score.sh` і контракт файлів `<run>/` (Task 2).
 - Produces: дописує один рядок `score.sh` у `$BENCH_DIR/runs.jsonl`; exit 0 після будь-якого прогону, зокрема `error`; exit 2 при невідомому id або задачі з `holdout=x`.
 
-- [ ] **Step 1: тест `bench/test/30-run.sh`.**
+- [x] **Step 1: тест `bench/test/30-run.sh`.**
   - **plugin:** `FAKE_WRITES=… run.sh t1 plugin 1`. `$FAKE_LOG` містить `-p`, `--output-format`, `stream-json`, `--verbose`, `--no-session-persistence`, `--permission-mode`, `bypassPermissions`, `--max-budget-usd`, `15`, `--model`, `sonnet`, `--settings`, `{"enabledPlugins":{"pasadena@pasadena":false,"pasadena@synced":false}}`, `--plugin-dir`, `$tmp/plugin`. Промпт починається з `/pasadena:leonard Plan the implementation of the agreed specification at spec.md`. `.env` має `PASADENA_CODEX=0`, `PASADENA_REUSE=` (порожньо), codex-mode `explore`, `XDG_STATE_HOME` = `<run>/state`.
   - **baseline:** немає `--plugin-dir`, промпт `Implement the specification at spec.md. …`, codex-mode порожній.
   - **plugin-noreuse:** `PASADENA_REUSE=0`. **plugin-haiku:** `--model haiku`.
@@ -188,8 +188,8 @@ Pasadena не має виміру того, чи покращує вона ро�
   - **після прогону:** `<run>/tree` видалено; `diff.patch`, `meta.json`, `base-symbols.txt` лишились; `base-symbols.txt` містить `helper`.
   - **повтор з тим самим ключем:** у `<run>` немає старого маркерного файлу.
   - **невідомі id:** `run.sh nope plugin 1` і `run.sh t1 nope 1` → exit 2.
-- [ ] **Step 2: побачити, що падає** — `FAIL — … run`.
-- [ ] **Step 3: реалізація** (порядок §3.4):
+- [x] **Step 2: побачити, що падає** — `FAIL — … run`.
+- [x] **Step 3: реалізація** (порядок §3.4):
   1. `rev=$(plugin_rev)`; `run=…`; `rm -rf "$run"; mkdir -p "$run/state/pasadena"`.
   2. Пише `meta.json`.
   3. `make_tree "$base" "$run/tree"`.
@@ -206,7 +206,7 @@ Pasadena не має виміру того, чи покращує вона ро�
   12. `bash "$BENCH_ROOT/score.sh" "$run" >>"$BENCH_DIR/runs.jsonl"`; `rm -rf "$run/tree"`.
 
   Для `skipped` кроки 8–11 пропускаються, `diff.patch` порожній.
-- [ ] **Step 4: побачити, що проходить** — блоки `run` і приймальні тести 1–2 без `FAIL`.
+- [x] **Step 4: побачити, що проходить** — блоки `run` і приймальні тести 1–2 без `FAIL`.
 
 ### Task 4: `bench/calibrate.sh`
 
@@ -220,16 +220,16 @@ Pasadena не має виміру того, чи покращує вона ро�
 - Consumes: `task_ids`, `task_field`, `make_tree`, `put_oracle_tests`, `run_oracle` (Task 1).
 - Produces: переписує `$BENCH_TASKS` (поля `tests`, `holdout`), дописує `$BENCH_DIR/calibration.log` рядками `<ISO ts> <id> <kept|dropped-test <path>: fails on oracle|excluded: no tests left|excluded: passes on base|holdout moved to <id>>`. Exit 0.
 
-- [ ] **Step 1: тест `bench/test/40-calibrate.sh`.** Копія `$tmp/tasks.tsv` у `BENCH_TASKS=$tmp/cal.tsv`:
+- [x] **Step 1: тест `bench/test/40-calibrate.sh`.** Копія `$tmp/tasks.tsv` у `BENCH_TASKS=$tmp/cal.tsv`:
   - t1 лишається з обома тестами, у лозі `t1 kept`;
   - t4 з `t/missing.test.sh,t/one.test.sh` (missing на oracle не існує й падає) → `tests` = `t/one.test.sh`, лог `dropped-test t/missing.test.sh: fails on oracle`;
   - t5 лише з `t/missing.test.sh` → `holdout` `x`, `no tests left`;
   - t3 на `$ORACLE` як base → `x`, `passes on base`;
   - холдаут t2 з base=`$ORACLE` виключається → холдаутом стає останній рядок з `holdout=0` (t1), лог `holdout moved to t1`;
   - заголовок файлу збережено.
-- [ ] **Step 2: побачити, що падає.**
-- [ ] **Step 3: реалізація.** Для кожного id з `holdout` 0 або 1: дерево `oracle` у `mktemp -d` → `run_oracle` → лишити шляхи з кодом 0; дерево `base` + `put_oracle_tests` лишених → `run_oracle`; якщо всі 0 → `x`. «Остання за датою» — останній рядок файлу з `holdout=0` (файл упорядковано за датою spec). Запис — через тимчасовий файл і `mv`. Тимчасові дерева видаляються.
-- [ ] **Step 4: побачити, що проходить.**
+- [x] **Step 2: побачити, що падає.**
+- [x] **Step 3: реалізація.** Для кожного id з `holdout` 0 або 1: дерево `oracle` у `mktemp -d` → `run_oracle` → лишити шляхи з кодом 0; дерево `base` + `put_oracle_tests` лишених → `run_oracle`; якщо всі 0 → `x`. «Остання за датою» — останній рядок файлу з `holdout=0` (файл упорядковано за датою spec). Запис — через тимчасовий файл і `mv`. Тимчасові дерева видаляються.
+- [x] **Step 4: побачити, що проходить.**
 
 ### Task 5: `bench/matrix.sh`
 
@@ -247,7 +247,7 @@ Pasadena не має виміру того, чи покращує вона ро�
   - **Ключ виконаного прогону:** рядок `runs.jsonl` з тим самим `plugin_rev`, `task`, `config`, `rep`; для `config=="baseline"` — будь-який `plugin_rev`, бо `report.sh` теж бере baseline з будь-якої ревізії.
   - **Невідомий аргумент:** exit 2.
 
-- [ ] **Step 1: тест `bench/test/50-matrix.sh`.** `BENCH_RUN=$tmp/fakerun.sh` дописує `$1 $2 $3` у `$tmp/matrix.calls` і рядок `{"task":$1,"config":$2,"rep":$3,"plugin_rev":<rev>,"verdict":"pass"}` у `runs.jsonl`:
+- [x] **Step 1: тест `bench/test/50-matrix.sh`.** `BENCH_RUN=$tmp/fakerun.sh` дописує `$1 $2 $3` у `$tmp/matrix.calls` і рядок `{"task":$1,"config":$2,"rep":$3,"plugin_rev":<rev>,"verdict":"pass"}` у `runs.jsonl`:
   - `--tasks t1 --configs plugin,baseline --reps 2` → 4 виклики;
   - повторний запуск → 0;
   - `--holdout --configs plugin --reps 1` → виклик `t2 plugin 1`;
@@ -255,9 +255,9 @@ Pasadena не має виміру того, чи покращує вона ро�
   - baseline з іншим `plugin_rev` вважається виконаним;
   - `--pending --tasks t1 --reps 1` на порожньому `runs.jsonl` → 5 рядків і 0 викликів;
   - `--bogus` → exit 2.
-- [ ] **Step 2: побачити, що падає.**
-- [ ] **Step 3: реалізація.** За замовчуванням: `task_ids 0` (або `task_ids 1` з `--holdout`), `config_names`, `N=3`. Множина виконаних — з `jq -r '[.plugin_rev,.task,.config,(.rep|tostring),.verdict]|@tsv' runs.jsonl`.
-- [ ] **Step 4: побачити, що проходить.**
+- [x] **Step 2: побачити, що падає.**
+- [x] **Step 3: реалізація.** За замовчуванням: `task_ids 0` (або `task_ids 1` з `--holdout`), `config_names`, `N=3`. Множина виконаних — з `jq -r '[.plugin_rev,.task,.config,(.rep|tostring),.verdict]|@tsv' runs.jsonl`.
+- [x] **Step 4: побачити, що проходить.**
 
 ### Task 6: `bench/report.sh`
 
