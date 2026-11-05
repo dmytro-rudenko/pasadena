@@ -49,9 +49,11 @@ jq -n \
     mode:$mode, plugin_path:$plugin_path, budget:$budget,
     base_commit:$base_commit, ts:$ts}' >"$run/meta.json"
 
-if ! make_tree "$base" "$run/tree" >"$run/tree.log" 2>&1; then
-  echo "tree setup failed" >"$run/error.txt"
+root=""
+if make_tree "$base" "$run/tree" >"$run/tree.log" 2>&1; then
+  root="$(git -C "$run/tree" rev-parse HEAD 2>/dev/null)"
 fi
+[ -n "$root" ] || echo "tree setup failed" >"$run/error.txt"
 
 (
   cd "$run/tree" 2>/dev/null || exit 0
@@ -102,13 +104,17 @@ else
   fi
 
   git -C "$run/tree" add -A
-  git -C "$run/tree" diff --cached "$(git -C "$run/tree" rev-list --max-parents=0 HEAD)" >"$run/diff.patch"
+  git -C "$run/tree" diff --cached "$root" >"$run/diff.patch"
 
   put_oracle_tests "$oracle" "$tests" "$run/tree"
   run_oracle "$tests" "$run/tree" "$run"
 fi
 
 mkdir -p "$BENCH_DIR"
-bash "$BENCH_ROOT/score.sh" "$run" >>"$BENCH_DIR/runs.jsonl"
 rm -rf "$run/tree" "$run/tree.log"
+if ! line="$(bash "$BENCH_ROOT/score.sh" "$run")"; then
+  echo "run.sh: score failed for $run" >&2
+  exit 1
+fi
+printf '%s\n' "$line" >>"$BENCH_DIR/runs.jsonl"
 exit 0
