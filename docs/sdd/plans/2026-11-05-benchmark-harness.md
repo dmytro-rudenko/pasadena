@@ -278,7 +278,7 @@ Pasadena не має виміру того, чи покращує вона ро�
   - **Ревізія за замовчуванням:** `plugin_rev` найновішого не-baseline рядка; baseline — з будь-якої ревізії.
   - **p95:** `sort_by(.) | .[(length*0.95|ceil)-1]`; `null` ігнорується.
 
-- [ ] **Step 1: тест `bench/test/60-report.sh`.** Підготувати `runs.jsonl` вручну: 4 рядки `plugin` (rev `aaa`, 3 pass, 1 fail, costs 1,2,3,10), 2 `baseline` (rev `old`, обидва fail), 1 `plugin` rev `zzz` раніше в файлі. Перевірити:
+- [x] **Step 1: тест `bench/test/60-report.sh`.** Підготувати `runs.jsonl` вручну: 4 рядки `plugin` (rev `aaa`, 3 pass, 1 fail, costs 1,2,3,10), 2 `baseline` (rev `old`, обидва fail), 1 `plugin` rev `zzz` раніше в файлі. Перевірити:
   - рядок `| plugin | 4 | 75% |`;
   - `baseline: pass -3 vs plugin (noise)`;
   - p95 вартості plugin = `10.00`;
@@ -289,9 +289,9 @@ Pasadena не має виміру того, чи покращує вона ро�
   - `--next "--tasks t1 --reps 1"` → `pending runs:` з числом від `matrix.sh --pending`;
   - комірка без прогонів має `(upper bound)` і `15.00`;
   - `--out` створює файл, ідентичний stdout.
-- [ ] **Step 2: побачити, що падає.**
-- [ ] **Step 3: реалізація.** Фільтр і агрегати — одним `jq -s`; markdown — `jq -r`/`printf`.
-- [ ] **Step 4: побачити, що проходить** — разом із приймальними тестами 4–5 `bash bench/bench.test.sh` → `All checks passed.`
+- [x] **Step 2: побачити, що падає.**
+- [x] **Step 3: реалізація.** Фільтр і агрегати — одним `jq -s`; markdown — `jq -r`/`printf`.
+- [x] **Step 4: побачити, що проходить** — разом із приймальними тестами 4–5 `bash bench/bench.test.sh` → `All checks passed.`
 
 ### Task 7: README і версія
 

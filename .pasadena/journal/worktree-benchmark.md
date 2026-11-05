@@ -10,7 +10,7 @@ started: 2026-11-05
 Пілот benchmark harness для Pasadena: replay власних задач із docs/sdd (spec → claude -p у worktree батьківського коміту, оракул — тести з коміту), кілька конфігурацій-перемикачів, JSONL на прогін і таблиця звіту (якість, токени, USD, час). Готово, коли пілот показує різницю між конфігураціями з повторами.
 
 ## Now
-Building. Waves 0–2 закриті (Task 0–5, 7): червоні лише 8 приймальних перевірок report. GROUP_BASE: dae81ba. Наступне: Wave 3 — Task 6 (report.sh), потім групове рев'ю хвиль 1–3 (git diff dae81ba; окремо — порядок no events/timeout у score.sh); перевірка `bash bench/bench.test.sh && bash skills/skills.test.sh`. Зберегти: --settings вимикає обидва ключі pasadena@pasadena і pasadena@synced; збірка закінчується етапом 0 і зупинкою до погодження етапу 1.
+Building. Waves 0–3 закриті (Task 0–7), групове рев'ю 1–3 з виправленнями закомічено; обидва набори зелені. Наступне: Wave 4 — Task 8: `bash bench/calibrate.sh` на реальному репо, коміт tasks.tsv, звіт у PR і ЗУПИНКА до погодження етапу 1; перевірка `bash bench/bench.test.sh && bash skills/skills.test.sh`. Зберегти: --settings вимикає обидва ключі pasadena@pasadena і pasadena@synced; збірка закінчується етапом 0 і зупинкою до погодження етапу 1.
 
 ## Timeline
 
@@ -49,3 +49,10 @@ Building. Waves 0–2 закриті (Task 0–5, 7): червоні лише 8 
 - 14:16 ● 4b753d5 feat(bench): calibrate oracles before the pilot
 - 14:16 ● 7616227 feat(bench): resumable matrix of tasks, cells and reps
 - 14:16 ✎ Wave 2: run.sh, calibrate.sh, matrix.sh зелені; приймальні 1–3 зелені; холдаут переходить на останню збережену задачу
+- 14:16 ● 3650f9d chore(plan): close wave 2
+- 14:21 ● 6653e32 feat(bench): stage report with cells, runs, spend and forecast
+- 14:29 ● 4fc5bd9 fix(bench): review findings for task 2
+- 14:29 ● 42a1183 fix(bench): review findings for task 3
+- 14:29 ● a907c5e fix(bench): review findings for task 6
+- 14:29 ● a4b1d55 fix(docs): review findings for task 7
+- 14:29 ✎ Wave 3: report.sh; групове рев'ю 1–3 — 5 виправлень (object-only події, файли замість argjson, гучний збій score, корінь до агента, без jq abs)
