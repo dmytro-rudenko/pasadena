@@ -1,7 +1,7 @@
 ---
 branch: worktree-benchmark
 spec: docs/sdd/specs/2026-11-05-benchmark-harness.md
-plan: -
+plan: docs/sdd/plans/2026-11-05-benchmark-harness.md
 status: in-progress
 started: 2026-11-05
 ---
@@ -10,7 +10,7 @@ started: 2026-11-05
 Пілот benchmark harness для Pasadena: replay власних задач із docs/sdd (spec → claude -p у worktree батьківського коміту, оракул — тести з коміту), кілька конфігурацій-перемикачів, JSONL на прогін і таблиця звіту (якість, токени, USD, час). Готово, коли пілот показує різницю між конфігураціями з повторами.
 
 ## Now
-Shaping завершено: spec записана і пройшла builder check, чекає рев'ю користувача в draft PR. Рішення: 5 комірок (baseline off/plain; plugin, noreuse, codexfull, haiku — workflow-промпт), Codex вимкнений скрізь, крім codexfull; ізоляція історії через git archive; калібрування оракула. Наступне: правки до spec від користувача, потім leonard. Задача 0 плану — сухий прогін, що звіряє формат stream-json і завантаження --plugin-dir поверх enabledPlugins:false.
+Building. План погоджено (9 задач, 5 хвиль), wolowitz стартує з Wave 0. Task 0 — реальний сухий прогін claude -p (формат stream-json, --plugin-dir поверх enabledPlugins:false), фікстури й приймальні тести; стоп-умова: Pasadena не з BENCH_PLUGIN → питання користувачу. Наступне: Wave 0, перевірка `bash bench/bench.test.sh` (очікувано FAILED). Зберегти: збірка закінчується етапом 0 (калібрування) і зупинкою до погодження етапу 1.
 
 ## Timeline
 
@@ -29,3 +29,5 @@ Shaping завершено: spec записана і пройшла builder chec
 - 13:46 ✎ Spec погоджено в діалозі: workflow-промпт для plugin-комірок, Codex лише в codexfull, оракул — кінчик гілки PR з калібруванням, ізоляція історії
 - 13:46 ● 95e3e28 docs(spec): benchmark harness pilot for measuring Pasadena against plain Claude Code
 - 13:51 ✎ Spec: пілот іде етапами 0–5, після кожного — звіт report.sh у PR і зупинка до погодження користувача
+- 13:51 ● 342150f docs(spec): run the benchmark pilot in gated stages with a report after each
+- 13:57 ✎ План погоджено: 9 задач у 5 хвилях; паралельно 1/2/7 і 3/4/5; збірка завершується етапом 0 і зупинкою
