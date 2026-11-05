@@ -85,9 +85,12 @@ Codex.
 Поля: `name`, `mode`, `prompt`, `env`, `codex_mode`, `model`.
 
 - `mode`:
-  - `off` — Pasadena вимкнена: `--settings '{"enabledPlugins":{"pasadena@pasadena":false}}'`;
+  - `off` — Pasadena вимкнена: `--settings '{"enabledPlugins":{"pasadena@pasadena":false,"pasadena@synced":false}}'`;
   - `plugin` — та сама вимкнена встановлена копія плюс
     `--plugin-dir "$BENCH_PLUGIN"`.
+  Встановлена копія завантажується з джерела `pasadena@synced`, тому
+  вимикаються обидва ключі; сухий прогін показав, що з одним
+  `pasadena@pasadena` Pasadena лишається в `off`.
   Решта плагінів і глобальні інструкції користувача однакові в усіх комірках.
   `--bare` не використовується: він приймає лише `ANTHROPIC_API_KEY` і не
   читає OAuth, тож не працює з підпискою.
@@ -136,7 +139,7 @@ Codex вимкнений у всіх plugin-комірках, крім `plugin-c
    claude -p "<prompt>" --output-format stream-json --verbose \
      --no-session-persistence --permission-mode bypassPermissions \
      --max-budget-usd "$BENCH_BUDGET" --model <model> \
-     --settings '{"enabledPlugins":{"pasadena@pasadena":false}}' \
+     --settings '{"enabledPlugins":{"pasadena@pasadena":false,"pasadena@synced":false}}' \
      [--plugin-dir "$BENCH_PLUGIN"]
    ```
 
@@ -190,7 +193,10 @@ Codex вимкнений у всіх plugin-комірках, крім `plugin-c
 - `input_tokens`, `cache_read`, `cache_write`, `output_tokens`, `cost_usd`,
   `duration_s`, `num_turns` — з події `result`; для обірваного прогону без неї
   `cost_usd = BENCH_BUDGET` при зупинці бюджетом і `null` при тайм-ауті;
-  `cost_source: "cli-estimate"`;
+  `cost_source: "cli-estimate"`. При зупинці бюджетом `usage` у `result`
+  нульовий, тож токени тоді беруться сумою з `modelUsage.<model>`
+  (`inputTokens`, `outputTokens`, `cacheReadInputTokens`,
+  `cacheCreationInputTokens`);
 - `plugins` — імена й шляхи плагінів з події `type: "system", subtype: "init"`;
 - `subagent_calls` — кількість викликів інструмента `Agent` (або `Task`) у
   подіях `assistant`;
@@ -337,6 +343,9 @@ Codex-ліміту в USD, перепис frontmatter для комірки Haik
 - `bypassPermissions` у тимчасовому дереві: агент може виконувати будь-що
   від імені користувача. Прийнятно лише для локального запуску на машині
   автора; `BENCH_BUDGET` і `BENCH_TIMEOUT` обмежують витрати, але не доступ.
+  `--max-budget-usd` перевіряється після ходу, тож прогін може перевищити
+  `BENCH_BUDGET` на вартість одного ходу (сухий прогін: $0.0063 при межі
+  $0.0001).
 - Повний пілот — 6 задач × 5 комірок × 3 повтори = 90 прогонів до `$15`
   кожен, у найгіршому разі $1350. Етапи з §3.8 і зупинка на погодження після
   кожного обмежують ризик: до етапу 4 витрачається не більше 15 прогонів, а

@@ -60,7 +60,7 @@ Pasadena не має виміру того, чи покращує вона ро�
 - «`bench/report.sh --next "--tasks model-routing --reps 1"` після сухих прогонів друкує таблицю з рядками `baseline` і `plugin`, рядок на кожен прогін, суму витрат і прогноз на 3 прогони етапу 2.»
 - «Після кожного етапу з §3.8 у `$BENCH_DIR/reports/` лежить його звіт…» (`--out`; PR-коментар і зупинка — у Task 8 та в етапах після збірки)
 
-- [ ] **Step 1: звірити формат stream-json на реальному `claude`** (≈ $0.05). У `d=$(mktemp -d)`: `git -C "$d" init -q`, потім з `cd "$d"` три виклики на `--model haiku`, кожен з `--output-format stream-json --verbose --no-session-persistence --settings '{"enabledPlugins":{"pasadena@pasadena":false}}'`:
+- [ ] **Step 1: звірити формат stream-json на реальному `claude`** (≈ $0.05). У `d=$(mktemp -d)`: `git -C "$d" init -q`, потім з `cd "$d"` три виклики на `--model haiku`, кожен з `--output-format stream-json --verbose --no-session-persistence --settings '{"enabledPlugins":{"pasadena@pasadena":false,"pasadena@synced":false}}'`:
   - `claude -p "Reply with the word OK." --max-budget-usd 0.5 --plugin-dir <корінь worktree> > plugin.jsonl`
   - той самий без `--plugin-dir` `> off.jsonl`
   - `claude -p "Write a 300-word story." --max-budget-usd 0.0001 > budget.jsonl`
@@ -74,7 +74,7 @@ Pasadena не має виміру того, чи покращує вона ро�
 - [ ] **Step 2: фікстури.** З реальних подій через `jq -c` зберегти по одному рядку, лишивши лише поля, які читає `score.sh`, і замінивши шляхи на `/fixture/...`:
   - `init.json` — `{type, subtype, plugins}`;
   - `assistant.json` — `{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Agent","input":{}}]}}`;
-  - `result-success.json`, `result-budget.json` — `{type, subtype, total_cost_usd, duration_ms, num_turns, usage}` з реальними значеннями.
+  - `result-success.json`, `result-budget.json` — `{type, subtype, is_error, total_cost_usd, duration_ms, num_turns, usage, modelUsage}` з реальними значеннями (у `modelUsage` лишити лише поля токенів).
 - [ ] **Step 3: раннер `bench/bench.test.sh`.** Заголовок як у `hooks/codex.test.sh:1-30` (`assert_eq`, `assert_contains`, `fails`), підсумок як у `hooks/codex.test.sh` (`FAILED: N` / `All checks passed.`). Раннер готує:
   - `tmp=$(mktemp -d)`, `bin=$tmp/bin` на початку `PATH`;
   - **репозиторій задач** `$tmp/repo`: коміт `base` додає `spec.md` і `src/a.sh` з `helper() { :; }`; коміт `oracle` додає `t/one.test.sh` (`grep -qx done feature.txt`) і `t/two.test.sh` (`grep -qx done feature2.txt`), а також `feature.txt` і `feature2.txt` з `done`. Хеші — в `BASE`, `ORACLE`;
@@ -156,7 +156,7 @@ Pasadena не має виміру того, чи покращує вона ро�
 - [ ] **Step 2: побачити, що падає** — `bash bench/bench.test.sh`, `FAIL — … score`.
 - [ ] **Step 3: реалізація.** Події: `ev=$(jq -cR 'fromjson? // empty' claude.jsonl)`.
   - **init:** `select(.type=="system" and .subtype=="init") | .plugins`; збіг Pasadena — `.name | startswith("pasadena")`; шляхи порівнюються після `realpath -m`.
-  - **result:** остання подія `type=="result"`.
+  - **result:** остання подія `type=="result"`. Токени — з `.usage.{input_tokens,output_tokens,cache_read_input_tokens,cache_creation_input_tokens}`; коли `.usage.output_tokens` дорівнює 0, а `.modelUsage` непорожній (так буває при зупинці бюджетом), токени — сума по `.modelUsage[]` полів `inputTokens`, `outputTokens`, `cacheReadInputTokens`, `cacheCreationInputTokens`. Тест: `result-budget.json` дає `output_tokens` > 0 з `modelUsage`.
   - **capped:** `claude.exit`==124 → `timeout`; `result.subtype=="error_max_budget_usd"` або (немає result і `claude.err` містить `budget`) → `budget`.
   - **verdict:** за пріоритетом §3.5.
   - **diff:** `diff_files` — кількість `^diff --git`; `diff_lines` — рядки `^[+-]` без `^(\+\+\+|---) `.
@@ -179,7 +179,7 @@ Pasadena не має виміру того, чи покращує вона ро�
 - Produces: дописує один рядок `score.sh` у `$BENCH_DIR/runs.jsonl`; exit 0 після будь-якого прогону, зокрема `error`; exit 2 при невідомому id або задачі з `holdout=x`.
 
 - [ ] **Step 1: тест `bench/test/30-run.sh`.**
-  - **plugin:** `FAKE_WRITES=… run.sh t1 plugin 1`. `$FAKE_LOG` містить `-p`, `--output-format`, `stream-json`, `--verbose`, `--no-session-persistence`, `--permission-mode`, `bypassPermissions`, `--max-budget-usd`, `15`, `--model`, `sonnet`, `--settings`, `{"enabledPlugins":{"pasadena@pasadena":false}}`, `--plugin-dir`, `$tmp/plugin`. Промпт починається з `/pasadena:leonard Plan the implementation of the agreed specification at spec.md`. `.env` має `PASADENA_CODEX=0`, `PASADENA_REUSE=` (порожньо), codex-mode `explore`, `XDG_STATE_HOME` = `<run>/state`.
+  - **plugin:** `FAKE_WRITES=… run.sh t1 plugin 1`. `$FAKE_LOG` містить `-p`, `--output-format`, `stream-json`, `--verbose`, `--no-session-persistence`, `--permission-mode`, `bypassPermissions`, `--max-budget-usd`, `15`, `--model`, `sonnet`, `--settings`, `{"enabledPlugins":{"pasadena@pasadena":false,"pasadena@synced":false}}`, `--plugin-dir`, `$tmp/plugin`. Промпт починається з `/pasadena:leonard Plan the implementation of the agreed specification at spec.md`. `.env` має `PASADENA_CODEX=0`, `PASADENA_REUSE=` (порожньо), codex-mode `explore`, `XDG_STATE_HOME` = `<run>/state`.
   - **baseline:** немає `--plugin-dir`, промпт `Implement the specification at spec.md. …`, codex-mode порожній.
   - **plugin-noreuse:** `PASADENA_REUSE=0`. **plugin-haiku:** `--model haiku`.
   - **plugin-codexfull:** з `FAKE_CODEX_AVAILABLE=1` → `last_run .error` = `codex unavailable`, `$FAKE_LOG` порожній; з `0` і `FAKE_CODEX_USED=10` → `codex-before.txt` існує, codex-mode `full`.

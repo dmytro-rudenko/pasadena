@@ -31,3 +31,8 @@ Building. План погоджено (9 задач, 5 хвиль), wolowitz с�
 - 13:51 ✎ Spec: пілот іде етапами 0–5, після кожного — звіт report.sh у PR і зупинка до погодження користувача
 - 13:51 ● 342150f docs(spec): run the benchmark pilot in gated stages with a report after each
 - 13:57 ✎ План погоджено: 9 задач у 5 хвилях; паралельно 1/2/7 і 3/4/5; збірка завершується етапом 0 і зупинкою
+- 13:57 ● cb9e526 docs(plan): benchmark harness implementation plan
+- 14:00 ▶ start · worktree-benchmark @ cb9e526
+- 14:00 ⏸ pause · exit · HEAD=cb9e526
+  ↳ Building. План погоджено (9 задач, 5 хвиль), wolowitz стартує з Wave 0. Task 0 — реальний сухий прогін claude -p (формат stream-json, --plugin-dir поверх enabledPlugins:false), фікстури й приймальні т
+- 14:01 ✎ Сухий прогін: встановлена Pasadena має джерело pasadena@synced — вимикаємо обидва ключі; --plugin-dir бере worktree; при бюджет-стопі usage=0, токени з modelUsage
