@@ -323,7 +323,7 @@ Pasadena не має виміру того, чи покращує вона ро�
 **Complexity:** routine
 **Satisfies:** «`bench/calibrate.sh` завершується, `calibration.log` пояснює кожне виключення» на реальних даних; перший звіт етапу з §3.8
 
-- [ ] **Step 1:** `bash bench/bench.test.sh && bash skills/skills.test.sh` — обидва `All checks passed.`
-- [ ] **Step 2:** `bash bench/calibrate.sh` (без змінних, реальний репозиторій; лише локальні тести, без `claude`). Exit 0.
-- [ ] **Step 3:** `mkdir -p $BENCH_DIR/reports && cp $BENCH_DIR/calibration.log $BENCH_DIR/reports/00-calibration-<plugin_rev>.md`; закомітити зміни `bench/tasks.tsv` (`chore(bench): calibrate oracles`), запушити.
-- [ ] **Step 4:** коментар у PR #36: вміст `calibration.log`, таблиця задач після калібрування (лишені тести, виключені й чому, холдаут), висновки агента і пропозиція етапу 1 (два сухі прогони, ≈ до $30 у найгіршому разі, з прогнозом). **Зупинка:** етап 1 не запускається без явного погодження користувача.
+- [x] **Step 1:** `bash bench/bench.test.sh && bash skills/skills.test.sh` — обидва `All checks passed.`
+- [x] **Step 2:** `bash bench/calibrate.sh` (без змінних, реальний репозиторій; лише локальні тести, без `claude`). Exit 0.
+- [x] **Step 3:** `mkdir -p $BENCH_DIR/reports && cp $BENCH_DIR/calibration.log $BENCH_DIR/reports/00-calibration-<plugin_rev>.md`; закомітити зміни `bench/tasks.tsv` (`chore(bench): calibrate oracles`), запушити.
+- [x] **Step 4:** коментар у PR #36: вміст `calibration.log`, таблиця задач після калібрування (лишені тести, виключені й чому, холдаут), висновки агента і пропозиція етапу 1 (два сухі прогони, ≈ до $30 у найгіршому разі, з прогнозом). **Зупинка:** етап 1 не запускається без явного погодження користувача.

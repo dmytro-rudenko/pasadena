@@ -10,7 +10,7 @@ started: 2026-11-05
 Пілот benchmark harness для Pasadena: replay власних задач із docs/sdd (spec → claude -p у worktree батьківського коміту, оракул — тести з коміту), кілька конфігурацій-перемикачів, JSONL на прогін і таблиця звіту (якість, токени, USD, час). Готово, коли пілот показує різницю між конфігураціями з повторами.
 
 ## Now
-Building. Waves 0–3 закриті (Task 0–7), групове рев'ю 1–3 з виправленнями закомічено; обидва набори зелені. Наступне: Wave 4 — Task 8: `bash bench/calibrate.sh` на реальному репо, коміт tasks.tsv, звіт у PR і ЗУПИНКА до погодження етапу 1; перевірка `bash bench/bench.test.sh && bash skills/skills.test.sh`. Зберегти: --settings вимикає обидва ключі pasadena@pasadena і pasadena@synced; збірка закінчується етапом 0 і зупинкою до погодження етапу 1.
+Усі 9 задач плану виконано; етап 0 (калібрування) пройдено: 7/7 задач kept, tasks.tsv без змін, звіт у PR #36 і в ~/.local/state/pasadena/bench/reports/00-calibration-5ae567a.md. ЗУПИНКА: чекаємо погодження етапу 1 від користувача. Наступне після «так»: `bash bench/run.sh model-routing plugin 1`, потім `bash bench/run.sh model-routing baseline 1`, тоді `bash bench/report.sh --tasks model-routing --next "--tasks model-routing --reps 1" --out ~/.local/state/pasadena/bench/reports/01-dry-<rev>.md`, коментар у PR і знову зупинка. Ще не зроблено: Finish (рев'ю всієї гілки, security-review, закриття журналу, gh pr ready) — після пілотних етапів або на запит.
 
 ## Timeline
 
@@ -56,3 +56,5 @@ Building. Waves 0–3 закриті (Task 0–7), групове рев'ю 1–
 - 14:29 ● a907c5e fix(bench): review findings for task 6
 - 14:29 ● a4b1d55 fix(docs): review findings for task 7
 - 14:29 ✎ Wave 3: report.sh; групове рев'ю 1–3 — 5 виправлень (object-only події, файли замість argjson, гучний збій score, корінь до агента, без jq abs)
+- 14:29 ● 5ae567a chore(plan): close wave 3
+- 14:33 ✎ Етап 0: калібрування 7/7 kept, оракули відрізняють base від кінчика PR; зупинка до погодження етапу 1
