@@ -112,14 +112,14 @@ Pasadena не має виміру того, чи покращує вона ро�
   - `put_oracle_tests <oracle> <csv> <tree>` — для кожного шляху `mkdir -p "$tree/$(dirname p)"; git -C "$BENCH_REPO" show "<oracle>:p" >"$tree/p"`;
   - `run_oracle <csv> <tree> <outdir>` — для n-го шляху (з 1): `(cd tree && timeout "$BENCH_ORACLE_TIMEOUT" bash p) >"$outdir/oracle-<n>.log" 2>&1`; у `$outdir/oracle.exit` дописує `p<TAB>code`; повертає 0.
 
-- [ ] **Step 1: тест `bench/test/10-lib.sh`.**
+- [x] **Step 1: тест `bench/test/10-lib.sh`.**
   - `source "$ROOT/bench/lib.sh"`: `task_field t1 oracle` = `$ORACLE`; `task_field nope base` повертає 2; `task_ids 0` = `t1`; `task_ids 1` = `t2`; `config_names | wc -l` = `5`; `config_field plugin-noreuse env` = `PASADENA_CODEX=0 PASADENA_REUSE=0`.
   - `plugin_rev` на чистому `$tmp/plugin` — 7+ hex без `-dirty`; після `touch $tmp/plugin/x` закінчується на `-dirty`; потім `rm`.
   - `make_tree $BASE $tmp/tr`: `git -C $tmp/tr rev-list --count HEAD` = `1`; автор `bench <bench@localhost>`; `src/a.sh` існує; `t/one.test.sh` відсутній.
   - `put_oracle_tests $ORACLE t/one.test.sh,t/two.test.sh $tmp/tr` + `run_oracle … $tmp/o`: `oracle.exit` має два рядки з ненульовим кодом, існують `oracle-1.log` і `oracle-2.log`.
-- [ ] **Step 2: побачити, що падає** — `bash bench/bench.test.sh`, очікувано `FAIL — … lib`.
-- [ ] **Step 3: реалізація.** `bench/tasks.tsv` — таблиця §3.1 через табуляцію (7 рядків, повні хеші не потрібні, короткі як у spec). `bench/configs.tsv` — таблиця §3.3. `lib.sh` — функції з Interfaces; парсинг TSV через `awk -F'\t'` з пошуком індексу стовпця за заголовком.
-- [ ] **Step 4: побачити, що проходить** — блок `lib` без `FAIL`.
+- [x] **Step 2: побачити, що падає** — `bash bench/bench.test.sh`, очікувано `FAIL — … lib`.
+- [x] **Step 3: реалізація.** `bench/tasks.tsv` — таблиця §3.1 через табуляцію (7 рядків, повні хеші не потрібні, короткі як у spec). `bench/configs.tsv` — таблиця §3.3. `lib.sh` — функції з Interfaces; парсинг TSV через `awk -F'\t'` з пошуком індексу стовпця за заголовком.
+- [x] **Step 4: побачити, що проходить** — блок `lib` без `FAIL`.
 
 ### Task 2: `bench/score.sh <run-dir>`
 
@@ -141,7 +141,7 @@ Pasadena не має виміру того, чи покращує вона ро�
   - `codex-before.txt`, `codex-after.txt` — опційно, рядок `weekly_left=.. weekly_used=..`.
 - Produces: stdout — один JSON-рядок з полями `task, config, rep, model, plugin_rev, ts, verdict, capped, tests_passed, tests_total, tests_failed (масив шляхів), input_tokens, cache_read, cache_write, output_tokens, cost_usd, cost_source:"cli-estimate", duration_s, num_turns, plugins, subagent_calls, diff_files, diff_lines, dup_symbols, codex_usage, error`. Exit 0; відсутній `meta.json` → exit 2.
 
-- [ ] **Step 1: тест `bench/test/20-score.sh`.** Helper `mkrun <dir>` пише валідний `meta.json` (mode `plugin`, `plugin_path=$tmp/plugin`, budget 15), `claude.exit` = `0`, `claude.jsonl` = init з pasadena@`$tmp/plugin` + 2× assistant + result-success, `diff.patch` з одним файлом, `oracle.exit` з двома кодами `0`, `base-symbols.txt` = `helper`. Випадки:
+- [x] **Step 1: тест `bench/test/20-score.sh`.** Helper `mkrun <dir>` пише валідний `meta.json` (mode `plugin`, `plugin_path=$tmp/plugin`, budget 15), `claude.exit` = `0`, `claude.jsonl` = init з pasadena@`$tmp/plugin` + 2× assistant + result-success, `diff.patch` з одним файлом, `oracle.exit` з двома кодами `0`, `base-symbols.txt` = `helper`. Випадки:
   - базовий → `pass`, `capped:false`, `tests_passed:2`, `subagent_calls:2`, `cost_usd` = `total_cost_usd` фікстури, `duration_s` = `duration_ms/1000`, `cost_source:"cli-estimate"`;
   - один код `1` → `partial`, `tests_failed` = `["t/two.test.sh"]`; обидва `1` → `fail`;
   - порожній `diff.patch` → `refused`;
@@ -153,8 +153,8 @@ Pasadena не має виміру того, чи покращує вона ро�
   - `codex-before` used 10, `codex-after` used 14 → `codex_usage:4`; без файлів → `null`;
   - stdout містить рядок `warning: x` → розбір не падає;
   - два послідовні запуски дають байт-у-байт однаковий рядок.
-- [ ] **Step 2: побачити, що падає** — `bash bench/bench.test.sh`, `FAIL — … score`.
-- [ ] **Step 3: реалізація.** Події: `ev=$(jq -cR 'fromjson? // empty' claude.jsonl)`.
+- [x] **Step 2: побачити, що падає** — `bash bench/bench.test.sh`, `FAIL — … score`.
+- [x] **Step 3: реалізація.** Події: `ev=$(jq -cR 'fromjson? // empty' claude.jsonl)`.
   - **init:** `select(.type=="system" and .subtype=="init") | .plugins`; збіг Pasadena — `.name | startswith("pasadena")`; шляхи порівнюються після `realpath -m`.
   - **result:** остання подія `type=="result"`. Токени — з `.usage.{input_tokens,output_tokens,cache_read_input_tokens,cache_creation_input_tokens}`; коли `.usage.output_tokens` дорівнює 0, а `.modelUsage` непорожній (так буває при зупинці бюджетом), токени — сума по `.modelUsage[]` полів `inputTokens`, `outputTokens`, `cacheReadInputTokens`, `cacheCreationInputTokens`. Тест: `result-budget.json` дає `output_tokens` > 0 з `modelUsage`.
   - **capped:** `claude.exit`==124 → `timeout`; `result.subtype=="error_max_budget_usd"` або (немає result і `claude.err` містить `budget`) → `budget`.
@@ -164,7 +164,7 @@ Pasadena не має виміру того, чи покращує вона ро�
   - **codex_usage:** `weekly_used` після мінус до.
   - **error:** `error.txt`, інакше `plugin mismatch`, інакше `no events` (порожньо), інакше `timeout`/`budget`, інакше перший рядок `claude.err`, інакше `null`.
   - Збирання одним `jq -n --arg/--argjson … -c`, тож порядок полів фіксований.
-- [ ] **Step 4: побачити, що проходить** — блок `score` без `FAIL`.
+- [x] **Step 4: побачити, що проходить** — блок `score` без `FAIL`.
 
 ### Task 3: `bench/run.sh <task> <config> <rep>`
 
@@ -302,17 +302,17 @@ Pasadena не має виміру того, чи покращує вона ро�
 **Complexity:** routine
 **Satisfies:** — (умова Verification `skills.test.sh`)
 
-- [ ] **Step 1: тест.** `skills/skills.test.sh:257`: `0.23.0` → `0.24.0` (і в повідомленні). Додати поруч:
+- [x] **Step 1: тест.** `skills/skills.test.sh:257`: `0.23.0` → `0.24.0` (і в повідомленні). Додати поруч:
   - `grep -qF 'bash bench/bench.test.sh' "$ROOT/$readme" || fail "$readme: no bench check"` у циклі по обох README;
   - `grep -qF '## Benchmarks' README.md`;
   - `grep -qF '## Бенчмарки' README.uk.md`.
-- [ ] **Step 2: побачити, що падає** — `bash skills/skills.test.sh`, `not on 0.24.0`.
-- [ ] **Step 3: реалізація.**
+- [x] **Step 2: побачити, що падає** — `bash skills/skills.test.sh`, `not on 0.24.0`.
+- [x] **Step 3: реалізація.**
   - Версія `0.24.0` в обох маніфестах.
   - У README перед `## Checks` — розділ `## Benchmarks`: 4–6 речень (що міряє пілот, де результати, `BENCH_BUDGET`/`BENCH_TIMEOUT`, що прогони йдуть з `bypassPermissions`, етапи зі звітом після кожного) і блок `bash bench/calibrate.sh`, `bash bench/matrix.sh --tasks model-routing --reps 1`, `bash bench/report.sh --next "--reps 3" --out …`.
   - `bash bench/bench.test.sh` у блоці Checks і речення про bench-перевірки в абзаці під ним.
   - Дзеркально в `README.uk.md` (`## Бенчмарки`, `## Перевірки`).
-- [ ] **Step 4: побачити, що проходить** — `bash skills/skills.test.sh` → `All checks passed.`
+- [x] **Step 4: побачити, що проходить** — `bash skills/skills.test.sh` → `All checks passed.`
 
 ### Task 8: етап 0 — калібрування на реальному репозиторії, потім зупинка
 

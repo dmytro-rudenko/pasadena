@@ -10,7 +10,7 @@ started: 2026-11-05
 Пілот benchmark harness для Pasadena: replay власних задач із docs/sdd (spec → claude -p у worktree батьківського коміту, оракул — тести з коміту), кілька конфігурацій-перемикачів, JSONL на прогін і таблиця звіту (якість, токени, USD, час). Готово, коли пілот показує різницю між конфігураціями з повторами.
 
 ## Now
-Building. Wave 0 закрита: Task 0 закомічено, `bash bench/bench.test.sh` червоний рівно на 21 приймальній перевірці; знімок тестів і sha256 — scratchpad/t0. Наступне: Wave 1 — задачі 1 (lib.sh+tsv), 2 (score.sh), 7 (README+0.24.0) паралельно; перевірка `bash bench/bench.test.sh && bash skills/skills.test.sh`. Зберегти: --settings вимикає обидва ключі pasadena@pasadena і pasadena@synced; збірка закінчується етапом 0 і зупинкою до погодження етапу 1.
+Building. Waves 0–1 закриті (Task 0, 1, 2, 7): lib/score/skills зелені, червоні лише 21 приймальна перевірка. GROUP_BASE: dae81ba. Наступне: Wave 2 — задачі 3 (run.sh), 4 (calibrate.sh), 5 (matrix.sh) паралельно; перевірка `bash bench/bench.test.sh && bash skills/skills.test.sh`. Зберегти: --settings вимикає обидва ключі pasadena@pasadena і pasadena@synced; збірка закінчується етапом 0 і зупинкою до погодження етапу 1.
 
 ## Timeline
 
@@ -39,3 +39,8 @@ Building. Wave 0 закрита: Task 0 закомічено, `bash bench/bench.
 - 14:01 ● afb3d6b docs(spec): disable both Pasadena sources in the baseline and read budget-stop tokens from modelUsage
 - 14:05 ● ba971a4 test(bench): acceptance tests and stream-json fixtures from a real dry run
 - 14:06 ✎ Wave 0: приймальні тести й фікстури з реального сухого прогону; червоні рівно 21 перевірка з передбачених причин
+- 14:06 ● dae81ba chore(plan): close wave 0
+- 14:10 ● cbb5a15 feat(bench): shared library, task and config tables
+- 14:10 ● 4852d27 feat(bench): score a stored run without regenerating it
+- 14:10 ● 629ee61 docs: document the benchmark harness and bump to 0.24.0
+- 14:10 ✎ Wave 1: lib.sh, score.sh і README/0.24.0 зелені; score детермінований і бере токени з modelUsage при бюджет-стопі
