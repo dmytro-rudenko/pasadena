@@ -284,13 +284,13 @@ nothing else. The diff carries the detail.
 
 ### 7. Comment on the PR
 
-One comment per wave, **2–3 sentences**, plus one line per ruling — no longer:
+One comment per wave, **1–2 sentences, 25 words at most**: what the wave did and whether
+verification passed.
 
     gh pr comment <n> --body-file <file>
 
-Say which tasks landed with their shas, whether verification passed, and any
-ruling or parked item a reviewer could not infer from `git log`. That is all —
-the diff and the commits carry the detail. When `gh` is unavailable, announce
+Whatever else this skill or its references send to the wave's PR comment —
+rulings, parked items, usage lines — goes in the wave's `✎` note instead. When `gh` is unavailable, announce
 that once and continue.
 
 ### 8. Close the wave
@@ -321,7 +321,7 @@ A running plan resolves every decision within the controller's authority. For
 an ambiguity in a task, a conflict between two tasks, a plan defect, or a cap
 that requires adjustment, record
 `Ruling: <what> — <why> — <what it costs if wrong>` and keep going. Rulings go
-in the wave's PR comment.
+in the wave's `✎` note.
 
 Execution pauses only for these four gates:
 
