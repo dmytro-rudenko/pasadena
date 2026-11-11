@@ -284,7 +284,7 @@ nothing else. The diff carries the detail.
 
 ### 7. Comment on the PR
 
-One comment per wave, **1–2 sentences** in all: what the wave did and whether
+One comment per wave, **1–2 sentences, 30 words at most**: what the wave did and whether
 verification passed.
 
     gh pr comment <n> --body-file <file>
