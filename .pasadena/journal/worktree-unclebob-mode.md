@@ -1,7 +1,7 @@
 ---
 branch: worktree-unclebob-mode
 spec: docs/sdd/specs/2026-11-13-ub-mode-quality-gates.md
-plan: -
+plan: docs/sdd/plans/2026-11-13-ub-mode-quality-gates.md
 codex-mode: explore
 status: in-progress
 started: 2026-11-13
@@ -13,9 +13,9 @@ dryer запускається двічі: після спеки (що пере�
 Окремо перевірити підтримку TypeScript та Node.js (JS).
 
 ## Now
-Spec написано (dryer + crapper + mutator + принципи ub-mode по етапах), чекає на рев'ю користувача. Scope розширено: crapper і mutator входять.
-Зупинились на: затвердження spec користувачем; потім leonard.
-Далі: після схвалення — pasadena:leonard; перший запуск dryer №1 за spec (3.2).
+Building. Spec і план затверджено; план: Wave 0 (Task 0 — acceptance tests), Wave 1 (Tasks 1–8 паралельно).
+Зупинились на: старт Wave 0.
+Далі: wolowitz Wave 0 — hooks/ub-tools.test.sh + блок у skills/skills.test.sh перед `echo "Manifest versions"`; перевірка `bash hooks/ub-tools.test.sh; bash skills/skills.test.sh` → FAILED. Зберегти: wolowitz/SKILL.md < 20000 байт.
 
 ## Timeline
 
@@ -32,3 +32,4 @@ Spec написано (dryer + crapper + mutator + принципи ub-mode по
 - 14:09 ● b1af99a feat(hooks): set per-call reasoning effort and model overrides for Codex delegation
 - 14:09 ● a0d543f Merge pull request #35 from dmytro-rudenko/worktree-codex-model
 - 14:09 ● 2a30ac7 Merge pull request #37 from dmytro-rudenko/worktree-commit-comments
+- 14:14 ● dcc224a docs(sdd): spec for ub-mode principles and dryer, crapper, mutator quality gates
