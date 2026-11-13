@@ -310,3 +310,30 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## unclebob/ub-mode
+
+The principles in `skills/sheldon/SKILL.md` ("Check the design against these"),
+`skills/leonard/SKILL.md` (Foundational thinking, Verifiable units, Build the
+lever), `skills/amy/SKILL.md` (REFACTOR, "What a test is worth"),
+`skills/leslie/SKILL.md` (Attack the premise), `skills/wolowitz/implementer-prompt.md`
+and `skills/wolowitz/references/make-it-right.md` are rewritten from
+`SKILL.md`.
+
+Source: <https://github.com/unclebob/ub-mode>
+
+Copyright (c) 2026 Robert C. Martin
+
+MIT License
+
+## unclebob/dryer, unclebob/crapper, unclebob/mutator
+
+`hooks/ub-tools.sh install` downloads and runs these tools at pinned commits;
+pasadena does not redistribute them.
+
+Sources: <https://github.com/unclebob/dryer>, <https://github.com/unclebob/crapper>,
+<https://github.com/unclebob/mutator>
+
+Copyright (C) 2026 by Robert C. Martin
+
+BSD Zero Clause License
