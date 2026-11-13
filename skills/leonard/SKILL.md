@@ -26,6 +26,7 @@ allowed-tools:
   - Bash(rg *)
   - Bash(wc *)
   - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/codex.sh *)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/ub-tools.sh dryer *)
 ---
 
 # Planning
@@ -78,6 +79,23 @@ Gather context deliberately, so every task carries what an implementer needs:
   becomes the task's `**Writes:**` and `**Reads:**` lines below, and what the
   wave computation keys on — so getting it exact here is what makes the parallel
   waves safe.
+- **Reuse what is already duplicated.** Run `ub-tools.sh dryer <paths>` —
+  the script sits beside `journal.sh` — on every file and folder the spec
+  says the work touches. Each pair it reports at 0.8 or above becomes an
+  instruction in the task that touches it: reuse or merge `<file:lines>` and
+  `<file:lines>`, do not copy them a third time. When it prints
+  `unavailable (not installed`, ask the user once through `AskUserQuestion`
+  whether to run `ub-tools.sh install` (it downloads and runs unclebob's
+  tools). Any other `unavailable`, or `unchecked: N JS files`, goes in the
+  plan header as one line, and planning goes on.
+- **Foundational thinking.** Get the data shape right first: the task that
+  fixes a type, schema or data structure comes before the logic that uses it,
+  and whatever helps every later task goes in the earliest wave.
+- **Verifiable units.** Each task ends in a state one command can check; a
+  task that cannot be checked on its own is split or merged.
+- **Build the lever.** When one change repeats across many places and is not
+  obvious at a glance, plan one task that does a single unit by hand and one
+  that builds the tool doing the rest, matched against that unit.
 
 When the session-start digest says `Codex: available` (no digest: run
 `codex.sh available` beside `journal.sh` once), the reading past two or three
