@@ -387,8 +387,8 @@ dryer: `ub-tools.sh dryer bench hooks/ub-tools.sh` → `No source files to analy
 - «Причину рядка `Error: invalid value for one of the arguments`… знайдено на фейковому `claude` і усунено до повтору етапу 1.»
 - §3.4 крок 2 (спека з `oracle`, `ub_tools`), §3.5 (`checks_*`, `score`, `bench_rev`), §3.6 (ключ з `bench_rev`), §3.7 (`score mean`, `checks`, відсів `bench_rev`).
 
-- [ ] **Step 1: `bench/bench.test.sh`** — після `export BENCH_DIR=…` додати `export BENCH_CHECKS="$tmp/checks.tsv"`. У фейковий плагін `$plugin` скопіювати `hooks/ub-tools.sh` з `$ROOT` (перед його `git commit`). У фейковий `claude` після запису `$FAKE_LOG.env` додати `cat spec.md >"$FAKE_LOG.spec" 2>/dev/null`; `fresh_bench` видаляє й `$FAKE_LOG.spec`. В основному фейковому репозиторії перед комітом `oracle` додати `echo amended >>"$repo/spec.md"`, щоб спека в `oracle` відрізнялась від `base`.
-- [ ] **Step 2: `bench/test/70-revision.sh`** — власний репозиторій `$tmp/rrepo` (через `gitc`):
+- [x] **Step 1: `bench/bench.test.sh`** — після `export BENCH_DIR=…` додати `export BENCH_CHECKS="$tmp/checks.tsv"`. У фейковий плагін `$plugin` скопіювати `hooks/ub-tools.sh` з `$ROOT` (перед його `git commit`). У фейковий `claude` після запису `$FAKE_LOG.env` додати `cat spec.md >"$FAKE_LOG.spec" 2>/dev/null`; `fresh_bench` видаляє й `$FAKE_LOG.spec`. В основному фейковому репозиторії перед комітом `oracle` додати `echo amended >>"$repo/spec.md"`, щоб спека в `oracle` відрізнялась від `base`.
+- [x] **Step 2: `bench/test/70-revision.sh`** — власний репозиторій `$tmp/rrepo` (через `gitc`):
   - коміт base: `spec.md` з текстом `alpha "beta"` і `t/c.test.sh` відсутній;
   - коміт oracle: `spec.md` дописує рядок `amended`, `feature.txt` = `alpha`, `literal.txt` = `gamma`, і `t/c.test.sh`, що друкує `ok  — `/`FAIL — ` у форматі репозиторію з підсумком `All checks passed.` / `FAILED: N`, з трьома вимогами: `feature: missing "alpha"` (`grep -qx alpha feature.txt`), `literal: missing "gamma"` (`grep -qx gamma literal.txt`), `path: $(pwd)/feature.txt absent` (`[ -f feature.txt ]`).
   - `rtasks=$tmp/rtasks.tsv` з задачами `r1` (base, oracle, `t/c.test.sh`, holdout 0) і `r0` (base=oracle — без цілей, holdout 0).
@@ -401,7 +401,7 @@ dryer: `ub-tools.sh dryer bench hooks/ub-tools.sh` → `No source files to analy
   6. `BENCH_TASKS=$rtasks bash bench/report.sh --tasks r1` містить заголовок стовпця `score mean` і `| 1/1 |` у рядку прогону `plugin`.
   7. Дописати в `runs.jsonl` копію останнього рядка без `bench_rev` і з `config:"plugin-haiku"`; `BENCH_TASKS=$rtasks bash bench/report.sh` не містить `plugin-haiku`; `BENCH_TASKS=$rtasks bash bench/matrix.sh --tasks r1 --configs plugin --reps 1 --pending` друкує порожньо (прогін з поточним `bench_rev` виконаний).
   Усі змінні (`BENCH_REPO`, `BENCH_TASKS`) задаються префіксом команди, щоб не протекти в інші частини.
-- [ ] **Step 3: побачити, що падає** — `bash bench/bench.test.sh`, очікувано `FAILED: N` з провалами лише в блоці `== revision ==`.
+- [x] **Step 3: побачити, що падає** — `bash bench/bench.test.sh`, очікувано `FAILED: N` з провалами лише в блоці `== revision ==`.
 
 ### Task 10: `lib.sh` — `BENCH_CHECKS`, `bench_rev`, спека з оракула; оракули в `tasks.tsv`
 
