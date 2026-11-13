@@ -47,6 +47,7 @@ echo 'grep -qx done feature.txt' >"$repo/t/one.test.sh"
 echo 'grep -qx done feature2.txt' >"$repo/t/two.test.sh"
 echo done >"$repo/feature.txt"
 echo done >"$repo/feature2.txt"
+echo amended >>"$repo/spec.md"
 git -C "$repo" add -A
 gitc -C "$repo" commit -qm oracle
 ORACLE="$(git -C "$repo" rev-parse HEAD)"
@@ -69,6 +70,7 @@ case "${1:-}" in
 esac
 CODEX
 chmod +x "$plugin/hooks/codex.sh"
+cp "$ROOT/hooks/ub-tools.sh" "$plugin/hooks/ub-tools.sh"
 git -C "$plugin" add -A
 gitc -C "$plugin" commit -qm plugin
 
@@ -77,6 +79,7 @@ export BENCH_TASKS="$tmp/tasks.tsv"
 export BENCH_CONFIGS="$ROOT/bench/configs.tsv"
 export BENCH_PLUGIN="$plugin"
 export BENCH_DIR="$tmp/bench"
+export BENCH_CHECKS="$tmp/checks.tsv"
 export FAKE_LOG="$tmp/claude.args"
 
 {
@@ -90,6 +93,7 @@ printf '%s\n' "$@" >"$FAKE_LOG"
   echo "PASADENA_REUSE=${PASADENA_REUSE-}"
   echo "codex-mode=$(cat "${XDG_STATE_HOME-}/pasadena/codex-mode" 2>/dev/null)"
 } >"$FAKE_LOG.env"
+cat spec.md >"$FAKE_LOG.spec" 2>/dev/null
 git rev-list --count HEAD >"$FAKE_LOG.count" 2>/dev/null
 
 plugin_dir=""
@@ -136,7 +140,7 @@ chmod +x "$bin/claude"
 fresh_bench() {
   rm -rf "$BENCH_DIR"
   : >"$FAKE_LOG"
-  rm -f "$FAKE_LOG.env" "$FAKE_LOG.count"
+  rm -f "$FAKE_LOG.env" "$FAKE_LOG.count" "$FAKE_LOG.spec"
 }
 
 last_run() {
