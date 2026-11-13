@@ -6,8 +6,10 @@ exits 0 and ends each run with a `<tool> exit: <code>` line.
 
 **Files.** `git diff --name-only $(git merge-base origin/<trunk> HEAD)..HEAD`,
 keeping files that still exist and are not tests. The plan's
-**Verification** command is the test command. It goes after `--` as one
-quoted argument: `ub-tools.sh crapper <files> -- "<test command>"`.
+**Verification** command is mutator's test command. It goes after `--` as one
+quoted argument: `ub-tools.sh mutator <files> -- "<test command>"`. crapper
+takes none: it runs the project's own tests under its coverage tool, and a
+command that writes no coverage report would score every function at 0%.
 
 **Not installed.** When a run prints `unavailable (not installed`, ask the
 user once through `AskUserQuestion` whether to run `ub-tools.sh install`: it
@@ -15,7 +17,7 @@ downloads unclebob's dryer, crapper and mutator at pinned commits and runs
 them on this machine. On no, or on any other `unavailable`, skip that step and
 put `<tool>: skipped (<reason>)` in the final PR comment.
 
-1. **Structure.** Run `ub-tools.sh crapper <files> -- "<test command>"` and
+1. **Structure.** Run `ub-tools.sh crapper <files>` and
    `ub-tools.sh dryer <files>`. Findings: every function with CRAP 10 or
    above, every pair at 0.8 or above. A `warning: … is not gitignored` line
    means that folder stays out of every commit. An `unchecked: N JS files`

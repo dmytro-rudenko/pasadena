@@ -108,11 +108,10 @@ cmd_dryer() {
 
 cmd_crapper() {
   resolve crapper || return 0
-  local root extra=()
+  local root
   root="$(project_root)"
   warn_ignored "$root"
-  [ -n "$CMD" ] && extra=(--coverage-command "$CMD")
-  "${RUN[@]}" --root "$root" --threshold 10 ${extra[@]+"${extra[@]}"} ${TOOL_ARGS[@]+"${TOOL_ARGS[@]}"}
+  "${RUN[@]}" --root "$root" --threshold 10 ${TOOL_ARGS[@]+"${TOOL_ARGS[@]}"}
   echo "crapper exit: $?"
 }
 
@@ -122,7 +121,11 @@ cmd_mutator() {
   root="$(project_root)"
   warn_ignored "$root"
   [ -n "$CMD" ] && extra=(--test-command "$CMD")
-  "${RUN[@]}" --root "$root" --max-workers 3 ${extra[@]+"${extra[@]}"} ${TOOL_ARGS[@]+"${TOOL_ARGS[@]}"}
+  case " ${TOOL_ARGS[*]-} " in
+    *" --scan "*) ;;
+    *) extra+=(--max-workers 3) ;;
+  esac
+  "${RUN[@]}" --root "$root" ${extra[@]+"${extra[@]}"} ${TOOL_ARGS[@]+"${TOOL_ARGS[@]}"}
   echo "mutator exit: $?"
 }
 
@@ -157,6 +160,6 @@ case "$sub" in
   dryer) cmd_dryer ;;
   crapper) cmd_crapper ;;
   mutator) cmd_mutator ;;
-  *) echo "usage: ub-tools.sh install | dryer|crapper|mutator [path...] [-- <test command>]" ;;
+  *) echo "usage: ub-tools.sh install | dryer|crapper [path...] | mutator [path...] [-- <test command>]" ;;
 esac
 exit 0

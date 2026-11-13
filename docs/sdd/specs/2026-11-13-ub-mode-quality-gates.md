@@ -38,7 +38,7 @@ Bash, `set -uo pipefail`, у стилі `hooks/reuse.sh`. Завжди заве�
 
 **`dryer <path>...`.** Запускає `--threshold 0.8` (поріг ub-mode, а не дефолтні 0.82) з `--root <scratchpad-каталог>`, тому `.metrics/dry.edn` не потрапляє в репозиторій. Вивід dryer передається без змін. Додатково скрипт рахує у переданих шляхах файли `.js/.jsx/.mjs/.cjs` (поза `node_modules`, `dist`, `build`, `coverage`, `target`, тестами) і, коли їх N > 0, друкує останнім рядком `unchecked: N JS files (dryer supports TypeScript only)`. Це єдине, що відрізняє наш запуск від upstream, і єдина відповідь на JS-прогалину.
 
-**`crapper <path>... [-- <test-command>]`** і **`mutator <path>... [-- <test-command>]`.** Запускаються з `--root <worktree>`, бо coverage-прогін потребує проєкту. `crapper` додає `--threshold 10` (exit 2 від crapper при гіршому score), `mutator` лишає свої exit-коди. Хвіст після `--` передається як `--test-command` (для mutator) / `--coverage-command` (для crapper), щоб використати команду верифікації плану, а не вгадувати. Перед запуском скрипт перевіряє `git check-ignore -q .metrics target coverage`; коли щось не ігнорується, друкує `warning: <dir> is not gitignored; do not commit it`. `mutator` додає `--max-workers 3`.
+**`crapper <path>...`** і **`mutator <path>... [-- <test-command>]`.** Запускаються з `--root <worktree>`, бо coverage-прогін потребує проєкту. `crapper` додає `--threshold 10` (exit 2 від crapper при гіршому score), `mutator` лишає свої exit-коди. Хвіст після `--` передається mutator як `--test-command`, щоб використати команду верифікації плану, а не вгадувати. crapper хвіст ігнорує: його `--coverage-command` замінює збір coverage, і команда без lcov-звіту дає 0% на всіх функціях (перевірено на Node-проєкті: CRAP 132 замість 55); дефолтний прогін сам загортає `npm test` у c8. Перед запуском скрипт перевіряє `git check-ignore -q .metrics target coverage`; коли щось не ігнорується, друкує `warning: <dir> is not gitignored; do not commit it`. `mutator` додає `--max-workers 3`, крім запуску з `--scan`, з яким mutator цей прапорець відхиляє.
 
 Шляхи завжди передаються явно: `git diff --name-only <merge-base>..HEAD`, відфільтровані до наявних файлів, а не `--changed` (той читає лише незакомічені правки, а наші зміни вже закомічені).
 
@@ -114,6 +114,6 @@ Bash, `set -uo pipefail`, у стилі `hooks/reuse.sh`. Завжди заве�
   - **Gitignore:** без `.metrics` в `.gitignore` є `warning:`.
   - **Test-command:** хвіст після `--` потрапляє в `--test-command`.
 - `bash skills/skills.test.sh` зелений, зокрема 20 000-байтний ліміт для `wolowitz/SKILL.md`.
-- Вручну на Node-проєкті з TS: `ub-tools.sh install`, далі `ub-tools.sh dryer src` знаходить штучний дублікат, а `ub-tools.sh crapper src -- npm test` друкує таблицю з coverage з `npm test`.
+- Вручну на Node-проєкті з TS: `ub-tools.sh install`, далі `ub-tools.sh dryer src` знаходить штучний дублікат, а `ub-tools.sh crapper src` друкує таблицю з coverage з `npm test`.
 - `git grep -n "Remove duplication" skills/amy/SKILL.md` порожній.
 - `.claude-plugin/plugin.json` має `"version": "0.24.0"`.
