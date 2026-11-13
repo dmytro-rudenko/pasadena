@@ -548,9 +548,9 @@ dryer: `ub-tools.sh dryer bench hooks/ub-tools.sh` → `No source files to analy
 **Complexity:** routine
 **Satisfies:** §6 «`bench/calibrate.sh` завершується… кожна ціль без літералів має `manual:`-рішення або лишилась `target` після перегляду», «На `model-routing` з оракулом `fbdd4ae` кінчик проходить усі цілі, а `base` — жодної»
 
-- [ ] **Step 1:** Verification-команда плану — усі три `All checks passed.`
-- [ ] **Step 2:** `bash bench/calibrate.sh` на реальному репозиторії. Exit 0.
-- [ ] **Step 3:** переглянути кожну ціль без лапок і без `expected`-рядка в `bench/checks.tsv`; ту, яку неможливо виконати зі спеки задачі, позначити `excluded` / `manual: <чому>`; повторити `calibrate.sh`, переконатися, що ручні рядки лишились.
-- [ ] **Step 4:** для `model-routing`: дерево `fbdd4ae` з тестами проходить усі цілі, дерево `4ab6c1c` (зі спекою з `fbdd4ae`) — жодної (через `make_tree` + `run_oracle` + той самий підрахунок, що в `score.sh`, у scratchpad).
-- [ ] **Step 5:** `cp $BENCH_DIR/calibration.log $BENCH_DIR/reports/00-calibration-<plugin_rev>.md` з дописаним зведенням `checks.tsv` (цілі/виключені на задачу, ручні рішення); коміт `chore(bench): recalibrate with per-check targets`; push.
-- [ ] **Step 6:** коментар у PR #36: зведення, висновки, пропозиція етапу 1 (`run.sh model-routing plugin 1`, `run.sh model-routing baseline 1`, оцінка ~$3 еквівалента за замірами 2026-11-13). **Зупинка:** етап 1 — лише після явного погодження користувача.
+- [x] **Step 1:** Verification-команда плану — усі три `All checks passed.`
+- [x] **Step 2:** `bash bench/calibrate.sh` на реальному репозиторії. Exit 0.
+- [x] **Step 3:** переглянути кожну ціль без лапок і без `expected`-рядка в `bench/checks.tsv`; ту, яку неможливо виконати зі спеки задачі, позначити `excluded` / `manual: <чому>`; повторити `calibrate.sh`, переконатися, що ручні рядки лишились.
+- [x] **Step 4:** для `model-routing`: дерево `fbdd4ae` з тестами проходить усі цілі, дерево `4ab6c1c` (зі спекою з `fbdd4ae`) — жодної (через `make_tree` + `run_oracle` + той самий підрахунок, що в `score.sh`, у scratchpad).
+- [x] **Step 5:** `cp $BENCH_DIR/calibration.log $BENCH_DIR/reports/00-calibration-<plugin_rev>.md` з дописаним зведенням `checks.tsv` (цілі/виключені на задачу, ручні рішення); коміт `chore(bench): recalibrate with per-check targets`; push.
+- [x] **Step 6:** коментар у PR #36: зведення, висновки, пропозиція етапу 1 (`run.sh model-routing plugin 1`, `run.sh model-routing baseline 1`, оцінка ~$3 еквівалента за замірами 2026-11-13). **Зупинка:** етап 1 — лише після явного погодження користувача.
