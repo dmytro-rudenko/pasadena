@@ -135,7 +135,7 @@ def fc($rows; $k; $fallback; $n):
     "## Runs",
     "",
     "| task | config | rep | verdict | checks | capped | cost | time | turns | subagents | diff lines | error | run |",
-    "|---|---|---|---|---|---|---|---|---|---|---|---|",
+    "|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ($runs[] | runline),
     "",
     "## Spend",

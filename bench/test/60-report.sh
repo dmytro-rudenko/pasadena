@@ -42,6 +42,10 @@ col() {
     c && index($0, row) == 1 {v = $c; gsub(/^ +| +$/, "", v); print v; exit}' <<<"$1"
 }
 
+delims() {
+  awk -F'|' '/^\| (cell|task) \|/ {h = NF; getline; print h "/" NF; exit}' <<<"$1"
+}
+
 out="$(report)"
 assert_contains "$out" "| cell | runs | score mean | pass |" "report: Cells header puts score mean after runs"
 assert_contains "$out" "| plugin | 4 | 0.25 | 75% |" "report: plugin cell has 4 runs, score mean 0.25, 75% pass"
@@ -52,6 +56,10 @@ plugin_p95="$(col "$(section '## Cells' "$out")" "cost p95" "| plugin |")"
 assert_contains "$plugin_p95" "10.00" "report: plugin cost p95 is 10.00"
 assert_eq "$(section '## Runs' "$out" | grep -cE '^\| t[12] \|')" 6 "report: Runs has 6 data rows"
 assert_eq "$(section '## Runs' "$out" | grep -c '| failed tests |')" 0 "report: Runs has no failed tests column"
+cells_delims="$(delims "$(section '## Cells' "$out")")"
+assert_eq "${cells_delims#*/}" "${cells_delims%/*}" "report: Cells delimiter row has as many cells as the header"
+runs_delims="$(delims "$(section '## Runs' "$out")")"
+assert_eq "${runs_delims#*/}" "${runs_delims%/*}" "report: Runs delimiter row has as many cells as the header"
 assert_eq "$(col "$(section '## Runs' "$out")" checks "| t2 | plugin | 2 |")" "1/4" "report: Runs checks shows 1/4"
 assert_eq "$(col "$(section '## Runs' "$out")" checks "| t1 | baseline | 1 |")" "3/3" "report: Runs checks shows 3/3"
 assert_eq "$(col "$(section '## Runs' "$out")" checks "| t2 | plugin | 1 |")" "-" "report: Runs checks is - when checks_total is 0"
