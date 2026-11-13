@@ -78,7 +78,7 @@ run_oracle() {
   for p in "${paths[@]}"; do
     n=$((n + 1))
     code=0
-    (cd "$tree" && timeout "$BENCH_ORACLE_TIMEOUT" bash "$p") >"$outdir/oracle-$n.log" 2>&1 || code=$?
+    (cd "$tree" && timeout "$BENCH_ORACLE_TIMEOUT" bash "$p" </dev/null) >"$outdir/oracle-$n.log" 2>&1 || code=$?
     printf '%s\t%s\n' "$p" "$code" >>"$outdir/oracle.exit"
   done
   return 0

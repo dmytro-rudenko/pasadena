@@ -47,6 +47,11 @@ echo "== lib =="
   assert_eq "$(awk -F'\t' 'NF == 2 && $2 != 0' "$tmp/o/oracle.exit" 2>/dev/null | wc -l | tr -d ' ')" 2 "both oracle tests fail on the base tree"
   assert_eq "$([ -f "$tmp/o/oracle-1.log" ] && [ -f "$tmp/o/oracle-2.log" ] && echo yes)" yes "run_oracle writes oracle-1.log and oracle-2.log"
 
+  mkdir -p "$tmp/stdin-tree/t" "$tmp/stdin-out"
+  echo 'cat >/dev/null' >"$tmp/stdin-tree/t/reads.test.sh"
+  sleep 7 | BENCH_ORACLE_TIMEOUT=5 run_oracle t/reads.test.sh "$tmp/stdin-tree" "$tmp/stdin-out" >/dev/null 2>&1
+  assert_eq "$(cut -f2 "$tmp/stdin-out/oracle.exit")" 0 "run_oracle gives tests a closed stdin"
+
   r1="$(bench_rev 2>/dev/null)"
   hex=no
   [[ "$r1" =~ ^[0-9a-f]{12}$ ]] && hex=yes
