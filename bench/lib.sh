@@ -4,6 +4,7 @@ BENCH_PLUGIN="${BENCH_PLUGIN:-$BENCH_REPO}"
 BENCH_DIR="${BENCH_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/pasadena/bench}"
 BENCH_TASKS="${BENCH_TASKS:-$BENCH_ROOT/tasks.tsv}"
 BENCH_CONFIGS="${BENCH_CONFIGS:-$BENCH_ROOT/configs.tsv}"
+BENCH_CHECKS="${BENCH_CHECKS:-$BENCH_ROOT/checks.tsv}"
 BENCH_BUDGET="${BENCH_BUDGET:-15}"
 BENCH_TIMEOUT="${BENCH_TIMEOUT:-5400}"
 BENCH_ORACLE_TIMEOUT="${BENCH_ORACLE_TIMEOUT:-600}"
@@ -38,6 +39,10 @@ config_names() {
   awk -F'\t' 'NR > 1 && $1 != "" { print $1 }' "$BENCH_CONFIGS"
 }
 
+bench_rev() {
+  cat "$BENCH_TASKS" "$BENCH_CHECKS" 2>/dev/null | sha256sum | cut -c1-12
+}
+
 plugin_rev() {
   local rev
   rev="$(git -C "$BENCH_PLUGIN" rev-parse --short HEAD)" || return
@@ -51,6 +56,7 @@ make_tree() {
   local commit="$1" dest="$2"
   mkdir -p "$dest" || return
   git -C "$BENCH_REPO" archive "$commit" | tar -x -C "$dest" || return
+  if [ -n "${3:-}" ]; then git -C "$BENCH_REPO" show "$3:$4" >"$dest/$4" || return; fi
   git -C "$dest" init -q || return
   git -C "$dest" add -A || return
   git -C "$dest" -c user.name=bench -c user.email=bench@localhost -c commit.gpgsign=false commit -qm "bench: base"
