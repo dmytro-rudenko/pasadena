@@ -129,6 +129,8 @@ fi
 weekly_used() {
   sed -n 's/.*weekly_used=\([0-9][0-9]*\).*/\1/p' "$1" 2>/dev/null | head -n1
 }
+wall=null
+[ -f "$run/claude.secs" ] && wall="$(tr -dc '0-9.' <"$run/claude.secs")" && [ -n "$wall" ] || wall=null
 codex_usage=null
 if [ -f "$run/codex-before.txt" ] && [ -f "$run/codex-after.txt" ]; then
   b="$(weekly_used "$run/codex-before.txt")"
@@ -153,6 +155,7 @@ jq -nc \
   --argjson diff_lines "${diff_lines:-0}" \
   --argjson dup_symbols "${dup_symbols:-0}" \
   --argjson codex_usage "$codex_usage" \
+  --argjson wall "$wall" \
   --arg cap "$cap" \
   --arg bench_rev "$rev" \
   --argjson checks_passed "$checks_passed" \
@@ -202,7 +205,7 @@ jq -nc \
                  elif $cap == "budget" then $meta.budget
                  else null end),
       cost_source: "cli-estimate",
-      duration_s: (if $result != null and $result.duration_ms != null then $result.duration_ms / 1000 else null end),
+      duration_s: (if $wall != null then $wall elif $result != null and $result.duration_ms != null then $result.duration_ms / 1000 else null end),
       num_turns: (if $result != null then $result.num_turns else null end),
       plugins: (if $init != null then [$init.plugins[]? | {name, path}] else [] end),
       subagent_calls: $subagents,

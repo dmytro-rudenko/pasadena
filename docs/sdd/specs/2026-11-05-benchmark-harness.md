@@ -256,8 +256,11 @@ Codex вимкнений у всіх plugin-комірках, крім `plugin-c
   коми. Зміна `checks.tsv` і повторний `score.sh` переоцінюють прогін без
   генерації;
 - `tests_passed`, `tests_total` — довідково, за кодами виходу файлів;
+- `duration_s` — реальний час виклику `claude` з `<run>/claude.secs`, який
+  пише `run.sh` (мілісекунди); `duration_ms` події `result` не рахує фонові
+  субагенти (етап 1: 64 s проти 1091 s), тож береться лише без `claude.secs`;
 - `input_tokens`, `cache_read`, `cache_write`, `output_tokens`, `cost_usd`,
-  `duration_s`, `num_turns` — з події `result`; для обірваного прогону без неї
+  `num_turns` — з події `result`; для обірваного прогону без неї
   `cost_usd = BENCH_BUDGET` при зупинці бюджетом і `null` при тайм-ауті;
   `cost_source: "cli-estimate"`. При зупинці бюджетом `usage` у `result`
   нульовий, тож токени тоді беруться сумою з `modelUsage.<model>`

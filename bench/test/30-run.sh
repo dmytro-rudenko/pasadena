@@ -135,3 +135,8 @@ old_rev="$(BENCH_PLUGIN="$run_old"; source "$ROOT/bench/lib.sh"; plugin_rev)"
 fresh_bench
 BENCH_PLUGIN="$run_old" FAKE_WRITES="feature.txt=done feature2.txt=done" run_bench t1 plugin 1
 assert_eq "$(run_ub "$BENCH_DIR/runs/$old_rev/t1/plugin/1" dryer)" unknown "run: meta.json ub_tools.dryer is unknown when ub-tools.sh lacks available"
+
+fresh_bench
+run_bench t1 baseline 1
+secs="$(cat "$(run_cell baseline)/claude.secs" 2>/dev/null)"
+assert_eq "$([[ "$secs" =~ ^[0-9]+\.[0-9]{3}$ ]] && echo yes)" yes "run: claude.secs holds the wall time of the claude call"

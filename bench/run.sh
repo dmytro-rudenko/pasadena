@@ -104,9 +104,11 @@ else
     --settings '{"enabledPlugins":{"pasadena@pasadena":false,"pasadena@synced":false}}')
   [ "$mode" = plugin ] && args+=(--plugin-dir "$BENCH_PLUGIN")
 
+  started="$(date +%s%N)"
   (cd "$run/tree" && env XDG_STATE_HOME="$run/state" "${pairs[@]}" timeout "$BENCH_TIMEOUT" claude "${args[@]}") \
     >"$run/claude.jsonl" 2>"$run/claude.err" </dev/null
   code=$?
+  awk -v a="$started" -v b="$(date +%s%N)" 'BEGIN { printf "%.3f\n", (b - a) / 1e9 }' >"$run/claude.secs"
   echo "$code" >"$run/claude.exit"
   if [ "$code" = 124 ] && [ ! -s "$run/claude.jsonl" ]; then
     echo timeout >"$run/error.txt"
