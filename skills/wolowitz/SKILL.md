@@ -27,6 +27,9 @@ allowed-tools:
   - Bash(gh pr comment *)
   - Bash(gh pr edit *)
   - Bash(gh pr ready *)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/ub-tools.sh dryer *)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/ub-tools.sh crapper *)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/hooks/ub-tools.sh mutator *)
   - Bash(sha256sum *)
   - Bash(cp *)
   - Bash(make *)
@@ -279,18 +282,18 @@ stays one-commit-per-task, which is what makes it reviewable. Fixes from a
 grouped review land later as their own commits, per
 `references/grouped-review.md`.
 
-Keep the message description to **30–40 words** — what changed and why, and
-nothing else. The diff carries the detail.
+Keep the message description to **30–40 words** — why, what changed, and
+how it was proved. The diff carries the detail.
 
 ### 7. Comment on the PR
 
-One comment per wave, **2–3 sentences**, plus one line per ruling — no longer:
+One comment per wave, **1–2 sentences, 25 words at most**: what the wave did and whether
+verification passed.
 
     gh pr comment <n> --body-file <file>
 
-Say which tasks landed with their shas, whether verification passed, and any
-ruling or parked item a reviewer could not infer from `git log`. That is all —
-the diff and the commits carry the detail. When `gh` is unavailable, announce
+Whatever else this skill or its references send to the wave's PR comment —
+rulings, parked items, usage lines — goes in the wave's `✎` note instead. When `gh` is unavailable, announce
 that once and continue.
 
 ### 8. Close the wave
@@ -321,7 +324,7 @@ A running plan resolves every decision within the controller's authority. For
 an ambiguity in a task, a conflict between two tasks, a plan defect, or a cap
 that requires adjustment, record
 `Ruling: <what> — <why> — <what it costs if wrong>` and keep going. Rulings go
-in the wave's PR comment.
+in the wave's `✎` note.
 
 Execution pauses only for these four gates:
 
@@ -339,6 +342,7 @@ When the last wave is closed:
 1. First run `git fetch origin <trunk>`. When the fetch fails or
    `origin/<trunk>` does not exist, use the local trunk as the base instead and
    say so in the final PR comment.
+   **Make it right** first, per `references/make-it-right.md`.
    **Reviews at once.** In one message, dispatch the **whole-branch
    review** with `reviewer-prompt.md`, filled as below, over
    `git merge-base origin/<trunk> HEAD..HEAD` on `sonnet` at
@@ -349,21 +353,7 @@ When the last wave is closed:
    Skill tool on the branch diff; when the skill is unavailable, say so once
    and note the skip in the PR comment.
 
-   Fill `reviewer-prompt.md` for the whole branch — the merge-base as
-   `BASE`, the plan's path, every task number, waves `0`–`<last>` as
-   `<a>`–`<b>`, the spec's path. When `codex.sh available` exits 0 outside
-   full mode, write a
-   Codex copy to a prompt file in the scratchpad, replacing the `**The diff:**` line with: the
-   diff arrives on stdin as a `<stdin>` block — review that diff; read local
-   files only for context. Keep "Do not re-run the tests". Run
-   `codex.sh review $(git merge-base origin/<trunk> HEAD) <prompt-file>` in the
-   background in the same message as the `sonnet` dispatch. Every `sonnet`
-   finding goes to the fix wave. A Codex finding goes there only after you
-   confirm it at its `file:line`; drop the unconfirmed ones with a
-   one-line note in the final PR comment. The `sonnet` verdict stays the
-   verdict. The final PR comment carries the review's `codex usage:` line.
-   Decide every `Declined to judge` item from either review yourself, as in
-   step 4 of the wave loop, in the final PR comment.
+   Fill both reviews as `references/finish.md` describes.
 2. **Findings.** When every review started has returned: a security
    finding fixable inside the branch's own code goes to the fix wave like a
    review finding;

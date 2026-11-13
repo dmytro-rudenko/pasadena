@@ -135,6 +135,8 @@ Set it in your shell profile or in `.claude/settings.json`:
 
 `PASADENA_REUSE=0` turns off the reuse-first rule and the subagent map. `PASADENA_REUSE_HINT=0` hides only the hint to enable tokeneconomizer's repomap. `PASADENA_REUSE_SKIP` is a regex of subagent types that get neither (default `Explore|Plan|claude-code-guide|statusline-setup|web-fetch`; empty turns the filter off).
 
+Quality gates come from unclebob's [dryer](https://github.com/unclebob/dryer), [crapper](https://github.com/unclebob/crapper) and [mutator](https://github.com/unclebob/mutator). `leonard` runs dryer on the files a spec touches, so the plan reuses code that is already duplicated; `wolowitz` runs crapper (CRAP under 10), dryer (similarity under 0.8) and mutator on the branch before the whole-branch review. `bash hooks/ub-tools.sh install` fetches them at pinned commits into `~/.local/share/pasadena/ub-tools` with `pip install --target` (Python 3.11+, no venv); the skills ask before running it. `PASADENA_DRYER`, `PASADENA_CRAPPER` and `PASADENA_MUTATOR` point at your own copies. dryer reads TypeScript but not plain JavaScript, so `.js`, `.jsx`, `.mjs` and `.cjs` files are counted and reported as unchecked; crapper and mutator handle both. Without the tools the steps are skipped and the PR comment says so.
+
 ## Browser prototypes
 
 `penny` starts a dependency-free local Node server only while a prototype is under review. It binds to loopback, requires a per-session key for the first request, and keeps runtime state in the ignored `.sdd/` directory. Prototype files and decisions stay in `docs/sdd/proto/` for review.
@@ -229,9 +231,10 @@ bash hooks/nudge.test.sh
 bash hooks/reuse.test.sh
 bash hooks/codex.test.sh
 bash bench/bench.test.sh
+bash hooks/ub-tools.test.sh
 ```
 
-The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration. The reuse checks run `hooks/reuse.sh` against a fake `te` and cover the rule, the hint, the subagent map and filter, the timeout, the silent cases, and hook registration. The Codex checks run `hooks/codex.sh` against a fake `codex` and cover availability, each subcommand's flags, the session log, the idle stop and the usage-limit marker. The bench checks run `bench/` against a fake `claude` and `codex` and cover the verdicts, scoring, calibration, matrix resume and the report.
+The skills check covers skill frontmatter, README rows, third-party notices, and manifest versions. The journal checks create temporary Git repositories and cover branch detection, resume context, commits, pauses, and journal formatting. The server checks authentication, traversal protection, events, polling, and shutdown. The nudge checks cover bug and feature prompts, the silent cases, and hook registration. The reuse checks run `hooks/reuse.sh` against a fake `te` and cover the rule, the hint, the subagent map and filter, the timeout, the silent cases, and hook registration. The Codex checks run `hooks/codex.sh` against a fake `codex` and cover availability, each subcommand's flags, the session log, the idle stop and the usage-limit marker. The bench checks run `bench/` against a fake `claude` and `codex` and cover the verdicts, scoring, calibration, matrix resume and the report. The ub-tools checks run `hooks/ub-tools.sh` against fake tools and cover the thresholds, absolute paths, the scratch root, the JS count, the gitignore warning, the test command, the unavailable cases and the pinned install.
 
 Specs and plans for each change live in [docs/sdd/specs](docs/sdd/specs) and [docs/sdd/plans](docs/sdd/plans).
 

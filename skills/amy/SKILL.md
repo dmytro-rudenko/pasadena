@@ -167,8 +167,21 @@ remains fixed. If another test breaks, restore the full suite immediately.
 
 ### REFACTOR
 
-Only once green. Remove duplication, improve names, extract helpers. Keep the
-tests green and keep behaviour unchanged. Then the next failing test.
+Only once green. Improve names, extract helpers, and keep each decision in one
+place. Duplication is measured, not eyeballed: `ub-tools.sh dryer <files you
+touched>` (beside `journal.sh`) lists the pairs at 0.8 or above; merge them.
+Refactor as pin, change, prove: a test pins what the code does, the structure
+changes, the same tests prove nothing else did. Then the next failing test.
+
+## What a test is worth
+
+- **Behaviour, not implementation.** A test calls the code the way its user
+  does and checks what that user would see. A test that would still pass if
+  every function returned nothing is thrown out.
+- **An honest test or none.** When an honest test is impractical, say so out
+  loud, like the exceptions in `## When it applies`, and write none rather
+  than one that checks nothing.
+- **The smallest edit.** Ship the smallest change that solves the problem.
 
 ## Decision rules
 
