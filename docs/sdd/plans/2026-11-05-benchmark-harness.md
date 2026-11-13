@@ -522,10 +522,10 @@ dryer: `ub-tools.sh dryer bench hooks/ub-tools.sh` → `No source files to analy
 **Interfaces:**
 - Consumes: поля `bench_rev`, `score`, `checks_passed`, `checks_total` (Task 13); `bench_rev` з `lib.sh`.
 
-- [ ] **Step 1: тести в `60-report.sh`:** стовпець `score mean` у таблиці комірок (`0.50` для двох прогонів зі `score` 1 і 0, `-` без значень); рядок `<cell>: score +0.25 vs plugin (noise)` при <3 прогонах у будь-якій з двох комірок і без `(noise)` при ≥3 в обох; стовпець `checks` у таблиці прогонів (`k/n`, `-` при `checks_total` 0); рядки з іншим `bench_rev` не враховуються ні у вибірці, ні у визначенні найновішого `plugin_rev`.
-- [ ] **Step 2: побачити, що падає.**
-- [ ] **Step 3: реалізація:** `--arg brev "$(bench_rev)"` і `select(.bench_rev == $brev)` над `$all` до вибору `$r`; `cellrow` + `score_mean: ($rs | vals("score") | mean)`; `cellline` — стовпець після `fail`… розмістити після `runs`: `| cell | runs | score mean | pass | …`; `delta` дописує другий рядок для `score` з форматуванням `dec2` (новий `def dec2`, аналог `money` без `$`); `runline` замінює стовпець `failed tests` на `checks`. Заголовки таблиць оновити відповідно.
-- [ ] **Step 4: побачити, що проходить** — `bash bench/bench.test.sh` → `All checks passed.` (приймальні 1–7 зелені).
+- [x] **Step 1: тести в `60-report.sh`:** стовпець `score mean` у таблиці комірок (`0.50` для двох прогонів зі `score` 1 і 0, `-` без значень); рядок `<cell>: score +0.25 vs plugin (noise)` при <3 прогонах у будь-якій з двох комірок і без `(noise)` при ≥3 в обох; стовпець `checks` у таблиці прогонів (`k/n`, `-` при `checks_total` 0); рядки з іншим `bench_rev` не враховуються ні у вибірці, ні у визначенні найновішого `plugin_rev`.
+- [x] **Step 2: побачити, що падає.**
+- [x] **Step 3: реалізація:** `--arg brev "$(bench_rev)"` і `select(.bench_rev == $brev)` над `$all` до вибору `$r`; `cellrow` + `score_mean: ($rs | vals("score") | mean)`; `cellline` — стовпець після `fail`… розмістити після `runs`: `| cell | runs | score mean | pass | …`; `delta` дописує другий рядок для `score` з форматуванням `dec2` (новий `def dec2`, аналог `money` без `$`); `runline` замінює стовпець `failed tests` на `checks`. Заголовки таблиць оновити відповідно.
+- [x] **Step 4: побачити, що проходить** — `bash bench/bench.test.sh` → `All checks passed.` (приймальні 1–7 зелені).
 
 ### Task 17: версія 0.25.0 і README
 
