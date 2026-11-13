@@ -126,5 +126,16 @@ while IFS=$'\t' read -r ct ctest ccheck cstatus creason; do
 done < <(tail -n +2 "$BENCH_CHECKS" 2>/dev/null)
 assert_eq "$unlogged" 0 "checks: every excluded checks.tsv row is in calibration.log"
 
+banner_logged() {
+  grep -cF ' x2 check-excluded t/x2.test.sh: banner: text:' "$BENCH_DIR/calibration.log" 2>/dev/null
+}
+banner_before="$(banner_logged)"
+awk -F'\t' -v OFS='\t' '$1 == "x2" && $3 == "banner: text" { $4 = "target"; $5 = "manual: spec implies it" } 1' "$BENCH_CHECKS" >"$tmp/checks.new" 2>/dev/null
+mv "$tmp/checks.new" "$BENCH_CHECKS"
+BENCH_REPO="$crepo" BENCH_TASKS="$ctasks" bash "$ROOT/bench/calibrate.sh" >/dev/null 2>&1
+assert_eq "$(grep -cxF "$(printf 'x2\tt/x2.test.sh\tbanner: text\ttarget\tmanual: spec implies it')" "$BENCH_CHECKS" 2>/dev/null)" 1 "checks: manual target overrides the automatic exclusion once"
+assert_eq "$(awk -F'\t' '$1 == "x2" && $3 == "banner: text"' "$BENCH_CHECKS" 2>/dev/null | wc -l)" 1 "checks: banner check has a single row after recalibration"
+assert_eq "$(banner_logged)" "$banner_before" "checks: recalibration logs no check-excluded line for the manual target"
+
 fresh_bench
 rm -f "$BENCH_CHECKS"
