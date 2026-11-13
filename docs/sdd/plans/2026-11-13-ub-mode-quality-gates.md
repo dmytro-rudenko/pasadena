@@ -274,7 +274,7 @@ grep -qF '"version": "0.24.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugi
 **Interfaces:**
 - Produces: `ub-tools.sh install | dryer|crapper|mutator [args...] [-- <test command>]`. Аргумент, що існує як файл чи тека, стає абсолютним шляхом; інші йдуть як є. Вивід інструмента без змін, потім `<tool> exit: <code>`; для dryer ще `unchecked: N JS files (dryer supports TypeScript only)`, коли N > 0. Недоступність: `<tool>: unavailable (<reason>)`. Завжди `exit 0`.
 
-- [ ] **Step 1: implement** — створити `hooks/ub-tools.sh`:
+- [x] **Step 1: implement** — створити `hooks/ub-tools.sh`:
 
 ```bash
 #!/usr/bin/env bash
@@ -434,7 +434,7 @@ exit 0
 
 Примітка для `js_count`: `PATHS` у dryer завжди непорожній (дефолт `$PWD`).
 
-- [ ] **Step 2: run it, watch it pass** — `bash hooks/ub-tools.test.sh`, expect `All checks passed.`
+- [x] **Step 2: run it, watch it pass** — `bash hooks/ub-tools.test.sh`, expect `All checks passed.`
 
 ---
 
@@ -448,7 +448,7 @@ exit 0
 **Interfaces:**
 - Consumes: `ub-tools.sh` (Task 1) — інтерфейс у Global constraints і Task 1 Interfaces.
 
-- [ ] **Step 1: implement**
+- [x] **Step 1: implement**
 
 1. Створити `skills/wolowitz/references/finish.md`: заголовок `# Whole-branch review dispatch`, порожній рядок, потім **дослівно** абзац, що зараз у `skills/wolowitz/SKILL.md` починається з `   Fill \`reviewer-prompt.md\` for the whole branch — the merge-base as` і закінчується `step 4 of the wave loop, in the final PR comment.` (рядки 352–366), без початкового відступу в три пробіли.
 2. У `skills/wolowitz/SKILL.md` замінити цей абзац на:
@@ -508,7 +508,7 @@ put `<tool>: skipped (<reason>)` in the final PR comment.
    `file:line`. Then start the reviews.
 ```
 
-- [ ] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh`, у виводі `ok  — upstream adoption checked` (ліміт) і жодного `FAIL` з `wolowitz` чи `make-it-right.md`/`finish.md`; `wc -c skills/wolowitz/SKILL.md` < 20000.
+- [x] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh`, у виводі `ok  — upstream adoption checked` (ліміт) і жодного `FAIL` з `wolowitz` чи `make-it-right.md`/`finish.md`; `wc -c skills/wolowitz/SKILL.md` < 20000.
 
 ---
 
@@ -520,7 +520,7 @@ put `<tool>: skipped (<reason>)` in the final PR comment.
 **Complexity:** routine
 **Satisfies:** `require leonard 'ub-tools.sh dryer'`, `'**Foundational thinking.**'`, `'**Verifiable units.**'`, `'**Build the lever.**'`
 
-- [ ] **Step 1: implement** — у `## 1. Use plan mode`, після пункту `- **Enumerate every file** …` (закінчується `waves safe.`), додати:
+- [x] **Step 1: implement** — у `## 1. Use plan mode`, після пункту `- **Enumerate every file** …` (закінчується `waves safe.`), додати:
 
 ```markdown
 - **Reuse what is already duplicated.** Run `ub-tools.sh dryer <paths>` —
@@ -542,7 +542,7 @@ put `<tool>: skipped (<reason>)` in the final PR comment.
   that builds the tool doing the rest, matched against that unit.
 ```
 
-- [ ] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh | grep -E 'FAIL.*leonard'`, expect порожньо.
+- [x] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh | grep -E 'FAIL.*leonard'`, expect порожньо.
 
 ---
 
@@ -554,7 +554,7 @@ put `<tool>: skipped (<reason>)` in the final PR comment.
 **Complexity:** routine
 **Satisfies:** `require amy 'ub-tools.sh dryer'`, `'pin, change, prove'`, `'**Behaviour, not implementation.**'`, `'**An honest test or none.**'`, відсутність `Remove duplication`
 
-- [ ] **Step 1: implement**
+- [x] **Step 1: implement**
 
 1. Тіло `### REFACTOR` (зараз `Only once green. Remove duplication, improve names, extract helpers. Keep the
 tests green and keep behaviour unchanged. Then the next failing test.`) замінити на:
@@ -581,7 +581,7 @@ changes, the same tests prove nothing else did. Then the next failing test.
 - **The smallest edit.** Ship the smallest change that solves the problem.
 ```
 
-- [ ] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh | grep -E 'FAIL.*amy'`, expect порожньо.
+- [x] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh | grep -E 'FAIL.*amy'`, expect порожньо.
 
 ---
 
@@ -593,7 +593,7 @@ changes, the same tests prove nothing else did. Then the next failing test.
 **Complexity:** routine
 **Satisfies:** `require sheldon '**Attack the premise.**'`, `'**Model the domain.**'`, `'**Subtract before you add.**'`; ліміт 20 000 байт
 
-- [ ] **Step 1: implement**
+- [x] **Step 1: implement**
 
 1. У `## Present the design`, після абзацу, що закінчується `and what it depends on.`, додати:
 
@@ -619,7 +619,7 @@ Check the design against these before presenting it:
 
 2. У шаблоні специфікації рядок `How anyone can verify that it works.` (під `## 6. Verification`) замінити на `The end state, written so that a command or a person can check it.`
 
-- [ ] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh | grep -E 'FAIL.*sheldon'`, expect порожньо; `wc -c skills/sheldon/SKILL.md` < 20000.
+- [x] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh | grep -E 'FAIL.*sheldon'`, expect порожньо; `wc -c skills/sheldon/SKILL.md` < 20000.
 
 ---
 
@@ -631,7 +631,7 @@ Check the design against these before presenting it:
 **Complexity:** routine
 **Satisfies:** `require leslie '**Attack the premise.**'`, `'A guard that only hides'`
 
-- [ ] **Step 1: implement**
+- [x] **Step 1: implement**
 
 1. У `## Phase 4 — Fix`, пункт 3: після `"while I am here" improvements.` дописати ` A guard that only hides the crash is not a fix.`
 2. У `## The rule of three`, після наявного абзацу, додати:
@@ -642,7 +642,7 @@ check, stop before a third: write that premise in one sentence, find which
 parts of the code hold it, and remove it. Only then try another fix.
 ```
 
-- [ ] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh | grep -E 'FAIL.*leslie'`, expect порожньо.
+- [x] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh | grep -E 'FAIL.*leslie'`, expect порожньо.
 
 ---
 
@@ -654,7 +654,7 @@ parts of the code hold it, and remove it. Only then try another fix.
 **Complexity:** routine
 **Satisfies:** цикл `for prompt in implementer-prompt.md implementer-prompt-codex.md` у `skills.test.sh`
 
-- [ ] **Step 1: implement**
+- [x] **Step 1: implement**
 
 1. `skills/wolowitz/implementer-prompt.md`, у `## Rules` після правила 9 додати:
 
@@ -666,7 +666,7 @@ parts of the code hold it, and remove it. Only then try another fix.
 
 2. `skills/wolowitz/implementer-prompt-codex.md`, у `## Rules` останнім пунктом, у тій самій нумерації чи маркуванні, що й попередні пункти цього розділу, додати той самий текст: `**Subtract before you add.** Take complexity out before adding any, keep each decision in one place, and ship the smallest edit that passes. Outside data is checked once, where it enters; inside, trust it.`
 
-- [ ] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh | grep -E 'FAIL.*implementer-prompt'`, expect порожньо.
+- [x] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh | grep -E 'FAIL.*implementer-prompt'`, expect порожньо.
 
 ---
 
@@ -678,7 +678,7 @@ parts of the code hold it, and remove it. Only then try another fix.
 **Complexity:** routine
 **Satisfies:** `unclebob/ub-mode`, `unclebob/dryer` у notices; `ub-tools.sh install`, `PASADENA_DRYER`, `bash hooks/ub-tools.test.sh` в обох README; `"version": "0.24.0"`; наявна перевірка однакових версій маніфестів.
 
-- [ ] **Step 1: implement**
+- [x] **Step 1: implement**
 
 1. `.claude-plugin/plugin.json` і `.claude-plugin/marketplace.json`: `"version": "0.23.1"` → `"version": "0.24.0"`.
 2. `THIRD_PARTY_NOTICES.md`, у кінець:
@@ -722,4 +722,4 @@ Quality gates come from unclebob's [dryer](https://github.com/unclebob/dryer), [
 
 4. `README.uk.md`: той самий абзац українською в розділі, що відповідає `## Configuration` (знайти за `PASADENA_REUSE`), з тими самими ідентифікаторами `bash hooks/ub-tools.sh install`, `PASADENA_DRYER`, `PASADENA_CRAPPER`, `PASADENA_MUTATOR`; рядок `bash hooks/ub-tools.test.sh` у блок перевірок і речення українською про ub-tools checks.
 
-- [ ] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh`, expect `All checks passed.` після завершення хвилі 1 (разом з Tasks 2–7).
+- [x] **Step 2: run it, watch it pass** — `bash skills/skills.test.sh`, expect `All checks passed.` після завершення хвилі 1 (разом з Tasks 2–7).
