@@ -44,8 +44,13 @@ pairs=()
 [ "$env_pairs" != - ] && read -ra pairs <<<"$env_pairs"
 
 ub_tool() {
-  [ -f "$BENCH_PLUGIN/hooks/ub-tools.sh" ] || { echo unknown; return; }
-  env "${pairs[@]}" bash "$BENCH_PLUGIN/hooks/ub-tools.sh" available "$1" 2>/dev/null
+  local out=""
+  [ -f "$BENCH_PLUGIN/hooks/ub-tools.sh" ] \
+    && out="$(env "${pairs[@]}" bash "$BENCH_PLUGIN/hooks/ub-tools.sh" available "$1" 2>/dev/null)"
+  case "$out" in
+    "$1: "*) printf '%s\n' "$out" ;;
+    *) echo unknown ;;
+  esac
 }
 
 jq -n \

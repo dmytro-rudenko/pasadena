@@ -121,3 +121,17 @@ bare_rev="$(BENCH_PLUGIN="$run_bare"; source "$ROOT/bench/lib.sh"; plugin_rev)"
 fresh_bench
 BENCH_PLUGIN="$run_bare" FAKE_WRITES="feature.txt=done feature2.txt=done" run_bench t1 plugin 1
 assert_eq "$(run_ub "$BENCH_DIR/runs/$bare_rev/t1/plugin/1" dryer)" unknown "run: meta.json ub_tools.dryer is unknown without ub-tools.sh"
+
+run_old="$tmp/plugin-old"
+rm -rf "$run_old"
+git init -q "$run_old"
+mkdir -p "$run_old/hooks"
+cp "$plugin/hooks/codex.sh" "$run_old/hooks/codex.sh"
+printf '#!/usr/bin/env bash\necho "usage: ub-tools.sh install"\nexit 0\n' >"$run_old/hooks/ub-tools.sh"
+chmod +x "$run_old/hooks/ub-tools.sh"
+git -C "$run_old" add -A
+gitc -C "$run_old" commit -qm old
+old_rev="$(BENCH_PLUGIN="$run_old"; source "$ROOT/bench/lib.sh"; plugin_rev)"
+fresh_bench
+BENCH_PLUGIN="$run_old" FAKE_WRITES="feature.txt=done feature2.txt=done" run_bench t1 plugin 1
+assert_eq "$(run_ub "$BENCH_DIR/runs/$old_rev/t1/plugin/1" dryer)" unknown "run: meta.json ub_tools.dryer is unknown when ub-tools.sh lacks available"
