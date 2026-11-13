@@ -1,0 +1,336 @@
+task	test	check	status	reason
+testing-skills	hooks/nudge.test.sh	Ukrainian bug prompt points to leslie	target	
+testing-skills	hooks/nudge.test.sh	English bug prompt points to leslie	target	
+testing-skills	hooks/nudge.test.sh	bug wins over feature	target	
+testing-skills	hooks/nudge.test.sh	past-tense failure points to leslie	target	
+testing-skills	hooks/nudge.test.sh	does not work points to leslie	target	
+testing-skills	hooks/nudge.test.sh	bug prompt names the Codex skill	target	
+testing-skills	hooks/nudge.test.sh	feature prompt points to amy	target	
+testing-skills	hooks/nudge.test.sh	feature prompt names the Codex skill	target	
+testing-skills	hooks/nudge.test.sh	valid JSON with the event name	target	
+testing-skills	hooks/nudge.test.sh	raj inside a word still nudges	target	
+testing-skills	hooks/nudge.test.sh	Claude Code registers UserPromptSubmit	target	
+testing-skills	hooks/nudge.test.sh	Codex registers UserPromptSubmit behind the guard	target	
+testing-skills	hooks/nudge.test.sh	Claude Code UserPromptSubmit timeout is 5	target	
+testing-skills	hooks/nudge.test.sh	Codex UserPromptSubmit timeout is 5	target	
+testing-skills	skills/skills.test.sh	leslie: not credited in THIRD_PARTY_NOTICES.md	target	
+testing-skills	skills/skills.test.sh	bernie: not credited in THIRD_PARTY_NOTICES.md	target	
+testing-skills	skills/skills.test.sh	stuart: not credited in THIRD_PARTY_NOTICES.md	target	
+codex-exec	hooks/codex.test.sh	available with codex logged in	target	
+codex-exec	hooks/codex.test.sh	PASADENA_CODEX=0 turns it off	target	
+codex-exec	hooks/codex.test.sh	logged-out codex is unavailable	target	
+codex-exec	hooks/codex.test.sh	missing codex is unavailable	target	
+codex-exec	hooks/codex.test.sh	fresh exhausted marker blocks delegation	target	
+codex-exec	hooks/codex.test.sh	stale marker is ignored	target	
+codex-exec	hooks/codex.test.sh	stale marker is removed	excluded	literal not in spec: "gone"
+codex-exec	hooks/codex.test.sh	explore exits 0	target	
+codex-exec	hooks/codex.test.sh	explore prints only the final message	excluded	literal not in spec: "final answer"
+codex-exec	hooks/codex.test.sh	explore runs read-only in the working dir	excluded	literal not in spec: "exec -s read-only -C <tmp>/repo --json -o"
+codex-exec	hooks/codex.test.sh	explore reads the prompt from stdin (-)	target	
+codex-exec	hooks/codex.test.sh	explore passes the prompt file on stdin	excluded	literal not in spec: "PROMPT-MARKER"
+codex-exec	hooks/codex.test.sh	usage line on stderr	excluded	literal not in spec: "codex usage: input=100 cached=40 output=7"
+codex-exec	hooks/codex.test.sh	explore final message is its own line with stderr merged	excluded	literal not in spec: "final answer"
+codex-exec	hooks/codex.test.sh	explore usage line is its own last line	target	
+codex-exec	hooks/codex.test.sh	PASADENA_CODEX_MODEL adds -m	excluded	literal not in spec: "-m gpt-test"
+codex-exec	hooks/codex.test.sh	review with nothing to review is a failure	target	
+codex-exec	hooks/codex.test.sh	review exits 0	target	
+codex-exec	hooks/codex.test.sh	review runs read-only	excluded	literal not in spec: "exec -s read-only -C <tmp>/repo --json -o"
+codex-exec	hooks/codex.test.sh	review passes the prompt as the argument	excluded	literal not in spec: "PROMPT-MARKER"
+codex-exec	hooks/codex.test.sh	review does not read the prompt from stdin (-)	target	
+codex-exec	hooks/codex.test.sh	review pipes the local diff on stdin	excluded	literal not in spec: "+second"
+codex-exec	hooks/codex.test.sh	review includes uncommitted changes	excluded	literal not in spec: "+third"
+codex-exec	hooks/codex.test.sh	review includes untracked files	excluded	literal not in spec: "+brand-new"
+codex-exec	hooks/codex.test.sh	review includes untracked files with non-ASCII names	excluded	literal not in spec: "+cyrillic-name"
+codex-exec	hooks/codex.test.sh	review from a subdirectory exits 0	target	
+codex-exec	hooks/codex.test.sh	review from a subdirectory includes untracked files at the top	excluded	literal not in spec: "+brand-new"
+codex-exec	hooks/codex.test.sh	unknown base is a usage error	target	
+codex-exec	hooks/codex.test.sh	red exits 0	target	
+codex-exec	hooks/codex.test.sh	red prints the thread id first	excluded	literal not in spec: "fake-thread-1"
+codex-exec	hooks/codex.test.sh	red prints the final message after the id	excluded	literal not in spec: "final answer"
+codex-exec	hooks/codex.test.sh	red runs workspace-write	excluded	literal not in spec: "exec -s workspace-write -C <tmp>/repo --json -o"
+codex-exec	hooks/codex.test.sh	red reads the prompt from stdin (-)	target	
+codex-exec	hooks/codex.test.sh	red prints the thread id first even with stderr merged	excluded	literal not in spec: "fake-thread-1"
+codex-exec	hooks/codex.test.sh	usage line comes last	target	
+codex-exec	hooks/codex.test.sh	red final message is its own line with stderr merged	excluded	literal not in spec: "final answer"
+codex-exec	hooks/codex.test.sh	red that changes nothing reports an empty change list	target	
+codex-exec	hooks/codex.test.sh	red merged output is thread id, final answer, change list, usage line	target	
+codex-exec	hooks/codex.test.sh	red without a thread id is a failure	target	
+codex-exec	hooks/codex.test.sh	change list names a modified tracked file	excluded	literal not in spec: " f.txt"
+codex-exec	hooks/codex.test.sh	change list names a new file	excluded	literal not in spec: " made-by-codex.txt"
+codex-exec	hooks/codex.test.sh	change list leaves out untouched untracked files	target	
+codex-exec	hooks/codex.test.sh	green rejects a thread id that looks like a flag	target	
+codex-exec	hooks/codex.test.sh	green exits 0	target	
+codex-exec	hooks/codex.test.sh	green prints the final message	excluded	literal not in spec: "final answer"
+codex-exec	hooks/codex.test.sh	green resumes the thread with workspace-write	excluded	literal not in spec: "exec resume fake-thread-1 -c sandbox_mode="workspace-write" --json -o"
+codex-exec	hooks/codex.test.sh	green reads the prompt from stdin (-)	target	
+codex-exec	hooks/codex.test.sh	green passes the prompt file on stdin	excluded	literal not in spec: "PROMPT-MARKER"
+codex-exec	hooks/codex.test.sh	silent codex is stopped with 124	target	
+codex-exec	hooks/codex.test.sh	silent codex with a child is stopped with 124	target	
+codex-exec	hooks/codex.test.sh	TERM to codex.sh exits 143	excluded	literal not in spec: "143"
+codex-exec	hooks/codex.test.sh	codex that ignores TERM is killed and stopped with 124 within 15s	target	
+codex-exec	hooks/codex.test.sh	a running command gets the command idle limit	target	
+codex-exec	hooks/codex.test.sh	usage limit exits 75	target	
+codex-exec	hooks/codex.test.sh	usage limit leaves the marker	excluded	literal not in spec: "present"
+codex-exec	hooks/codex.test.sh	available is off after the usage limit	target	
+codex-exec	hooks/codex.test.sh	transient rate limit is not a usage limit	target	
+codex-exec	hooks/codex.test.sh	disk quota is a plain failure	target	
+codex-exec	hooks/codex.test.sh	missing final message file is a failure	target	
+codex-exec	hooks/codex.test.sh	empty final message file is a failure	target	
+codex-exec	hooks/codex.test.sh	codex exit != 0 is a failure	target	
+codex-exec	hooks/codex.test.sh	missing prompt file is a usage error	target	
+codex-exec	hooks/codex.test.sh	no subcommand is a usage error	target	
+codex-exec	skills/skills.test.sh	leonard: missing "**Executor:** codex | claude"	target	
+codex-exec	skills/skills.test.sh	leonard: missing "codex.sh available"	target	
+codex-exec	skills/skills.test.sh	leonard: missing "codex.sh explore"	target	
+codex-exec	skills/skills.test.sh	leslie: missing "codex.sh explore"	target	
+codex-exec	skills/skills.test.sh	sheldon: missing "codex.sh explore"	target	
+codex-exec	skills/skills.test.sh	wolowitz: missing "codex.sh explore"	target	
+codex-exec	skills/skills.test.sh	wolowitz: missing "codex.sh red"	target	
+codex-exec	skills/skills.test.sh	wolowitz: missing "codex.sh green"	target	
+codex-exec	skills/skills.test.sh	wolowitz: missing "codex.sh review"	target	
+codex-exec	skills/skills.test.sh	wolowitz: missing "Gate red"	target	
+codex-exec	skills/skills.test.sh	wolowitz: missing "Gate green"	target	
+codex-exec	skills/skills.test.sh	wolowitz: missing "implementer-prompt-codex.md"	target	
+codex-exec	skills/skills.test.sh	skills/wolowitz/implementer-prompt-codex.md: missing	target	
+codex-exec	skills/skills.test.sh	README.md: missing "PASADENA_CODEX_IDLE"	target	
+codex-exec	skills/skills.test.sh	README.md: missing "PASADENA_CODEX_CMD_IDLE"	target	
+codex-exec	skills/skills.test.sh	README.md: missing "PASADENA_CODEX_MODEL"	target	
+codex-exec	skills/skills.test.sh	README.md: missing "bash hooks/codex.test.sh"	target	
+codex-exec	skills/skills.test.sh	README.uk.md: missing "PASADENA_CODEX_IDLE"	target	
+codex-exec	skills/skills.test.sh	README.uk.md: missing "PASADENA_CODEX_CMD_IDLE"	target	
+codex-exec	skills/skills.test.sh	README.uk.md: missing "PASADENA_CODEX_MODEL"	target	
+codex-exec	skills/skills.test.sh	README.uk.md: missing "bash hooks/codex.test.sh"	target	
+model-routing	skills/skills.test.sh	leonard: missing "**Complexity:** routine | complex"	target	
+model-routing	skills/skills.test.sh	leonard: missing "- the task is `**Complexity:** routine`;"	excluded	literal not in spec: "- the task is `**Complexity:** routine`;"
+model-routing	skills/skills.test.sh	leonard: missing "When in doubt, write `complex`."	excluded	literal not in spec: "When in doubt, write `complex`."
+model-routing	skills/skills.test.sh	wolowitz: missing "| Task 0 | `opus` | `high` |"	excluded	literal not in spec: "| Task 0 | `opus` | `high` |"
+model-routing	skills/skills.test.sh	wolowitz: missing "| `routine` task, the whole `amy` cycle | `sonnet` | `xhigh` |"	excluded	literal not in spec: "| `routine` task, the whole `amy` cycle | `sonnet` | `xhigh` |"
+model-routing	skills/skills.test.sh	wolowitz: missing "| `complex` task, red | `opus` | `high` |"	excluded	literal not in spec: "| `complex` task, red | `opus` | `high` |"
+model-routing	skills/skills.test.sh	wolowitz: missing "| `complex` task, green | `opus` | `medium` |"	excluded	literal not in spec: "| `complex` task, green | `opus` | `medium` |"
+model-routing	skills/skills.test.sh	wolowitz: missing "| Round-3 fresh implementer, including after Codex | `opus` | `medium` |"	excluded	literal not in spec: "| Round-3 fresh implementer, including after Codex | `opus` | `medium` |"
+model-routing	skills/skills.test.sh	wolowitz: missing "| Fix dispatch after the whole-branch and security reviews | `opus` | `medium` |"	excluded	literal not in spec: "| Fix dispatch after the whole-branch and security reviews | `opus` | `medium` |"
+model-routing	skills/skills.test.sh	wolowitz: missing "| Wave reviewer and whole-branch review | `sonnet` | `xhigh` |"	excluded	literal not in spec: "| Wave reviewer and whole-branch review | `sonnet` | `xhigh` |"
+model-routing	skills/skills.test.sh	wolowitz: missing "| `Explore`, when `codex.sh available` exits non-zero | `sonnet` | `xhigh` |"	excluded	literal not in spec: "| `Explore`, when `codex.sh available` exits non-zero | `sonnet` | `xhigh` |"
+model-routing	skills/skills.test.sh	wolowitz: missing "## Complex tasks"	excluded	literal not in spec: "## Complex tasks"
+model-routing	skills/skills.test.sh	wolowitz: missing "A task with no `**Complexity:**` line is `complex`."	excluded	literal not in spec: "A task with no `**Complexity:**` line is `complex`."
+model-routing	skills/skills.test.sh	wolowitz: implementers still follow a Fable session	target	
+model-routing	skills/skills.test.sh	wolowitz: a dispatch still follows the session's model	target	
+model-routing	skills/skills.test.sh	implementer-prompt.md: missing "Red dispatch"	target	
+model-routing	skills/skills.test.sh	implementer-prompt.md: missing "Green dispatch"	target	
+model-routing	skills/skills.test.sh	README.md: no model table	excluded	manual: exact README wording the spec does not state
+model-routing	skills/skills.test.sh	README.uk.md: no model table	excluded	manual: exact README wording the spec does not state
+model-routing	skills/skills.test.sh	README.md: no advisor note	target	
+model-routing	skills/skills.test.sh	README.uk.md: no advisor note	target	
+model-routing	skills/skills.test.sh	.claude-plugin/plugin.json: not on 0.14.0	target	
+model-routing	skills/skills.test.sh	.claude-plugin/marketplace.json: not on 0.14.0	target	
+frontmatter-models	skills/skills.test.sh	amy: frontmatter needs model: opus|sonnet and effort: low|medium|high|xhigh|max	target	
+frontmatter-models	skills/skills.test.sh	bernie: frontmatter needs model: opus|sonnet and effort: low|medium|high|xhigh|max	target	
+frontmatter-models	skills/skills.test.sh	journal: frontmatter needs model: opus|sonnet and effort: low|medium|high|xhigh|max	target	
+frontmatter-models	skills/skills.test.sh	leonard: frontmatter needs model: opus|sonnet and effort: low|medium|high|xhigh|max	target	
+frontmatter-models	skills/skills.test.sh	leslie: frontmatter needs model: opus|sonnet and effort: low|medium|high|xhigh|max	target	
+frontmatter-models	skills/skills.test.sh	pasadena: frontmatter needs model: opus|sonnet and effort: low|medium|high|xhigh|max	target	
+frontmatter-models	skills/skills.test.sh	penny: frontmatter needs model: opus|sonnet and effort: low|medium|high|xhigh|max	target	
+frontmatter-models	skills/skills.test.sh	raj: frontmatter needs model: opus|sonnet and effort: low|medium|high|xhigh|max	target	
+frontmatter-models	skills/skills.test.sh	sheldon: frontmatter needs model: opus|sonnet and effort: low|medium|high|xhigh|max	target	
+frontmatter-models	skills/skills.test.sh	stuart: frontmatter needs model: opus|sonnet and effort: low|medium|high|xhigh|max	target	
+frontmatter-models	skills/skills.test.sh	wolowitz: frontmatter needs model: opus|sonnet and effort: low|medium|high|xhigh|max	target	
+frontmatter-models	skills/skills.test.sh	amy: lines 4-5 are not model: opus, effort: high	target	
+frontmatter-models	skills/skills.test.sh	sheldon: lines 4-5 are not model: opus, effort: high	target	
+frontmatter-models	skills/skills.test.sh	leonard: lines 4-5 are not model: opus, effort: high	target	
+frontmatter-models	skills/skills.test.sh	leslie: lines 4-5 are not model: opus, effort: high	target	
+frontmatter-models	skills/skills.test.sh	wolowitz: lines 4-5 are not model: opus, effort: medium	target	
+frontmatter-models	skills/skills.test.sh	penny: lines 4-5 are not model: opus, effort: medium	target	
+frontmatter-models	skills/skills.test.sh	bernie: lines 4-5 are not model: sonnet, effort: xhigh	target	
+frontmatter-models	skills/skills.test.sh	stuart: lines 4-5 are not model: sonnet, effort: xhigh	target	
+frontmatter-models	skills/skills.test.sh	pasadena: lines 4-5 are not model: sonnet, effort: medium	target	
+frontmatter-models	skills/skills.test.sh	raj: lines 4-5 are not model: sonnet, effort: medium	target	
+frontmatter-models	skills/skills.test.sh	journal: lines 4-5 are not model: sonnet, effort: medium	target	
+frontmatter-models	skills/skills.test.sh	wolowitz: missing "| Test writer: Task 0, red of every task, test fixes, round 3, Finish | `opus` | `high` |"	excluded	literal not in spec: "| Test writer: Task 0, red of every task, test fixes, round 3, Finish | `opus` | `high` |"
+frontmatter-models	skills/skills.test.sh	wolowitz: missing "| Implementer, `routine` | `sonnet` | `xhigh` |"	target	
+frontmatter-models	skills/skills.test.sh	wolowitz: missing "| Implementer: `complex`, round 3, Finish | `opus` | `medium` |"	target	
+frontmatter-models	skills/skills.test.sh	wolowitz: missing "## Test writer and implementer"	target	
+frontmatter-models	skills/skills.test.sh	wolowitz: missing "test-writer-prompt.md"	target	
+frontmatter-models	skills/skills.test.sh	wolowitz: missing "references/two-dispatch.md"	target	
+frontmatter-models	skills/skills.test.sh	wolowitz: missing "- for a test writer only, the instruction to invoke the `amy` skill"	excluded	literal not in spec: "- for a test writer only, the instruction to invoke the `amy` skill"
+frontmatter-models	skills/skills.test.sh	wolowitz: a routine task still runs the whole amy cycle	target	
+frontmatter-models	skills/skills.test.sh	wolowitz: still has ## Complex tasks	target	
+frontmatter-models	skills/skills.test.sh	wolowitz: complex-tasks.md still referenced	target	
+frontmatter-models	skills/skills.test.sh	wolowitz: a Red or Green dispatch is still named	target	
+frontmatter-models	skills/skills.test.sh	test-writer-prompt.md: missing	target	
+frontmatter-models	skills/skills.test.sh	implementer-prompt.md: still mentions amy	target	
+frontmatter-models	skills/skills.test.sh	implementer-prompt.md: still has "Red dispatch"	target	
+frontmatter-models	skills/skills.test.sh	implementer-prompt.md: still has "Green dispatch"	target	
+frontmatter-models	skills/skills.test.sh	references/two-dispatch.md: missing "Gate red"	target	
+frontmatter-models	skills/skills.test.sh	references/two-dispatch.md: missing "Gate green"	target	
+frontmatter-models	skills/skills.test.sh	references/two-dispatch.md: missing "test-writer-prompt.md"	target	
+frontmatter-models	skills/skills.test.sh	references/complex-tasks.md: still present	target	
+frontmatter-models	skills/skills.test.sh	README.md: no skill model table	excluded	manual: exact README wording the spec does not state
+frontmatter-models	skills/skills.test.sh	README.uk.md: no skill model table	excluded	manual: exact README wording the spec does not state
+frontmatter-models	skills/skills.test.sh	README.md: no dispatch model table	excluded	manual: exact README wording the spec does not state
+frontmatter-models	skills/skills.test.sh	README.uk.md: no dispatch model table	excluded	manual: exact README wording the spec does not state
+frontmatter-models	skills/skills.test.sh	README.md: the main session still stays on the user's settings	target	
+frontmatter-models	skills/skills.test.sh	README.uk.md: the main session still stays on the user's settings	target	
+frontmatter-models	skills/skills.test.sh	.claude-plugin/plugin.json: not on 0.15.0	target	
+frontmatter-models	skills/skills.test.sh	.claude-plugin/marketplace.json: not on 0.15.0	target	
+frontmatter-models	skills/skills.test.sh	docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it	target	
+faster-review	skills/skills.test.sh	.claude-plugin/plugin.json: not on 0.16.0	target	
+faster-review	skills/skills.test.sh	.claude-plugin/marketplace.json: not on 0.16.0	target	
+faster-review	skills/skills.test.sh	wolowitz: missing "| Wave 0 review and grouped wave review | `sonnet` | `high` |"	target	
+faster-review	skills/skills.test.sh	wolowitz: missing "| Whole-branch review | `sonnet` | `xhigh` |"	target	
+faster-review	skills/skills.test.sh	wolowitz: one review row still covers waves and the whole branch	target	
+faster-review	skills/skills.test.sh	wolowitz: missing "one review for every third wave"	excluded	literal not in spec: "one review for every third wave"
+faster-review	skills/skills.test.sh	wolowitz: missing "references/grouped-review.md"	target	
+faster-review	skills/skills.test.sh	wolowitz: missing "while the reviews run"	excluded	literal not in spec: "while the reviews run"
+faster-review	skills/skills.test.sh	wolowitz: missing "fix(<scope>): whole-branch and security review findings"	target	
+faster-review	skills/skills.test.sh	wolowitz: missing "k mod 3 = 0"	target	
+faster-review	skills/skills.test.sh	wolowitz: missing "not the plan's last wave"	excluded	literal not in spec: "not the plan's last wave"
+faster-review	skills/skills.test.sh	wolowitz: missing "so uncommitted work is in the diff"	excluded	literal not in spec: "so uncommitted work is in the diff"
+faster-review	skills/skills.test.sh	references/grouped-review.md: missing "GROUP_BASE: <sha>"	target	
+faster-review	skills/skills.test.sh	references/grouped-review.md: missing "git add -N"	target	
+faster-review	skills/skills.test.sh	references/grouped-review.md: missing "fix(<scope>): review findings for task N"	target	
+faster-review	skills/skills.test.sh	references/two-dispatch.md: missing "review when the schedule has one"	excluded	literal not in spec: "review when the schedule has one"
+faster-review	skills/skills.test.sh	references/codex-tasks.md: missing "review when the schedule has one"	excluded	literal not in spec: "review when the schedule has one"
+faster-review	skills/skills.test.sh	reviewer-prompt.md: does not review a range of waves	target	
+faster-review	skills/skills.test.sh	reviewer-prompt.md: the diff misses the working tree	target	
+faster-review	skills/skills.test.sh	README.md: wolowitz row does not name the review schedule	excluded	manual: exact README wording the spec does not state
+faster-review	skills/skills.test.sh	README.uk.md: wolowitz row does not name the review schedule	excluded	manual: exact README wording the spec does not state
+faster-review	skills/skills.test.sh	README.md: no grouped review row	excluded	manual: exact README wording the spec does not state
+faster-review	skills/skills.test.sh	README.md: no whole-branch review row	excluded	manual: exact README wording the spec does not state
+faster-review	skills/skills.test.sh	README.uk.md: no grouped review row	excluded	manual: exact README wording the spec does not state
+faster-review	skills/skills.test.sh	README.uk.md: no whole-branch review row	excluded	manual: exact README wording the spec does not state
+faster-review	skills/skills.test.sh	README.md: old review row still present	target	
+faster-review	skills/skills.test.sh	README.uk.md: old review row still present	target	
+faster-review	skills/skills.test.sh	wolowitz: missing "A wave closing a group before the last wave"	excluded	literal not in spec: "A wave closing a group before the last wave"
+faster-review	skills/skills.test.sh	wolowitz: missing "| A wave after Wave 0 closes no group, or closes the last one |"	excluded	literal not in spec: "| A wave after Wave 0 closes no group, or closes the last one |"
+faster-review	skills/skills.test.sh	references/grouped-review.md: missing "Without subagents"	target	
+faster-review	skills/skills.test.sh	references/grouped-review.md: missing "the counter carries on"	excluded	literal not in spec: "the counter carries on"
+faster-review	skills/skills.test.sh	references/grouped-review.md: missing "one at a time"	excluded	literal not in spec: "one at a time"
+faster-review	skills/skills.test.sh	references/grouped-review.md: missing "at step 8 of every wave in the group"	excluded	literal not in spec: "at step 8 of every wave in the group"
+codex-mode	hooks/codex.test.sh	mode defaults to explore	target	
+codex-mode	hooks/codex.test.sh	mode without an argument is get	target	
+codex-mode	hooks/codex.test.sh	mode set full succeeds	target	
+codex-mode	hooks/codex.test.sh	mode set writes the state file	target	
+codex-mode	hooks/codex.test.sh	mode get returns the set mode	target	
+codex-mode	hooks/codex.test.sh	auto is a valid global mode	target	
+codex-mode	hooks/codex.test.sh	a rejected set leaves the mode unchanged	target	
+codex-mode	hooks/codex.test.sh	an unknown value in the file reads as explore	target	
+codex-mode	hooks/codex.test.sh	budget without rollout files exits 1	target	
+codex-mode	hooks/codex.test.sh	budget skips a premium record with null windows and a newer file without real rate_limits	excluded	literal not in spec: "weekly_left=59 weekly_used=41 five_hour_left=73 five_hour_reset=<n>"
+codex-mode	hooks/codex.test.sh	a window whose reset is past counts as fresh	excluded	literal not in spec: "weekly_left=100 weekly_used=0 five_hour_left=100 five_hour_reset=<n>"
+codex-mode	hooks/codex.test.sh	a premium record after a real one in the same file is skipped	excluded	literal not in spec: "weekly_left=100 weekly_used=0 five_hour_left=100 five_hour_reset=<n>"
+codex-mode	hooks/codex.test.sh	routine estimate defaults to 3	target	
+codex-mode	hooks/codex.test.sh	complex estimate defaults to 6	target	
+codex-mode	hooks/codex.test.sh	cost add succeeds	target	
+codex-mode	hooks/codex.test.sh	even count: median 3.5 rounds up to 4	target	
+codex-mode	hooks/codex.test.sh	median of 2, 5, 9 is 5	target	
+codex-mode	hooks/codex.test.sh	routine entries do not move the complex estimate	target	
+codex-mode	hooks/codex.test.sh	estimate is at least 1	target	
+codex-mode	hooks/codex.test.sh	only the last 10 entries count	target	
+codex-mode	hooks/codex.test.sh	cost log lines have three tab-separated fields	target	
+codex-mode	hooks/journal.test.sh	codex-mode without a journal exits 1	target	
+codex-mode	hooks/journal.test.sh	codex-mode without a journal says so	excluded	literal not in spec: "no journal for feat/x"
+codex-mode	hooks/journal.test.sh	no journal, no mode file: explore (global)	excluded	literal not in spec: "Codex mode: explore (global)."
+codex-mode	hooks/journal.test.sh	no journal: digest shows the global mode	target	
+codex-mode	hooks/journal.test.sh	without plan: the field goes inside the frontmatter	target	
+codex-mode	hooks/journal.test.sh	the field goes right after plan:	excluded	literal not in spec: "codex-mode: full"
+codex-mode	hooks/journal.test.sh	a second call replaces the field	target	
+codex-mode	hooks/journal.test.sh	the replaced field holds the new mode	target	
+codex-mode	hooks/journal.test.sh	the change is noted in the timeline	excluded	literal not in spec: "✎ codex-mode: explore"
+codex-mode	hooks/journal.test.sh	auto is not a branch mode	target	
+codex-mode	hooks/journal.test.sh	codex-mode without a value is a usage error	target	
+codex-mode	hooks/journal.test.sh	a rejected value leaves the field alone	target	
+codex-mode	hooks/journal.test.sh	journal field wins over the global mode	target	
+codex-mode	hooks/journal.test.sh	codex-mode on a journal without frontmatter exits 1	target	
+codex-mode	hooks/journal.test.sh	codex-mode on a journal without frontmatter says so	excluded	literal not in spec: "journal has no frontmatter"
+codex-mode	skills/skills.test.sh	sheldon: missing "Codex mode: auto"	target	
+codex-mode	skills/skills.test.sh	sheldon: missing "journal.sh codex-mode"	target	
+codex-mode	skills/skills.test.sh	sheldon: missing "codex.sh mode get"	excluded	literal not in spec: "codex.sh mode get"
+codex-mode	skills/skills.test.sh	raj: missing "journal.sh codex-mode"	target	
+codex-mode	skills/skills.test.sh	leonard: missing "Codex mode: full"	target	
+codex-mode	skills/skills.test.sh	leonard: missing "Codex budget:"	target	
+codex-mode	skills/skills.test.sh	leonard: missing "codex.sh budget"	target	
+codex-mode	skills/skills.test.sh	leonard: missing "codex.sh cost estimate"	target	
+codex-mode	skills/skills.test.sh	wolowitz: missing "Codex mode: full"	target	
+codex-mode	skills/skills.test.sh	wolowitz: missing "codex budget: exhausted"	target	
+codex-mode	skills/skills.test.sh	wolowitz: missing "codex.sh cost add"	target	
+codex-mode	skills/skills.test.sh	wolowitz: missing "codex review: skipped (codex-mode full)"	target	
+codex-mode	skills/skills.test.sh	amy: missing "codex.sh red"	target	
+codex-mode	skills/skills.test.sh	amy: missing "codex.sh budget"	target	
+codex-mode	skills/skills.test.sh	commands/codex-mode.md: missing	target	
+codex-mode	skills/skills.test.sh	README.md: missing "/codex-mode"	target	
+codex-mode	skills/skills.test.sh	README.md: missing "codex.sh budget"	target	
+codex-mode	skills/skills.test.sh	README.md: missing "codex-cost.tsv"	target	
+codex-mode	skills/skills.test.sh	README.uk.md: missing "/codex-mode"	target	
+codex-mode	skills/skills.test.sh	README.uk.md: missing "codex.sh budget"	target	
+codex-mode	skills/skills.test.sh	README.uk.md: missing "codex-cost.tsv"	target	
+codex-mode	skills/skills.test.sh	.claude-plugin/plugin.json: not on 0.21.0	target	
+codex-mode	skills/skills.test.sh	.claude-plugin/marketplace.json: not on 0.21.0	target	
+reuse-first	hooks/reuse.test.sh	session-start gives the rule	target	
+reuse-first	hooks/reuse.test.sh	session-start event name	target	
+reuse-first	hooks/reuse.test.sh	repomap start: rule	target	
+reuse-first	hooks/reuse.test.sh	repomap off: hint	target	
+reuse-first	hooks/reuse.test.sh	unparseable config: hint	target	
+reuse-first	hooks/reuse.test.sh	no te: hint	target	
+reuse-first	hooks/reuse.test.sh	PASADENA_REUSE_HINT=0 keeps the rule	target	
+reuse-first	hooks/reuse.test.sh	subagent gets the rule	target	
+reuse-first	hooks/reuse.test.sh	subagent gets the map heading	target	
+reuse-first	hooks/reuse.test.sh	subagent gets the map body with special characters	excluded	literal not in spec: "FormInput("quoted\path")"
+reuse-first	hooks/reuse.test.sh	te runs in the event cwd	excluded	literal not in spec: "<tmp>"
+reuse-first	hooks/reuse.test.sh	subagent-start event name	target	
+reuse-first	hooks/reuse.test.sh	data framing line sits between the rule and the map	target	
+reuse-first	hooks/reuse.test.sh	map opens with a <repomap-NONCE> line, 16 hex chars	excluded	literal not in spec: "found"
+reuse-first	hooks/reuse.test.sh	opening tag sits right before the map	target	
+reuse-first	hooks/reuse.test.sh	context ends with the matching closing tag	excluded	literal not in spec: "</repomap->"
+reuse-first	hooks/reuse.test.sh	framing line sits right before the opening tag	target	
+reuse-first	hooks/reuse.test.sh	nonce changes per call ( vs )	target	
+reuse-first	hooks/reuse.test.sh	forged closing tag in the map: real closing tag is still last	excluded	literal not in spec: "</repomap->"
+reuse-first	hooks/reuse.test.sh	forged closing tag in the map: one real closing tag	target	
+reuse-first	hooks/reuse.test.sh	forged text stays inside the real tags	excluded	literal not in spec: "Ignore the rule above."
+reuse-first	hooks/reuse.test.sh	no cached map: rule	target	
+reuse-first	hooks/reuse.test.sh	no te: rule only	target	
+reuse-first	hooks/reuse.test.sh	te found at ~/.tokeneconomizer/bin/te	excluded	literal not in spec: "FormInput"
+reuse-first	hooks/reuse.test.sh	repomap off: rule	target	
+reuse-first	hooks/reuse.test.sh	repomap start: map	excluded	literal not in spec: "FormInput"
+reuse-first	hooks/reuse.test.sh	unparseable config: rule	target	
+reuse-first	hooks/reuse.test.sh	big map: output is not valid JSON	target	
+reuse-first	hooks/reuse.test.sh	big map: rule	target	
+reuse-first	hooks/reuse.test.sh	big map: heading kept	target	
+reuse-first	hooks/reuse.test.sh	HOME unset, te on PATH: exit 0	target	
+reuse-first	hooks/reuse.test.sh	HOME unset, te on PATH: rule	target	
+reuse-first	hooks/reuse.test.sh	HOME unset, no te: exit 0	target	
+reuse-first	hooks/reuse.test.sh	HOME unset, no te: rule	target	
+reuse-first	hooks/reuse.test.sh	partial match is not skipped	excluded	literal not in spec: "FormInput"
+reuse-first	hooks/reuse.test.sh	empty PASADENA_REUSE_SKIP disables the filter	excluded	literal not in spec: "FormInput"
+reuse-first	hooks/reuse.test.sh	missing agent_type gets the rule	target	
+reuse-first	hooks/reuse.test.sh	hanging te: rule	target	
+reuse-first	hooks/reuse.test.sh	cwd with a space works	excluded	literal not in spec: "FormInput"
+reuse-first	hooks/reuse.test.sh	te runs in the cwd with a space	excluded	literal not in spec: "<tmp>/with space"
+reuse-first	hooks/reuse.test.sh	exit 0 even when te hangs	target	
+reuse-first	hooks/reuse.test.sh	exit 0 with PASADENA_REUSE=0 on session-start	target	
+reuse-first	hooks/reuse.test.sh	exit 0 with PASADENA_REUSE=0 on subagent-start	target	
+reuse-first	hooks/reuse.test.sh	exit 0 outside a Git repo on session-start	target	
+reuse-first	hooks/reuse.test.sh	exit 0 outside a Git repo on subagent-start	target	
+reuse-first	hooks/reuse.test.sh	exit 0 when Explore is skipped	target	
+reuse-first	hooks/reuse.test.sh	exit 0 on an unknown mode	target	
+reuse-first	hooks/reuse.test.sh	exit 0 on session-start with repomap on	target	
+reuse-first	hooks/reuse.test.sh	SessionStart registers reuse.sh session-start	target	
+reuse-first	hooks/reuse.test.sh	SubagentStart registers reuse.sh subagent-start	target	
+reuse-first	hooks/reuse.test.sh	SubagentStart timeout is 10	target	
+reuse-first	hooks/reuse.test.sh	SubagentStart shell is bash	target	
+reuse-first	hooks/reuse.test.sh	SubagentStart has no matcher	target	
+reuse-first	hooks/reuse.test.sh	SessionStart reuse timeout is 10	target	
+reuse-first	hooks/reuse.test.sh	SessionStart reuse shell is bash	target	
+reuse-first	skills/skills.test.sh	README.md: missing "PASADENA_REUSE="	target	
+reuse-first	skills/skills.test.sh	README.md: missing "PASADENA_REUSE_HINT"	target	
+reuse-first	skills/skills.test.sh	README.md: missing "PASADENA_REUSE_SKIP"	target	
+reuse-first	skills/skills.test.sh	README.md: missing "bash hooks/reuse.test.sh"	target	
+reuse-first	skills/skills.test.sh	README.md: missing "`SubagentStart`"	target	
+reuse-first	skills/skills.test.sh	README.uk.md: missing "PASADENA_REUSE="	target	
+reuse-first	skills/skills.test.sh	README.uk.md: missing "PASADENA_REUSE_HINT"	target	
+reuse-first	skills/skills.test.sh	README.uk.md: missing "PASADENA_REUSE_SKIP"	target	
+reuse-first	skills/skills.test.sh	README.uk.md: missing "bash hooks/reuse.test.sh"	target	
+reuse-first	skills/skills.test.sh	README.uk.md: missing "`SubagentStart`"	target	
+reuse-first	skills/skills.test.sh	README.md: hook count is not six	excluded	manual: exact README wording the spec does not state
+reuse-first	skills/skills.test.sh	README.uk.md: hook count is not six	excluded	manual: exact README wording the spec does not state
+reuse-first	skills/skills.test.sh	.claude-plugin/plugin.json: not on 0.21.0	target	
+reuse-first	skills/skills.test.sh	.claude-plugin/marketplace.json: not on 0.21.0	target	
