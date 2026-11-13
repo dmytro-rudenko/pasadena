@@ -254,10 +254,12 @@ grep -qF '| Implementer, `complex`-задача, раунд 3, фінальни�
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.24.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.24.0"
+  grep -qF '"version": "0.25.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.25.0"
 done
 for readme in README.md README.uk.md; do
   grep -qF 'bash bench/bench.test.sh' "$ROOT/$readme" || fail "$readme: no bench check"
+  grep -qF 'bench/checks.tsv' "$ROOT/$readme" || fail "$readme: no bench/checks.tsv note"
+  grep -qF 'ub-tools.sh available <tool>' "$ROOT/$readme" || fail "$readme: no ub-tools.sh available note"
 done
 grep -qF '## Benchmarks' "$ROOT/README.md" || fail "README.md: no Benchmarks section"
 grep -qF '## Бенчмарки' "$ROOT/README.uk.md" || fail "README.uk.md: no Бенчмарки section"
@@ -377,7 +379,7 @@ for readme in README.md README.uk.md; do
   grep -qF 'PASADENA_DRYER' "$ROOT/$readme" || fail "$readme: no PASADENA_DRYER"
   grep -qF 'bash hooks/ub-tools.test.sh' "$ROOT/$readme" || fail "$readme: no ub-tools check"
 done
-grep -qF '"version": "0.24.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.24.0"
+grep -qF '"version": "0.25.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.25.0"
 [ "$fails" -eq "$before" ] && ok "ub-mode quality gates checked"
 
 echo "Manifest versions"
