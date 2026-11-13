@@ -9,6 +9,8 @@ if [ -z "$run" ] || [ ! -f "$run/meta.json" ]; then
   exit 2
 fi
 
+run="$(cd "$run" && pwd)"
+
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
@@ -92,6 +94,7 @@ while IFS=$'\t' read -r path check; do
       s = $0; out = ""
       while ((i = index(s, tree)) > 0) { out = out substr(s, 1, i - 1) "<tree>"; s = substr(s, i + length(tree)) }
       line = out s
+      gsub(/\t/, " ", line)
       sub(/^[ \t]+/, "", line)
       if (line == "All checks passed." || line ~ /^FAILED: [0-9]+$/) done = 1
       if (line == want) failed = 1
@@ -189,7 +192,7 @@ jq -nc \
       tests_failed: ($oracle | map(select(.code != "0") | .path)),
       checks_passed: $checks_passed,
       checks_total: $checks_total,
-      score: (if $checks_total > 0 then (($checks_passed * 100 / $checks_total) | round) / 100 else null end),
+      score: (if $checks_total > 0 and $verdict != "error" then (($checks_passed * 100 / $checks_total) | round) / 100 else null end),
       bench_rev: $bench_rev,
       input_tokens: (if $result != null then $tok.input_tokens else null end),
       cache_read: (if $result != null then $tok.cache_read_input_tokens else null end),
