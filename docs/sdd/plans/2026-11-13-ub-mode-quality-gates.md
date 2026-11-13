@@ -48,7 +48,7 @@ dryer №1 для цього плану: репозиторій містить �
 - «`git grep -n "Remove duplication" skills/amy/SKILL.md` порожній»
 - «`.claude-plugin/plugin.json` має `"version": "0.24.0"`»
 
-- [ ] **Step 1: write the acceptance tests**
+- [x] **Step 1: write the acceptance tests**
 
 `hooks/ub-tools.test.sh` (новий, `chmod +x` не потрібен, запускається через `bash`):
 
@@ -259,7 +259,7 @@ grep -qF '"version": "0.24.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugi
 [ "$fails" -eq "$before" ] && ok "ub-mode quality gates checked"
 ```
 
-- [ ] **Step 2: run them, watch them fail** — `bash hooks/ub-tools.test.sh; bash skills/skills.test.sh`, expect `FAILED:` у обох: скрипта і правил ще немає.
+- [x] **Step 2: run them, watch them fail** — `bash hooks/ub-tools.test.sh; bash skills/skills.test.sh`, expect `FAILED:` у обох: скрипта і правил ще немає.
 
 ---
 
