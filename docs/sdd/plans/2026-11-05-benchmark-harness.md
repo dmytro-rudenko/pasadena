@@ -327,3 +327,230 @@ Pasadena не має виміру того, чи покращує вона ро�
 - [x] **Step 2:** `bash bench/calibrate.sh` (без змінних, реальний репозиторій; лише локальні тести, без `claude`). Exit 0.
 - [x] **Step 3:** `mkdir -p $BENCH_DIR/reports && cp $BENCH_DIR/calibration.log $BENCH_DIR/reports/00-calibration-<plugin_rev>.md`; закомітити зміни `bench/tasks.tsv` (`chore(bench): calibrate oracles`), запушити.
 - [x] **Step 4:** коментар у PR #36: вміст `calibration.log`, таблиця задач після калібрування (лишені тести, виключені й чому, холдаут), висновки агента і пропозиція етапу 1 (два сухі прогони, ≈ до $30 у найгіршому разі, з прогнозом). **Зупинка:** етап 1 не запускається без явного погодження користувача.
+
+---
+
+## Ревізія 2026-11-13
+
+**Goal:** `bench/` оцінює прогони за окремими вимогами з `bench/checks.tsv` проти оракула на останньому коміті фічі; агент отримує спеку з оракула; кожен рядок має `bench_rev`; `meta.json` фіксує `ub_tools`; `score.sh` не шумить у stderr для `off`. Етап 0 повторено на реальному репозиторії, звіт у PR #36, далі зупинка до погодження етапу 1.
+**Spec:** docs/sdd/specs/2026-11-05-benchmark-harness.md (Revised 2026-11-13, коміт 38eadcb)
+**Verification:** `bash bench/bench.test.sh && bash hooks/ub-tools.test.sh && bash skills/skills.test.sh`; останній рядок кожного — `All checks passed.`
+
+Задачі 9–18 дописуються в наявний план `docs/sdd/plans/2026-11-05-benchmark-harness.md` розділом «Ревізія 2026-11-13»; Task 9 — приймальні тести ревізії (роль Task 0).
+dryer: `ub-tools.sh dryer bench hooks/ub-tools.sh` → `No source files to analyze` (bash не підтримується), дублікатів не знайдено.
+
+### Context
+
+Етап 1 (2026-11-13, $3.07) дав `fail` обом коміркам: оракул `d97c752` захопив чужу фічу, а `skills.test.sh` вимагає дослівних рядків, яких немає в спеці. Ревізія спеки (§3.1–3.9, §5, §6) міняє оракули, джерело спеки, одиницю оцінки й ключ серій. Причину `Error: invalid value for one of the arguments` уже знайдено під час планування: `bench/score.sh:36` викликає `realpath -m ''`, коли `plugin_path` порожній (комірка `off`); відтворюється `bash bench/score.sh <baseline-run>`.
+
+### Global constraints
+
+- Усе з «Global constraints» наявного плану чинне: bash `set -uo pipefail`, `jq`, без коментарів, тести — частини `bench/test/NN-*.sh` з helper-ами `assert_eq`, `assert_contains`, `fresh_bench`, `last_run` і лічильником `fails`.
+- Нова змінна в `bench/lib.sh`: `BENCH_CHECKS="${BENCH_CHECKS:-$BENCH_ROOT/checks.tsv}"`. `bench/bench.test.sh` експортує `BENCH_CHECKS="$tmp/checks.tsv"`, щоб тести не читали справжній файл.
+- Формат `bench/checks.tsv`: заголовок `task\ttest\tcheck\tstatus\treason`; `status` ∈ `target|excluded`; `reason` порожній для автоматичної цілі, `literal not in spec: "<s>"` для автоматичного виключення, `manual: <чому>` для ручного рішення. Табуляція в `check` замінюється пробілом.
+- Нормалізація назви вимоги: шлях дерева, де запускався тест, замінюється на `<tree>`; ведучі пробіли й префікс `FAIL — ` відкидаються.
+- Файл тесту **дійшов до кінця**, коли його вивід має рядок `All checks passed.` або `FAILED: <N>`.
+- `bench_rev` = `cat "$BENCH_TASKS" "$BENCH_CHECKS" 2>/dev/null | sha256sum | cut -c1-12`.
+- Задача без жодного рядка `target` у `checks.tsv` оцінюється, як до ревізії, за кодами файлів; `checks_total` = 0, `score` = `null`. Свідоме рішення: так тести без `ok/FAIL`-виводу й нова, ще не калібрована задача лишаються оцінюваними.
+- Версія плагіна `0.24.0` → `0.25.0`: `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `skills/skills.test.sh:257` і `:380`.
+- Codex: `off`, режим `explore` — усі задачі `claude`.
+
+### Review Focus
+
+1. Назва вимоги з абсолютним шляхом дерева (`<tree>/skills/wolowitz/SKILL.md: 20000 bytes…`): ключ має збігатися між калібруванням (`$work/<id>/base`) і прогоном (`$run/tree`).
+2. Тестовий файл, що впав до підсумкового рядка (синтаксична помилка, тайм-аут оракула), не може зарахувати жодної цілі, хоч `FAIL`-рядків у ньому й немає.
+3. Повторне калібрування зберігає `manual:`-рядок і не дублює його автоматичним.
+4. Вимога з лапками, що не є літералом (`expected one "version" line`), автоматично виключається — це очікувано; ручне `manual:` може повернути її в `target`.
+5. Рядки `runs.jsonl` без `bench_rev` (старі) не стають «виконаними» для `matrix.sh` і не потрапляють у `report.sh`.
+
+### Waves
+
+| Wave | Tasks | Why together |
+|---|---|---|
+| 0 | 9 | сам — приймальні тести ревізії, червоні до хвилі 3 |
+| 1 | 10, 11, 17 | різні файли: `lib.sh`+`tasks.tsv`; `hooks/ub-tools.sh`; маніфести+README+`skills.test.sh` |
+| 2 | 12, 13, 14, 15 | різні файли: `calibrate.sh`, `score.sh`, `run.sh`, `matrix.sh`; усі споживають `lib.sh` з Task 10, `run.sh` — ще й `available` з Task 11 |
+| 3 | 16 | сам — `report.sh --next` спирається на ключі `matrix.sh --pending` з Task 15 і поля з Task 13 |
+| 4 | 18 | сам — етап 0 на реальному репозиторії, пише `tasks.tsv` і `checks.tsv`, потім зупинка |
+
+Послідовно: Task 16 після 13 і 15; Task 18 після всіх, бо запускає готовий `calibrate.sh` і переписує файли з Task 10.
+
+---
+
+### Task 9: приймальні тести ревізії
+
+**Writes:** `bench/bench.test.sh`, `bench/test/70-revision.sh`
+**Executor:** claude
+**Covers:**
+- «`bash bench/bench.test.sh` проходить.»
+- «`bench/calibrate.sh` завершується, `calibration.log` пояснює кожне виключення, `bench/checks.tsv` має хоча б одну ціль на кожну невиключену задачу…»
+- «Причину рядка `Error: invalid value for one of the arguments`… знайдено на фейковому `claude` і усунено до повтору етапу 1.»
+- §3.4 крок 2 (спека з `oracle`, `ub_tools`), §3.5 (`checks_*`, `score`, `bench_rev`), §3.6 (ключ з `bench_rev`), §3.7 (`score mean`, `checks`, відсів `bench_rev`).
+
+- [ ] **Step 1: `bench/bench.test.sh`** — після `export BENCH_DIR=…` додати `export BENCH_CHECKS="$tmp/checks.tsv"`. У фейковий плагін `$plugin` скопіювати `hooks/ub-tools.sh` з `$ROOT` (перед його `git commit`). У фейковий `claude` після запису `$FAKE_LOG.env` додати `cat spec.md >"$FAKE_LOG.spec" 2>/dev/null`; `fresh_bench` видаляє й `$FAKE_LOG.spec`. В основному фейковому репозиторії перед комітом `oracle` додати `echo amended >>"$repo/spec.md"`, щоб спека в `oracle` відрізнялась від `base`.
+- [ ] **Step 2: `bench/test/70-revision.sh`** — власний репозиторій `$tmp/rrepo` (через `gitc`):
+  - коміт base: `spec.md` з текстом `alpha "beta"` і `t/c.test.sh` відсутній;
+  - коміт oracle: `spec.md` дописує рядок `amended`, `feature.txt` = `alpha`, `literal.txt` = `gamma`, і `t/c.test.sh`, що друкує `ok  — `/`FAIL — ` у форматі репозиторію з підсумком `All checks passed.` / `FAILED: N`, з трьома вимогами: `feature: missing "alpha"` (`grep -qx alpha feature.txt`), `literal: missing "gamma"` (`grep -qx gamma literal.txt`), `path: $(pwd)/feature.txt absent` (`[ -f feature.txt ]`).
+  - `rtasks=$tmp/rtasks.tsv` з задачами `r1` (base, oracle, `t/c.test.sh`, holdout 0) і `r0` (base=oracle — без цілей, holdout 0).
+  Перевірки (кожна — `assert_*` з окремою назвою):
+  1. `BENCH_REPO=$tmp/rrepo BENCH_TASKS=$rtasks bash bench/calibrate.sh` → exit 0; у `$BENCH_CHECKS` рядок `r1\tt/c.test.sh\tfeature: missing "alpha"\ttarget\t`; рядок `literal: missing "gamma"` має `excluded` і `literal not in spec: "gamma"`; рядок `path: <tree>/feature.txt absent` — `target`; `r0` у `$rtasks` має `holdout` `x`, лог містить ` r0 excluded:`.
+  2. Додати в `$BENCH_CHECKS` ручне рішення: замінити рядок `path: …` на `status=excluded`, `reason=manual: test`; повторний `calibrate.sh` лишає саме цей рядок з `manual: test` і не додає дубль.
+  3. `FAKE_WRITES="feature.txt=alpha" BENCH_REPO=… BENCH_TASKS=… bash bench/run.sh r1 plugin 1` → `last_run .checks_total` = `1`, `.checks_passed` = `1`, `.score` = `1`, `.verdict` = `pass`, `.bench_rev` — 12 hex-символів і дорівнює `cat $rtasks $BENCH_CHECKS | sha256sum | cut -c1-12`.
+  4. У тому ж прогоні `$FAKE_LOG.spec` містить `amended` (агент бачив спеку з oracle), `diff.patch` не згадує `spec.md`, а `jq -r .ub_tools.dryer <run>/meta.json` непорожній.
+  5. Прогін `r1 baseline 1` з `FAKE_WRITES="other.txt=x"`: stderr `run.sh` (`2>$tmp/r.err`) не містить `invalid value`; `last_run .verdict` = `fail`, `.checks_passed` = `0`.
+  6. `BENCH_TASKS=$rtasks bash bench/report.sh --tasks r1` містить заголовок стовпця `score mean` і `| 1/1 |` у рядку прогону `plugin`.
+  7. Дописати в `runs.jsonl` копію останнього рядка без `bench_rev` і з `config:"plugin-haiku"`; `BENCH_TASKS=$rtasks bash bench/report.sh` не містить `plugin-haiku`; `BENCH_TASKS=$rtasks bash bench/matrix.sh --tasks r1 --configs plugin --reps 1 --pending` друкує порожньо (прогін з поточним `bench_rev` виконаний).
+  Усі змінні (`BENCH_REPO`, `BENCH_TASKS`) задаються префіксом команди, щоб не протекти в інші частини.
+- [ ] **Step 3: побачити, що падає** — `bash bench/bench.test.sh`, очікувано `FAILED: N` з провалами лише в блоці `== revision ==`.
+
+### Task 10: `lib.sh` — `BENCH_CHECKS`, `bench_rev`, спека з оракула; оракули в `tasks.tsv`
+
+**Writes:** `bench/lib.sh`, `bench/tasks.tsv`, `bench/test/10-lib.sh`
+**Reads:** spec §3.1, §3.4 крок 2
+**Depends on:** Task 9
+**Executor:** claude
+**Complexity:** routine
+**Satisfies:** частина приймальних 3–4, 7
+**Interfaces:**
+- Produces: `BENCH_CHECKS`; `bench_rev` (друкує 12 hex); `make_tree <commit> <dest> [<oracle> <spec>]` — з двома додатковими аргументами перезаписує `<dest>/<spec>` вмістом `git -C "$BENCH_REPO" show "<oracle>:<spec>"` до `git add -A`, решта як було.
+
+- [ ] **Step 1: тест у `bench/test/10-lib.sh`:** `bench_rev` — 12 символів `[0-9a-f]` і змінюється після дописування рядка в копію `checks.tsv`; `make_tree "$BASE" "$tmp/mt" "$ORACLE" spec.md` дає `spec.md`, ідентичний `git -C "$repo" show "$ORACLE:spec.md"`, і рівно один коміт; без двох аргументів `spec.md` — з `$BASE`.
+- [ ] **Step 2: побачити, що падає** — `bash bench/bench.test.sh`.
+- [ ] **Step 3: реалізація** у `bench/lib.sh`: рядок `BENCH_CHECKS=…` після `BENCH_CONFIGS`; функція `bench_rev`; у `make_tree` після `tar -x`: `if [ -n "${3:-}" ]; then git -C "$BENCH_REPO" show "$3:$4" >"$dest/$4" || return; fi`. У `bench/tasks.tsv`: `model-routing` oracle `d97c752` → `fbdd4ae`, `reuse-first` oracle `74bf39c` → `8c0f8f8`.
+- [ ] **Step 4: побачити, що проходить** — блок `lib` без `FAIL`.
+
+### Task 11: `ub-tools.sh available <tool>`
+
+**Writes:** `hooks/ub-tools.sh`, `hooks/ub-tools.test.sh`
+**Depends on:** Task 9
+**Executor:** claude
+**Complexity:** routine
+**Satisfies:** частина приймального 4
+**Interfaces:**
+- Produces: `bash hooks/ub-tools.sh available <dryer|crapper|mutator>` — друкує `<tool>: <команда>` (елементи `RUN` через пробіл) і exit 0, або рядок `<tool>: unavailable (<причина>)` з наявної `resolve` і exit 1; інше ім'я → usage, exit 2.
+
+- [ ] **Step 1: тест у `hooks/ub-tools.test.sh`** у стилі файлу: з `PASADENA_DRYER` на фейковий виконуваний файл → `dryer: <шлях>`, exit 0; `PASADENA_CRAPPER=/nonexistent` → `crapper: unavailable (PASADENA_CRAPPER is not executable)`, exit 1; з порожнім `XDG_DATA_HOME` і без `mutator` у PATH → `mutator: unavailable (not installed; run ub-tools.sh install)`, exit 1; `available foo` → exit 2.
+- [ ] **Step 2: побачити, що падає** — `bash hooks/ub-tools.test.sh`.
+- [ ] **Step 3: реалізація:** функція `cmd_available` викликає `resolve "$1"` і друкує `$1: ${RUN[*]}`; гілка `available) case "${1:-}" in dryer|crapper|mutator) cmd_available "$1"; exit $? ;; *) usage; exit 2 ;; esac ;;` до загального `exit 0`; usage доповнити `| available <tool>`.
+- [ ] **Step 4: побачити, що проходить** — `All checks passed.`
+
+### Task 12: `calibrate.sh` — цілі в `checks.tsv`
+
+**Writes:** `bench/calibrate.sh`, `bench/test/40-calibrate.sh`
+**Reads:** spec §3.2, `bench/lib.sh`
+**Depends on:** Task 10
+**Executor:** claude
+**Complexity:** complex
+**Satisfies:** приймальні 1–2
+**Interfaces:**
+- Consumes: `make_tree <commit> <dest> <oracle> <spec>`, `BENCH_CHECKS` (Task 10).
+- Produces: `$BENCH_CHECKS` у форматі з Global constraints; лог-рядки `excluded: no target checks` і `check-excluded <test>: <check>: <reason>`.
+
+- [ ] **Step 1: тест у `40-calibrate.sh`** — наявні перевірки лишаються зеленими (їхні тести не друкують `FAIL —`, тож у задач t1/t4 цілей немає: для фейкового репозиторію без `ok/FAIL`-виводу задача з кодами `≠0` на base лишається `kept` за старим правилом). Нові: задача, у якої base-файли друкують `FAIL —`-рядки, усі з літералами поза спекою → `x`, `excluded: no target checks`; кожен виключений рядок має запис `check-excluded` у лозі.
+- [ ] **Step 2: побачити, що падає.**
+- [ ] **Step 3: реалізація.**
+  - Обидва дерева через `make_tree "<commit>" "<dir>" "$oracle" "$spec"`; `spec` з `task_field`. Текст спеки — `git -C "$BENCH_REPO" show "$oracle:$spec" >"$dir/spec.txt"`.
+  - Після `run_oracle` на base для кожного лишеного файла `n`: awk по `$dir/base-out/oracle-$n.log` — збирати рядки `^[[:space:]]*FAIL — `, відкидати префікс, замінювати `"$dir/base"` на `<tree>` (через `index`/`substr`, не regex), табуляцію на пробіл; для кожного FAIL збирати літерали: усі `"…"` з назви плюс значення наступних рядків `^[[:space:]]+expected substring: ` і `^[[:space:]]+expected: ` до наступного `ok  —`/`FAIL —`. Те саме для oracle-логів → множина назв; ціль = base-FAIL, якого немає в oracle-FAIL.
+  - Літерал відсутній у `spec.txt` (`grep -qF -- "$s"`) → `excluded`, `literal not in spec: "<s>"` (перший відсутній).
+  - Ручні рядки: перед записом прочитати наявний `$BENCH_CHECKS` і зберегти рядки, чий `reason` починається з `manual:`, за ключем `task\ttest\tcheck`; при генерації такий ключ бере статус і reason з ручного рядка; ручні рядки без згенерованої пари відкидаються.
+  - Задача з `kept`-файлами, що друкують `FAIL —`-рядки, але без жодного `target` → `exclude … "no target checks"`. Задачі без жодного `FAIL —` у base-виводі — правило «passes on base» за кодами, як було.
+  - Запис `$BENCH_CHECKS` атомарно (`.tmp.$$` + `mv`), рядки лише невиключених задач, порядок задач — як у `tasks.tsv`.
+- [ ] **Step 4: побачити, що проходить** — блоки `calibrate` і приймальні 1–2 без `FAIL`.
+
+### Task 13: `score.sh` — `checks_*`, `score`, `bench_rev`, тиша в stderr для `off`
+
+**Writes:** `bench/score.sh`, `bench/test/20-score.sh`
+**Reads:** spec §3.5, `bench/lib.sh`
+**Depends on:** Task 10
+**Executor:** claude
+**Complexity:** complex
+**Satisfies:** приймальні 3, 5
+**Interfaces:**
+- Consumes: `BENCH_CHECKS`, `bench_rev` (Task 10); `score.sh` починає `source "$BENCH_ROOT/lib.sh"` з `BENCH_ROOT="$(cd "$(dirname "$0")" && pwd)"`.
+- Produces: нові поля рядка `bench_rev` (рядок), `checks_passed`, `checks_total` (числа), `score` (число з 2 знаками або `null`).
+
+- [ ] **Step 1: тести в `20-score.sh`:** для `mkrun` з `oracle.exit` = `t/c.test.sh\t1` і `oracle-1.log`, де є `FAIL — a`, `FAIL — <tree>/x`-подібна назва з шляхом `$dir/tree` і рядок `FAILED: 2`, та `checks.tsv` з цілями `a`, `b`, `<tree>/x` → `checks_total` 3, `checks_passed` 1, `score` 0.33, `verdict` `partial`; лог без підсумкового рядка → `checks_passed` 0; задача без рядків у `checks.tsv` → `checks_total` 0, `score` null, вердикт за кодами (наявні перевірки); `meta.mode=off` з `plugin_path:""` → stderr `score.sh` порожній; `bench_rev` = значенню `bench_rev` з `lib.sh`.
+- [ ] **Step 2: побачити, що падає.**
+- [ ] **Step 3: реалізація.**
+  - `want_path` рахувати лише коли `mode != off` і `plugin_path` непорожній — це усуває `realpath -m ''`.
+  - Цілі: `awk -F'\t' -v t="$task" 'NR>1 && $1==t && $4=="target"' "$BENCH_CHECKS"`. Індекс файла — номер рядка `oracle.exit` з цим шляхом. Для кожної цілі: лог `oracle-<n>.log` з `"$run/tree"` → `<tree>`; пройдена, коли лог має `All checks passed.` або `FAILED: <N>` і не має рядка, що після обрізання ведучих пробілів дорівнює `FAIL — <check>`. Порівняння рядків — фіксоване (awk `==`), не regex.
+  - `verdict`: якщо `checks_total > 0`, то `pass`/`partial`/`fail` за `checks_passed`; інакше — за кодами, як було. `error`/`refused` мають пріоритет, як було.
+  - `score`: `(passed*100/total | round)/100` при `total>0`, інакше `null`.
+- [ ] **Step 4: побачити, що проходить** — блок `score` і приймальні 3, 5.
+
+### Task 14: `run.sh` — спека з оракула і `ub_tools`
+
+**Writes:** `bench/run.sh`, `bench/test/30-run.sh`
+**Reads:** spec §3.4
+**Depends on:** Task 10, Task 11
+**Executor:** claude
+**Complexity:** routine
+**Satisfies:** приймальний 4
+**Interfaces:**
+- Consumes: `make_tree … "$oracle" "$spec"` (Task 10); `ub-tools.sh available` (Task 11).
+- Produces: `meta.json.ub_tools = {dryer, crapper, mutator}` — рядок виводу `available`; `"unknown"`, якщо в `$BENCH_PLUGIN` немає `hooks/ub-tools.sh`.
+
+- [ ] **Step 1: тести в `30-run.sh`:** після `run.sh t1 plugin 1` файл `$FAKE_LOG.spec` (його пише фейк з Task 9) дорівнює `git -C "$repo" show "$ORACLE:spec.md"` і містить `amended`; `ub_tools.crapper` для комірки з `env` `PASADENA_CRAPPER=/nonexistent` — `crapper: unavailable (PASADENA_CRAPPER is not executable)` (тестова `configs.tsv` у `$tmp`, передана через `BENCH_CONFIGS=` префіксом); `ub_tools.dryer` = `unknown`, коли в плагіні немає `hooks/ub-tools.sh` (тимчасовий `BENCH_PLUGIN`).
+- [ ] **Step 2: побачити, що падає.**
+- [ ] **Step 3: реалізація:** розбір `env_pairs` у `pairs` перенести до запису `meta.json`; `ub_tools` — `jq -n` з трьох `env "${pairs[@]}" bash "$BENCH_PLUGIN/hooks/ub-tools.sh" available <tool> 2>/dev/null` (ігнорувати exit 1) і `--argjson ub_tools` у наявний `jq -n`; `make_tree "$base" "$run/tree" "$oracle" "$spec"`.
+- [ ] **Step 4: побачити, що проходить.**
+
+### Task 15: `matrix.sh` — ключ з `bench_rev`
+
+**Writes:** `bench/matrix.sh`, `bench/test/50-matrix.sh`
+**Reads:** spec §3.6
+**Depends on:** Task 10
+**Executor:** claude
+**Complexity:** routine
+**Satisfies:** приймальний 7 (частина `--pending`)
+**Interfaces:**
+- Consumes: `bench_rev` (Task 10); поле рядка `.bench_rev` (Task 13; рядок без нього має `null`).
+
+- [ ] **Step 1: тести в `50-matrix.sh`:** рядок `runs.jsonl` з іншим `bench_rev` (або без нього) не вважається виконаним; `--retry-errors` видаляє лише `error`-рядок з поточним `bench_rev`.
+- [ ] **Step 2: побачити, що падає.**
+- [ ] **Step 3: реалізація:** `brev="$(bench_rev)"`; у читанні `jq -r '[.plugin_rev,(.bench_rev // ""),.task,…]|@tsv'` пропускати рядки з `bench_rev != $brev`; `drop_errors` додає умову `$o.bench_rev == $brev`.
+- [ ] **Step 4: побачити, що проходить.**
+
+### Task 16: `report.sh` — `score mean`, `checks`, відсів `bench_rev`
+
+**Writes:** `bench/report.sh`, `bench/test/60-report.sh`
+**Reads:** spec §3.7
+**Depends on:** Task 13, Task 15
+**Executor:** claude
+**Complexity:** routine
+**Satisfies:** приймальні 6–7
+**Interfaces:**
+- Consumes: поля `bench_rev`, `score`, `checks_passed`, `checks_total` (Task 13); `bench_rev` з `lib.sh`.
+
+- [ ] **Step 1: тести в `60-report.sh`:** стовпець `score mean` у таблиці комірок (`0.50` для двох прогонів зі `score` 1 і 0, `-` без значень); рядок `<cell>: score +0.25 vs plugin (noise)` при <3 прогонах у будь-якій з двох комірок і без `(noise)` при ≥3 в обох; стовпець `checks` у таблиці прогонів (`k/n`, `-` при `checks_total` 0); рядки з іншим `bench_rev` не враховуються ні у вибірці, ні у визначенні найновішого `plugin_rev`.
+- [ ] **Step 2: побачити, що падає.**
+- [ ] **Step 3: реалізація:** `--arg brev "$(bench_rev)"` і `select(.bench_rev == $brev)` над `$all` до вибору `$r`; `cellrow` + `score_mean: ($rs | vals("score") | mean)`; `cellline` — стовпець після `fail`… розмістити після `runs`: `| cell | runs | score mean | pass | …`; `delta` дописує другий рядок для `score` з форматуванням `dec2` (новий `def dec2`, аналог `money` без `$`); `runline` замінює стовпець `failed tests` на `checks`. Заголовки таблиць оновити відповідно.
+- [ ] **Step 4: побачити, що проходить** — `bash bench/bench.test.sh` → `All checks passed.` (приймальні 1–7 зелені).
+
+### Task 17: версія 0.25.0 і README
+
+**Writes:** `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `skills/skills.test.sh`, `README.md`, `README.uk.md`
+**Depends on:** Task 9
+**Executor:** claude
+**Complexity:** routine
+**Satisfies:** — (умова Verification `skills.test.sh`)
+
+- [ ] **Step 1: тест** — `skills/skills.test.sh:257` і `:380`: `0.24.0` → `0.25.0` (і в повідомленнях).
+- [ ] **Step 2: побачити, що падає** — `bash skills/skills.test.sh`, `not on 0.25.0`.
+- [ ] **Step 3: реалізація.** Версія `0.25.0` в обох маніфестах. У `## Benchmarks` після речення про `calibration.log`: «Calibration also writes `bench/checks.tsv`: the individual checks that fail at the base commit and pass at the oracle, minus those whose expected text the spec never states; a run's `score` is the share of those checks it passes.» У абзаці про quality gates: «`bash hooks/ub-tools.sh available <tool>` prints where a tool resolves to, or why it is unavailable.» Дзеркально в `README.uk.md` («Калібрування також пише `bench/checks.tsv`: окремі перевірки, що падають на базовому коміті й проходять на оракулі, без тих, чий очікуваний текст спека не називає; `score` прогону — частка цих перевірок, які він пройшов.» і «`bash hooks/ub-tools.sh available <tool>` друкує, куди резолвиться інструмент, або чому він недоступний.»).
+- [ ] **Step 4: побачити, що проходить** — `All checks passed.`
+
+### Task 18: етап 0 — повторне калібрування, потім зупинка
+
+**Writes:** `bench/tasks.tsv`, `bench/checks.tsv`
+**Depends on:** Task 9–17
+**Executor:** claude
+**Complexity:** routine
+**Satisfies:** §6 «`bench/calibrate.sh` завершується… кожна ціль без літералів має `manual:`-рішення або лишилась `target` після перегляду», «На `model-routing` з оракулом `fbdd4ae` кінчик проходить усі цілі, а `base` — жодної»
+
+- [ ] **Step 1:** Verification-команда плану — усі три `All checks passed.`
+- [ ] **Step 2:** `bash bench/calibrate.sh` на реальному репозиторії. Exit 0.
+- [ ] **Step 3:** переглянути кожну ціль без лапок і без `expected`-рядка в `bench/checks.tsv`; ту, яку неможливо виконати зі спеки задачі, позначити `excluded` / `manual: <чому>`; повторити `calibrate.sh`, переконатися, що ручні рядки лишились.
+- [ ] **Step 4:** для `model-routing`: дерево `fbdd4ae` з тестами проходить усі цілі, дерево `4ab6c1c` (зі спекою з `fbdd4ae`) — жодної (через `make_tree` + `run_oracle` + той самий підрахунок, що в `score.sh`, у scratchpad).
+- [ ] **Step 5:** `cp $BENCH_DIR/calibration.log $BENCH_DIR/reports/00-calibration-<plugin_rev>.md` з дописаним зведенням `checks.tsv` (цілі/виключені на задачу, ручні рішення); коміт `chore(bench): recalibrate with per-check targets`; push.
+- [ ] **Step 6:** коментар у PR #36: зведення, висновки, пропозиція етапу 1 (`run.sh model-routing plugin 1`, `run.sh model-routing baseline 1`, оцінка ~$3 еквівалента за замірами 2026-11-13). **Зупинка:** етап 1 — лише після явного погодження користувача.
