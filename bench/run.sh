@@ -40,17 +40,27 @@ mkdir -p "$run/state/pasadena" || exit 2
 plugin_path=""
 [ "$mode" = plugin ] && plugin_path="$BENCH_PLUGIN"
 
+pairs=()
+[ "$env_pairs" != - ] && read -ra pairs <<<"$env_pairs"
+
+ub_tool() {
+  [ -f "$BENCH_PLUGIN/hooks/ub-tools.sh" ] || { echo unknown; return; }
+  env "${pairs[@]}" bash "$BENCH_PLUGIN/hooks/ub-tools.sh" available "$1" 2>/dev/null
+}
+
 jq -n \
   --arg task "$task" --arg config "$config" --argjson rep "$rep" \
   --arg model "$model" --arg plugin_rev "$rev" --arg mode "$mode" \
   --arg plugin_path "$plugin_path" --argjson budget "$BENCH_BUDGET" \
   --arg base_commit "$base" --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --arg dryer "$(ub_tool dryer)" --arg crapper "$(ub_tool crapper)" --arg mutator "$(ub_tool mutator)" \
   '{task:$task, config:$config, rep:$rep, model:$model, plugin_rev:$plugin_rev,
     mode:$mode, plugin_path:$plugin_path, budget:$budget,
-    base_commit:$base_commit, ts:$ts}' >"$run/meta.json"
+    base_commit:$base_commit, ts:$ts,
+    ub_tools:{dryer:$dryer, crapper:$crapper, mutator:$mutator}}' >"$run/meta.json"
 
 root=""
-if make_tree "$base" "$run/tree" >"$run/tree.log" 2>&1; then
+if make_tree "$base" "$run/tree" "$oracle" "$spec" >"$run/tree.log" 2>&1; then
   root="$(git -C "$run/tree" rev-parse HEAD 2>/dev/null)"
 fi
 [ -n "$root" ] || echo "tree setup failed" >"$run/error.txt"
@@ -83,8 +93,6 @@ fi
 if [ "$(cat "$run/claude.exit" 2>/dev/null)" = skipped ]; then
   : >"$run/diff.patch"
 else
-  pairs=()
-  [ "$env_pairs" != - ] && read -ra pairs <<<"$env_pairs"
   args=(-p "$prompt" --output-format stream-json --verbose
     --no-session-persistence --permission-mode bypassPermissions
     --max-budget-usd "$BENCH_BUDGET" --model "$model"

@@ -95,3 +95,29 @@ run_bench nope plugin 1
 assert_eq "$?" 2 "run: unknown task exits 2"
 run_bench t1 nope 1
 assert_eq "$?" 2 "run: unknown config exits 2"
+
+run_ub() { jq -r ".ub_tools.$2 // empty" "$1/meta.json" 2>/dev/null; }
+
+fresh_bench
+FAKE_WRITES="feature.txt=done feature2.txt=done" run_bench t1 plugin 1
+assert_eq "$(cat "$FAKE_LOG.spec" 2>/dev/null)" "$(git -C "$repo" show "$ORACLE:spec.md")" "run: tree spec.md is the oracle's spec"
+assert_eq "$(grep -qx amended "$FAKE_LOG.spec" 2>/dev/null && echo yes || echo no)" yes "run: tree spec.md has the oracle's amendment"
+
+run_configs="$tmp/run-configs.tsv"
+head -n1 "$ROOT/bench/configs.tsv" >"$run_configs"
+printf 'plugin-nocrapper\tplugin\tworkflow\tPASADENA_CODEX=0 PASADENA_CRAPPER=/nonexistent\texplore\tsonnet\n' >>"$run_configs"
+fresh_bench
+BENCH_CONFIGS="$run_configs" FAKE_WRITES="feature.txt=done feature2.txt=done" run_bench t1 plugin-nocrapper 1
+assert_eq "$(run_ub "$(run_cell plugin-nocrapper)" crapper)" "crapper: unavailable (PASADENA_CRAPPER is not executable)" "run: meta.json ub_tools.crapper uses the cell env"
+
+run_bare="$tmp/plugin-bare"
+rm -rf "$run_bare"
+git init -q "$run_bare"
+mkdir -p "$run_bare/hooks"
+cp "$plugin/hooks/codex.sh" "$run_bare/hooks/codex.sh"
+git -C "$run_bare" add -A
+gitc -C "$run_bare" commit -qm bare
+bare_rev="$(BENCH_PLUGIN="$run_bare"; source "$ROOT/bench/lib.sh"; plugin_rev)"
+fresh_bench
+BENCH_PLUGIN="$run_bare" FAKE_WRITES="feature.txt=done feature2.txt=done" run_bench t1 plugin 1
+assert_eq "$(run_ub "$BENCH_DIR/runs/$bare_rev/t1/plugin/1" dryer)" unknown "run: meta.json ub_tools.dryer is unknown without ub-tools.sh"
