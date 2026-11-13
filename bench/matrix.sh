@@ -42,6 +42,7 @@ for c in "${configs[@]}"; do
 done
 
 rev="$(plugin_rev)" || exit 1
+brev="$(bench_rev)"
 runs="$BENCH_DIR/runs.jsonl"
 
 declare -A finished errored
@@ -53,18 +54,19 @@ if [ -f "$runs" ]; then
     else
       finished["$r_rev/$r_task/$r_config/$r_rep"]=1
     fi
-  done < <(jq -r '[.plugin_rev,.task,.config,(.rep|tostring),.verdict]|@tsv' "$runs" 2>/dev/null)
+  done < <(jq -r --arg brev "$brev" 'select((.bench_rev // "") == $brev) | [.plugin_rev,.task,.config,(.rep|tostring),.verdict]|@tsv' "$runs" 2>/dev/null)
 fi
 
 drop_errors() {
   local task="$1" config="$2" rep="$3" any=false tmp
   [ "$config" = baseline ] && any=true
   tmp="$(mktemp "$runs.XXXXXX")" || return
-  if jq -rR --arg rev "$rev" --arg t "$task" --arg c "$config" --argjson r "$rep" --argjson any "$any" '
+  if jq -rR --arg rev "$rev" --arg brev "$brev" --arg t "$task" --arg c "$config" --argjson r "$rep" --argjson any "$any" '
     . as $line
     | (try fromjson catch null) as $o
     | select((($o | type) == "object"
         and $o.task == $t and $o.config == $c and $o.rep == $r and $o.verdict == "error"
+        and $o.bench_rev == $brev
         and ($any or $o.plugin_rev == $rev)) | not)
     | $line
   ' "$runs" >"$tmp"; then
