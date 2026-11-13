@@ -50,6 +50,7 @@ def money:
   | (if $c < 0 then "-" else "" end)
     + (($a / 100 | floor) | tostring) + "."
     + (($a % 100) | tostring | if length < 2 then "0" + . else . end);
+def dec2: money;
 def dec1:
   (. * 10 | round) as $c | (($c / 10 | floor) | tostring) + "." + (($c % 10) | tostring);
 def int: round | tostring;
@@ -68,6 +69,7 @@ def cellrow:
   | def cnt($v): [$rs[] | select(.verdict == $v)] | length;
   {
     name: $rs[0].config, n: $n,
+    score_mean: ($rs | vals("score") | mean),
     pass: cnt("pass"), partial: cnt("partial"), fail: cnt("fail"),
     refused: cnt("refused"), error: cnt("error"),
     capped: ([$rs[] | select(.capped == true)] | length),
@@ -80,7 +82,7 @@ def cellrow:
   };
 
 def cellline:
-  "| \(.name) | \(.n) | \(pct(.pass; .n)) | \(pct(.partial; .n)) | \(pct(.fail; .n))"
+  "| \(.name) | \(.n) | \(.score_mean | orn(dec2)) | \(pct(.pass; .n)) | \(pct(.partial; .n)) | \(pct(.fail; .n))"
   + " | \(pct(.refused; .n)) | \(pct(.error; .n)) | \(pct(.capped; .n))"
   + " | \(.cost_mean | orn(money)) | \(.cost_p95 | orn(money))"
   + " | \(.time_mean | orn(int)) | \(.time_p95 | orn(int))"
@@ -88,12 +90,16 @@ def cellline:
 
 def delta($plugin):
   (.pass - $plugin.pass) as $d
-  | "\(.name): pass \(if $d >= 0 then "+" else "" end)\($d) vs plugin\(if (if $d < 0 then -$d else $d end) <= 3 then " (noise)" else "" end)";
+  | "\(.name): pass \(if $d >= 0 then "+" else "" end)\($d) vs plugin\(if (if $d < 0 then -$d else $d end) <= 3 then " (noise)" else "" end)",
+    (if .score_mean != null and $plugin.score_mean != null then
+      ((.score_mean - $plugin.score_mean) * 100 | round / 100) as $s
+      | "\(.name): score \(if $s >= 0 then "+" else "" end)\($s | dec2) vs plugin\(if .n < 3 or $plugin.n < 3 then " (noise)" else "" end)"
+    else empty end);
 
 def runline:
-  "| \(.task) | \(.config) | \(.rep) | \(.verdict) | \(if .capped == true then "yes" else "no" end)"
+  "| \(.task) | \(.config) | \(.rep) | \(.verdict) | \(if (.checks_total // 0) == 0 then "-" else "\(.checks_passed // 0)/\(.checks_total)" end) | \(if .capped == true then "yes" else "no" end)"
   + " | \(.cost_usd | orn(money)) | \(.duration_s | orn(int)) | \(.num_turns | txt) | \(.subagent_calls | txt)"
-  + " | \(.diff_lines | txt) | \(.error | txt) | \((.tests_failed // []) | join(",") | txt)"
+  + " | \(.diff_lines | txt) | \(.error | txt)"
   + " | \($dir)/runs/\(.plugin_rev)/\(.task)/\(.config)/\(.rep) |";
 
 def fc($rows; $k; $fallback; $n):
@@ -105,8 +111,9 @@ def fc($rows; $k; $fallback; $n):
 ($tasks | split(",") | map(select(length > 0))) as $tf
 | ($configs | split(",") | map(select(length > 0))) as $cf
 | [split("\n")[] | select(length > 0) | (try fromjson catch empty) | select(type == "object")] as $all
-| (if $rev != "" then $rev else ($all | map(select(.config != "baseline")) | (.[-1] // {}) | .plugin_rev) end) as $r
-| ($all | map(select(
+| ($all | map(select(.bench_rev == $brev))) as $cur
+| (if $rev != "" then $rev else ($cur | map(select(.config != "baseline")) | (.[-1] // {}) | .plugin_rev) end) as $r
+| ($cur | map(select(
     (.config == "baseline" or .plugin_rev == $r)
     and (($tf | length) == 0 or (.task | IN($tf[])))
     and (($cf | length) == 0 or (.config | IN($cf[])))))) as $sel
@@ -118,8 +125,8 @@ def fc($rows; $k; $fallback; $n):
     "",
     "## Cells",
     "",
-    "| cell | runs | pass | partial | fail | refused | error | capped | cost mean | cost p95 | time mean | time p95 | out tokens | subagents | dup | codex |",
-    "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+    "| cell | runs | score mean | pass | partial | fail | refused | error | capped | cost mean | cost p95 | time mean | time p95 | out tokens | subagents | dup | codex |",
+    "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ($cells[] | cellline),
     "",
     (if $plugin != null then ($cells[] | select(.name != "plugin") | delta($plugin)), "" else empty end),
@@ -127,8 +134,8 @@ def fc($rows; $k; $fallback; $n):
     "",
     "## Runs",
     "",
-    "| task | config | rep | verdict | capped | cost | time | turns | subagents | diff lines | error | failed tests | run |",
-    "|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+    "| task | config | rep | verdict | checks | capped | cost | time | turns | subagents | diff lines | error | run |",
+    "|---|---|---|---|---|---|---|---|---|---|---|---|",
     ($runs[] | runline),
     "",
     "## Spend",
@@ -162,7 +169,7 @@ JQ
 )"
 
 report="$({ cat "$BENCH_DIR/runs.jsonl" 2>/dev/null || true; } | jq -rRs \
-  --arg rev "$rev" --arg tasks "$tasks_csv" --arg configs "$configs_csv" \
+  --arg rev "$rev" --arg brev "$(bench_rev)" --arg tasks "$tasks_csv" --arg configs "$configs_csv" \
   --argjson order "$order" --argjson next "$have_next" --arg pending "$pending" \
   --arg dir "$BENCH_DIR" --argjson budget "$BENCH_BUDGET" --argjson timeout "$BENCH_TIMEOUT" \
   "$prog")" || exit 1
