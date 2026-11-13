@@ -316,8 +316,9 @@ SOFTWARE.
 The principles in `skills/sheldon/SKILL.md` ("Check the design against these"),
 `skills/leonard/SKILL.md` (Foundational thinking, Verifiable units, Build the
 lever), `skills/amy/SKILL.md` (REFACTOR, "What a test is worth"),
-`skills/leslie/SKILL.md` (Attack the premise), `skills/wolowitz/implementer-prompt.md`
-and `skills/wolowitz/references/make-it-right.md` are rewritten from
+`skills/leslie/SKILL.md` (Attack the premise), `skills/wolowitz/implementer-prompt.md`,
+`skills/wolowitz/implementer-prompt-codex.md` and
+`skills/wolowitz/references/make-it-right.md` are rewritten from
 `SKILL.md`.
 
 Source: <https://github.com/unclebob/ub-mode>
@@ -325,6 +326,24 @@ Source: <https://github.com/unclebob/ub-mode>
 Copyright (c) 2026 Robert C. Martin
 
 MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 ## unclebob/dryer, unclebob/crapper, unclebob/mutator
 

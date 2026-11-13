@@ -39,10 +39,10 @@ resolve() {
 }
 
 split_args() {
-  local seen=0 arg
+  local seen=0 arg rest=()
   for arg in "$@"; do
     if [ "$seen" = 1 ]; then
-      CMD="${CMD:+$CMD }$arg"
+      rest+=("$arg")
     elif [ "$arg" = "--" ]; then
       seen=1
     elif [ -e "$arg" ]; then
@@ -56,6 +56,12 @@ split_args() {
       TOOL_ARGS+=("$arg")
     fi
   done
+  if [ "${#rest[@]}" -eq 1 ]; then
+    CMD="${rest[0]}"
+  elif [ "${#rest[@]}" -gt 1 ]; then
+    CMD="$(printf '%q ' "${rest[@]}")"
+    CMD="${CMD% }"
+  fi
 }
 
 project_root() {
@@ -72,12 +78,15 @@ warn_ignored() {
 }
 
 js_count() {
-  find "${PATHS[@]}" \
-    \( -type d \( -name node_modules -o -name dist -o -name build -o -name out \
-    -o -name coverage -o -name target -o -name .git -o -name test -o -name tests \
-    -o -name spec -o -name specs -o -name __tests__ \) -prune \) -o \
-    -type f \( -name '*.js' -o -name '*.jsx' -o -name '*.mjs' -o -name '*.cjs' \) \
-    ! -name '*.test.*' ! -name '*.spec.*' -print 2>/dev/null | wc -l | tr -d ' '
+  local p js=(-type f \( -name '*.js' -o -name '*.jsx' -o -name '*.mjs' -o -name '*.cjs' \)
+    ! -name '*.test.*' ! -name '*.spec.*' -print)
+  for p in ${PATHS[@]+"${PATHS[@]}"}; do
+    find "$p" -maxdepth 0 "${js[@]}"
+    find "$p" -mindepth 1 \
+      \( -type d \( -name node_modules -o -name dist -o -name build -o -name out \
+      -o -name coverage -o -name target -o -name .git -o -name test -o -name tests \
+      -o -name spec -o -name specs -o -name __tests__ \) -prune \) -o "${js[@]}"
+  done 2>/dev/null | wc -l | tr -d ' '
 }
 
 cmd_dryer() {
