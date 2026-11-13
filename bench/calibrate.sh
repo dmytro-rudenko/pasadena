@@ -71,7 +71,7 @@ task_checks() {
       grep -qxF -- "${f[0]}" "$dir/oracle-fails" && continue
       status=target reason=""
       for s in "${f[@]:1}"; do
-        grep -qF -- "$s" "$dir/spec.txt" || { status=excluded reason="literal not in spec: \"$s\""; break; }
+        grep -qF -- "$s" "$dir/spec.txt" || { status=excluded reason="literal not in spec: \"$(sed -E 's#[^ "]*/tmp\.[A-Za-z0-9]{6,}#<tmp>#g' <<<"$s")\""; break; }
       done
       over="$(manual_row "$id" "$p" "${f[0]}")"
       [ -n "$over" ] && IFS=$'\t' read -r status reason <<<"$over"
