@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -uo pipefail
+BENCH_ROOT="$(cd "$(dirname "$0")" && pwd)"
+source "$BENCH_ROOT/lib.sh"
 
 run="${1:-}"
 if [ -z "$run" ] || [ ! -f "$run/meta.json" ]; then
@@ -33,7 +35,9 @@ error_txt=""
 [ -f "$run/error.txt" ] && error_txt="$(head -n1 "$run/error.txt")"
 
 mode="$(jq -r '.mode // ""' <<<"$meta")"
-want_path="$(realpath -m "$(jq -r '.plugin_path // ""' <<<"$meta")")"
+plugin_path="$(jq -r '.plugin_path // ""' <<<"$meta")"
+want_path=""
+[ "$mode" != off ] && [ -n "$plugin_path" ] && want_path="$(realpath -m "$plugin_path")"
 mismatch=0
 if [ "$init" != null ]; then
   mapfile -t pas_paths < <(jq -r '.plugins[]? | select(.name | startswith("pasadena")) | .path' "$work/init.json")
@@ -74,6 +78,28 @@ fi
 
 awk -F'\t' 'NF>=2 {printf "%s\t%s\n", $1, $2}' "$run/oracle.exit" 2>/dev/null \
   | jq -cR 'split("\t") | {path: .[0], code: .[1]}' | jq -cs . >"$work/oracle.json"
+
+task="$(jq -r '.task // ""' <<<"$meta")"
+checks_total=0
+checks_passed=0
+while IFS=$'\t' read -r path check; do
+  checks_total=$((checks_total + 1))
+  n="$(awk -F'\t' -v p="$path" '$1 == p { print NR; exit }' "$run/oracle.exit" 2>/dev/null)"
+  [ -n "$n" ] && [ -f "$run/oracle-$n.log" ] || continue
+  TREE="$run/tree" WANT="FAIL — $check" awk '
+    BEGIN { tree = ENVIRON["TREE"]; want = ENVIRON["WANT"] }
+    {
+      s = $0; out = ""
+      while ((i = index(s, tree)) > 0) { out = out substr(s, 1, i - 1) "<tree>"; s = substr(s, i + length(tree)) }
+      line = out s
+      sub(/^[ \t]+/, "", line)
+      if (line == "All checks passed." || line ~ /^FAILED: [0-9]+$/) done = 1
+      if (line == want) failed = 1
+    }
+    END { exit !(done && !failed) }
+  ' "$run/oracle-$n.log" && checks_passed=$((checks_passed + 1))
+done < <(awk -F'\t' -v t="$task" 'NR>1 && $1==t && $4=="target" { printf "%s\t%s\n", $2, $3 }' "$BENCH_CHECKS" 2>/dev/null)
+rev="$(bench_rev)"
 
 diff_file="$run/diff.patch"
 diff_files="$(grep -c '^diff --git' "$diff_file" 2>/dev/null)"
@@ -125,6 +151,9 @@ jq -nc \
   --argjson dup_symbols "${dup_symbols:-0}" \
   --argjson codex_usage "$codex_usage" \
   --arg cap "$cap" \
+  --arg bench_rev "$rev" \
+  --argjson checks_passed "$checks_passed" \
+  --argjson checks_total "$checks_total" \
   --rawfile error "$work/error.txt" \
   '
   $meta[0] as $meta | $init[0] as $init | $result[0] as $result | ($oracle[0] // []) as $oracle
@@ -132,6 +161,8 @@ jq -nc \
   | ($oracle | length) as $total
   | (if $hard_error == 1 then "error"
      elif $diff_empty == 1 then "refused"
+     elif $checks_total > 0 then
+       (if $checks_passed == $checks_total then "pass" elif $checks_passed > 0 then "partial" else "fail" end)
      elif $total > 0 and $passed == $total then "pass"
      elif $passed > 0 then "partial"
      else "fail" end) as $verdict
@@ -156,6 +187,10 @@ jq -nc \
       tests_passed: $passed,
       tests_total: $total,
       tests_failed: ($oracle | map(select(.code != "0") | .path)),
+      checks_passed: $checks_passed,
+      checks_total: $checks_total,
+      score: (if $checks_total > 0 then (($checks_passed * 100 / $checks_total) | round) / 100 else null end),
+      bench_rev: $bench_rev,
       input_tokens: (if $result != null then $tok.input_tokens else null end),
       cache_read: (if $result != null then $tok.cache_read_input_tokens else null end),
       cache_write: (if $result != null then $tok.cache_creation_input_tokens else null end),
