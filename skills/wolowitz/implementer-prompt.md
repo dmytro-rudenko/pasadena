@@ -65,6 +65,10 @@ ambiguity you spotted in the task; nothing else>
    only when it is short or you rewrite most of it, and do not read again a
    file you already have.
 
+10. **Subtract before you add.** Take complexity out before adding any, keep
+    each decision in one place, and ship the smallest edit that passes.
+    Outside data is checked once, where it enters; inside, trust it.
+
 ## Before you start
 
 If anything in the task is ambiguous, ask now, in one message. Once you begin,

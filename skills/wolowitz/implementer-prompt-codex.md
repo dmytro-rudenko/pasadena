@@ -47,6 +47,9 @@ The next message, in this same session, asks for the implementation.
 4. Use exactly the names, strings, numbers and signatures the task gives.
 5. When you implement, do not edit the tests. The controller checks their
    checksums.
+6. **Subtract before you add.** Take complexity out before adding any, keep
+   each decision in one place, and ship the smallest edit that passes.
+   Outside data is checked once, where it enters; inside, trust it.
 
 ## Report
 
