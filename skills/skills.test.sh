@@ -254,7 +254,7 @@ grep -qF '| Implementer, `complex`-задача, раунд 3, фінальни�
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.23.1"' "$ROOT/$manifest" || fail "$manifest: not on 0.23.1"
+  grep -qF '"version": "0.24.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.24.0"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"
@@ -334,6 +334,46 @@ require sheldon 'one or two sections'
 grep -qF 'one approval' "$ROOT/README.md" || fail "README.md: sheldon row lacks one approval"
 grep -qF 'одне погодження' "$ROOT/README.uk.md" || fail "README.uk.md: sheldon row lacks одне погодження"
 [ "$fails" -eq "$before" ] && ok "parallel design checked"
+
+echo "ub-mode quality gates"
+before=$fails
+require leonard 'ub-tools.sh dryer'
+require leonard '**Foundational thinking.**'
+require leonard '**Verifiable units.**'
+require leonard '**Build the lever.**'
+require wolowitz 'references/make-it-right.md'
+require wolowitz 'references/finish.md'
+require wolowitz 'how it was proved'
+require_ref make-it-right.md 'ub-tools.sh crapper'
+require_ref make-it-right.md 'ub-tools.sh dryer'
+require_ref make-it-right.md 'ub-tools.sh mutator'
+require_ref make-it-right.md 'refactor(<scope>): crapper and dryer findings'
+require_ref make-it-right.md 'test(<scope>): mutator survivors'
+require_ref make-it-right.md 'ub-tools.sh install'
+require_ref make-it-right.md '--mutation-warning'
+require_ref finish.md 'reviewer-prompt.md'
+require amy 'ub-tools.sh dryer'
+require amy 'pin, change, prove'
+require amy '**Behaviour, not implementation.**'
+require amy '**An honest test or none.**'
+! grep -qF 'Remove duplication' "$SKILLS/amy/SKILL.md" || fail "amy: still says Remove duplication"
+require sheldon '**Attack the premise.**'
+require sheldon '**Model the domain.**'
+require sheldon '**Subtract before you add.**'
+require leslie '**Attack the premise.**'
+require leslie 'A guard that only hides'
+for prompt in implementer-prompt.md implementer-prompt-codex.md; do
+  grep -qF 'Subtract before you add' "$SKILLS/wolowitz/$prompt" || fail "$prompt: missing Subtract before you add"
+done
+grep -qF 'unclebob/ub-mode' "$ROOT/THIRD_PARTY_NOTICES.md" || fail "ub-mode: not credited"
+grep -qF 'unclebob/dryer' "$ROOT/THIRD_PARTY_NOTICES.md" || fail "dryer: not credited"
+for readme in README.md README.uk.md; do
+  grep -qF 'ub-tools.sh install' "$ROOT/$readme" || fail "$readme: no ub-tools.sh install"
+  grep -qF 'PASADENA_DRYER' "$ROOT/$readme" || fail "$readme: no PASADENA_DRYER"
+  grep -qF 'bash hooks/ub-tools.test.sh' "$ROOT/$readme" || fail "$readme: no ub-tools check"
+done
+grep -qF '"version": "0.24.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.24.0"
+[ "$fails" -eq "$before" ] && ok "ub-mode quality gates checked"
 
 echo "Manifest versions"
 manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json"

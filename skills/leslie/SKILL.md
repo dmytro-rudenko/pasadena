@@ -122,7 +122,8 @@ Run this phase yourself unless a controller invoked you; see
    hypothesis predicts. A different failure means the hypothesis is wrong;
    return to Phase 3.
 3. **Make one fix** that addresses the root cause. No bundled refactors, no
-   "while I am here" improvements.
+   "while I am here" improvements. A guard that only hides
+   the crash is not a fix.
 4. **Verify** under amy's `## Verify before claiming`: run the reproduction
    test and the full suite, read the output, and show it before saying the bug
    is fixed.
@@ -133,6 +134,10 @@ Count fix attempts. After three failed fixes, stop. Each fix revealing a new
 problem somewhere else is the signature of an architectural problem, not of
 three unlucky guesses. Tell the user that the design is the likely cause, show
 what the three attempts revealed, and ask before trying a fourth.
+
+**Attack the premise.** When two fixes that share one premise fail the same
+check, stop before a third: write that premise in one sentence, find which
+parts of the code hold it, and remove it. Only then try another fix.
 
 ## Decision rules
 

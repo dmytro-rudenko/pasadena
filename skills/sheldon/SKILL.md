@@ -204,6 +204,24 @@ through a clearly defined interface, and can be understood and tested in
 isolation. For each module, state three things: what it does, how it is used,
 and what it depends on.
 
+Check the design against these before presenting it:
+
+- **Attack the premise.** When two approaches that share one premise fail the
+  same constraint, write that premise in one sentence and drop it before
+  proposing a third.
+- **Redesign from first principles.** A new requirement is not bolted onto the
+  old design: ask what would have been built had it been there from the
+  start, and deliver that in pieces.
+- **Subtract before you add.** Name what the design removes before what it adds.
+- **Model the domain.** The data structure makes illegal states impossible to
+  write; the spec keeps a glossary when the work introduces domain terms.
+  Clear, local code stays as it is.
+- **Boundaries.** Outside data is checked and parsed once, where it enters;
+  inside, the code trusts it, and business logic is a pure function.
+- **Idempotent, unshared.** An operation run twice, or after a crash halfway,
+  ends in the same state. Writers that do not need the same mutable thing each
+  get their own; those that do get one writer, enforced by the structure.
+
 In an existing codebase, follow the patterns already present. If the existing
 code genuinely makes this specific work harder — for example, a file has grown
 too large or a component boundary has become tangled — include a targeted fix
@@ -257,7 +275,7 @@ What becomes worse or less convenient after this change, and why that trade-off
 is correct for the stated goal.
 
 ## 6. Verification
-How anyone can verify that it works.
+The end state, written so that a command or a person can check it.
 ```
 
 Write the prose in the user's language. Keep paths, identifiers, and commands
