@@ -414,10 +414,10 @@ dryer: `ub-tools.sh dryer bench hooks/ub-tools.sh` → `No source files to analy
 **Interfaces:**
 - Produces: `BENCH_CHECKS`; `bench_rev` (друкує 12 hex); `make_tree <commit> <dest> [<oracle> <spec>]` — з двома додатковими аргументами перезаписує `<dest>/<spec>` вмістом `git -C "$BENCH_REPO" show "<oracle>:<spec>"` до `git add -A`, решта як було.
 
-- [ ] **Step 1: тест у `bench/test/10-lib.sh`:** `bench_rev` — 12 символів `[0-9a-f]` і змінюється після дописування рядка в копію `checks.tsv`; `make_tree "$BASE" "$tmp/mt" "$ORACLE" spec.md` дає `spec.md`, ідентичний `git -C "$repo" show "$ORACLE:spec.md"`, і рівно один коміт; без двох аргументів `spec.md` — з `$BASE`.
-- [ ] **Step 2: побачити, що падає** — `bash bench/bench.test.sh`.
-- [ ] **Step 3: реалізація** у `bench/lib.sh`: рядок `BENCH_CHECKS=…` після `BENCH_CONFIGS`; функція `bench_rev`; у `make_tree` після `tar -x`: `if [ -n "${3:-}" ]; then git -C "$BENCH_REPO" show "$3:$4" >"$dest/$4" || return; fi`. У `bench/tasks.tsv`: `model-routing` oracle `d97c752` → `fbdd4ae`, `reuse-first` oracle `74bf39c` → `8c0f8f8`.
-- [ ] **Step 4: побачити, що проходить** — блок `lib` без `FAIL`.
+- [x] **Step 1: тест у `bench/test/10-lib.sh`:** `bench_rev` — 12 символів `[0-9a-f]` і змінюється після дописування рядка в копію `checks.tsv`; `make_tree "$BASE" "$tmp/mt" "$ORACLE" spec.md` дає `spec.md`, ідентичний `git -C "$repo" show "$ORACLE:spec.md"`, і рівно один коміт; без двох аргументів `spec.md` — з `$BASE`.
+- [x] **Step 2: побачити, що падає** — `bash bench/bench.test.sh`.
+- [x] **Step 3: реалізація** у `bench/lib.sh`: рядок `BENCH_CHECKS=…` після `BENCH_CONFIGS`; функція `bench_rev`; у `make_tree` після `tar -x`: `if [ -n "${3:-}" ]; then git -C "$BENCH_REPO" show "$3:$4" >"$dest/$4" || return; fi`. У `bench/tasks.tsv`: `model-routing` oracle `d97c752` → `fbdd4ae`, `reuse-first` oracle `74bf39c` → `8c0f8f8`.
+- [x] **Step 4: побачити, що проходить** — блок `lib` без `FAIL`.
 
 ### Task 11: `ub-tools.sh available <tool>`
 
@@ -429,10 +429,10 @@ dryer: `ub-tools.sh dryer bench hooks/ub-tools.sh` → `No source files to analy
 **Interfaces:**
 - Produces: `bash hooks/ub-tools.sh available <dryer|crapper|mutator>` — друкує `<tool>: <команда>` (елементи `RUN` через пробіл) і exit 0, або рядок `<tool>: unavailable (<причина>)` з наявної `resolve` і exit 1; інше ім'я → usage, exit 2.
 
-- [ ] **Step 1: тест у `hooks/ub-tools.test.sh`** у стилі файлу: з `PASADENA_DRYER` на фейковий виконуваний файл → `dryer: <шлях>`, exit 0; `PASADENA_CRAPPER=/nonexistent` → `crapper: unavailable (PASADENA_CRAPPER is not executable)`, exit 1; з порожнім `XDG_DATA_HOME` і без `mutator` у PATH → `mutator: unavailable (not installed; run ub-tools.sh install)`, exit 1; `available foo` → exit 2.
-- [ ] **Step 2: побачити, що падає** — `bash hooks/ub-tools.test.sh`.
-- [ ] **Step 3: реалізація:** функція `cmd_available` викликає `resolve "$1"` і друкує `$1: ${RUN[*]}`; гілка `available) case "${1:-}" in dryer|crapper|mutator) cmd_available "$1"; exit $? ;; *) usage; exit 2 ;; esac ;;` до загального `exit 0`; usage доповнити `| available <tool>`.
-- [ ] **Step 4: побачити, що проходить** — `All checks passed.`
+- [x] **Step 1: тест у `hooks/ub-tools.test.sh`** у стилі файлу: з `PASADENA_DRYER` на фейковий виконуваний файл → `dryer: <шлях>`, exit 0; `PASADENA_CRAPPER=/nonexistent` → `crapper: unavailable (PASADENA_CRAPPER is not executable)`, exit 1; з порожнім `XDG_DATA_HOME` і без `mutator` у PATH → `mutator: unavailable (not installed; run ub-tools.sh install)`, exit 1; `available foo` → exit 2.
+- [x] **Step 2: побачити, що падає** — `bash hooks/ub-tools.test.sh`.
+- [x] **Step 3: реалізація:** функція `cmd_available` викликає `resolve "$1"` і друкує `$1: ${RUN[*]}`; гілка `available) case "${1:-}" in dryer|crapper|mutator) cmd_available "$1"; exit $? ;; *) usage; exit 2 ;; esac ;;` до загального `exit 0`; usage доповнити `| available <tool>`.
+- [x] **Step 4: побачити, що проходить** — `All checks passed.`
 
 ### Task 12: `calibrate.sh` — цілі в `checks.tsv`
 
@@ -535,10 +535,10 @@ dryer: `ub-tools.sh dryer bench hooks/ub-tools.sh` → `No source files to analy
 **Complexity:** routine
 **Satisfies:** — (умова Verification `skills.test.sh`)
 
-- [ ] **Step 1: тест** — `skills/skills.test.sh:257` і `:380`: `0.24.0` → `0.25.0` (і в повідомленнях).
-- [ ] **Step 2: побачити, що падає** — `bash skills/skills.test.sh`, `not on 0.25.0`.
-- [ ] **Step 3: реалізація.** Версія `0.25.0` в обох маніфестах. У `## Benchmarks` після речення про `calibration.log`: «Calibration also writes `bench/checks.tsv`: the individual checks that fail at the base commit and pass at the oracle, minus those whose expected text the spec never states; a run's `score` is the share of those checks it passes.» У абзаці про quality gates: «`bash hooks/ub-tools.sh available <tool>` prints where a tool resolves to, or why it is unavailable.» Дзеркально в `README.uk.md` («Калібрування також пише `bench/checks.tsv`: окремі перевірки, що падають на базовому коміті й проходять на оракулі, без тих, чий очікуваний текст спека не називає; `score` прогону — частка цих перевірок, які він пройшов.» і «`bash hooks/ub-tools.sh available <tool>` друкує, куди резолвиться інструмент, або чому він недоступний.»).
-- [ ] **Step 4: побачити, що проходить** — `All checks passed.`
+- [x] **Step 1: тест** — `skills/skills.test.sh:257` і `:380`: `0.24.0` → `0.25.0` (і в повідомленнях).
+- [x] **Step 2: побачити, що падає** — `bash skills/skills.test.sh`, `not on 0.25.0`.
+- [x] **Step 3: реалізація.** Версія `0.25.0` в обох маніфестах. У `## Benchmarks` після речення про `calibration.log`: «Calibration also writes `bench/checks.tsv`: the individual checks that fail at the base commit and pass at the oracle, minus those whose expected text the spec never states; a run's `score` is the share of those checks it passes.» У абзаці про quality gates: «`bash hooks/ub-tools.sh available <tool>` prints where a tool resolves to, or why it is unavailable.» Дзеркально в `README.uk.md` («Калібрування також пише `bench/checks.tsv`: окремі перевірки, що падають на базовому коміті й проходять на оракулі, без тих, чий очікуваний текст спека не називає; `score` прогону — частка цих перевірок, які він пройшов.» і «`bash hooks/ub-tools.sh available <tool>` друкує, куди резолвиться інструмент, або чому він недоступний.»).
+- [x] **Step 4: побачити, що проходить** — `All checks passed.`
 
 ### Task 18: етап 0 — повторне калібрування, потім зупинка
 
