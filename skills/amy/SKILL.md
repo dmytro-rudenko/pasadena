@@ -260,3 +260,7 @@ task is checked through its diff and a fresh run of its verification.
 - [ ] Edge cases and error paths are covered
 
 Completion begins after every box is ticked. Otherwise, restart with the test.
+
+The final message reports only what was done. Work the future depends on is
+done inside the task, not handed back as a next step; anything merely adjacent
+goes unmentioned — no Out of scope or follow-ups section.

@@ -371,6 +371,10 @@ When the last wave is closed:
    `git rm` the journal, commit `chore(journal): close <task>`.
 4. `gh pr ready` — the draft becomes a real PR.
 
+The final message reports only what was done. Work the future depends on is
+done inside the task, not handed back as a next step; anything merely adjacent
+goes unmentioned — no Out of scope or follow-ups section.
+
 ## Decision rules
 
 | Situation | Required rule |
