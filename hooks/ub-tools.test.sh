@@ -38,6 +38,16 @@ assert_exit0() {
   fi
 }
 
+assert_exit() {
+  if [ "$1" -eq "$2" ]; then
+    echo "  ok  — $3"
+  else
+    echo "  FAIL — $3"
+    echo "        expected exit $2, got: $1"
+    fails=$((fails + 1))
+  fi
+}
+
 work="$(cd "$(mktemp -d)" && pwd -P)"
 fakebin="$work/bin"
 mkdir -p "$fakebin"
@@ -187,6 +197,21 @@ echo "== usage =="
 out="$(bash "$TOOL" bogus)"
 assert_exit0 $? "unknown subcommand exits 0"
 assert_contains "$out" "usage: ub-tools.sh" "unknown subcommand prints usage"
+
+echo "== available =="
+out="$(PASADENA_DRYER="$fakebin/fake-dryer" bash "$TOOL" available dryer)"
+assert_exit $? 0 "available dryer exits 0 with an executable override"
+assert_contains "$out" "dryer: $fakebin/fake-dryer" "available dryer prints the command"
+out="$(PASADENA_CRAPPER=/nonexistent bash "$TOOL" available crapper)"
+assert_exit $? 1 "available crapper exits 1 with a bad override"
+assert_contains "$out" "crapper: unavailable (PASADENA_CRAPPER is not executable)" "available crapper says why"
+mkdir -p "$work/empty-data"
+out="$(PATH=/usr/bin:/bin XDG_DATA_HOME="$work/empty-data" bash "$TOOL" available mutator)"
+assert_exit $? 1 "available mutator exits 1 when not installed"
+assert_contains "$out" "mutator: unavailable (not installed; run ub-tools.sh install)" "available mutator says not installed"
+out="$(bash "$TOOL" available foo)"
+assert_exit $? 2 "available with an unknown tool exits 2"
+assert_contains "$out" "usage: ub-tools.sh" "available with an unknown tool prints usage"
 
 rm -rf "$work"
 

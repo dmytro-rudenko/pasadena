@@ -129,6 +129,15 @@ cmd_mutator() {
   echo "mutator exit: $?"
 }
 
+cmd_available() {
+  resolve "$1" || return 1
+  echo "$1: ${RUN[*]}"
+}
+
+usage() {
+  echo "usage: ub-tools.sh install | dryer|crapper [path...] | mutator [path...] [-- <test command>] | available <tool>"
+}
+
 cmd_install() {
   command -v git >/dev/null 2>&1 || { echo "install: unavailable (git not found)"; return 0; }
   python_ok || { echo "install: unavailable (python3 >= 3.11 not found)"; return 0; }
@@ -160,6 +169,11 @@ case "$sub" in
   dryer) cmd_dryer ;;
   crapper) cmd_crapper ;;
   mutator) cmd_mutator ;;
-  *) echo "usage: ub-tools.sh install | dryer|crapper [path...] | mutator [path...] [-- <test command>]" ;;
+  available)
+    case "${1:-}" in
+      dryer|crapper|mutator) cmd_available "$1"; exit $? ;;
+      *) usage; exit 2 ;;
+    esac ;;
+  *) usage ;;
 esac
 exit 0

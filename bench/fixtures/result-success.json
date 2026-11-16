@@ -1,0 +1,1 @@
+{"type":"result","subtype":"success","is_error":false,"total_cost_usd":0.00202679,"duration_ms":3933,"num_turns":1,"usage":{"input_tokens":2,"output_tokens":85,"cache_read_input_tokens":22369,"cache_creation_input_tokens":8802},"modelUsage":{"claude-haiku-5-5":{"inputTokens":2,"outputTokens":85,"cacheReadInputTokens":22369,"cacheCreationInputTokens":8802}}}

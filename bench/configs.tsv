@@ -1,0 +1,6 @@
+name	mode	prompt	env	codex_mode	model
+baseline	off	plain	-	-	sonnet
+plugin	plugin	workflow	PASADENA_CODEX=0	explore	sonnet
+plugin-noreuse	plugin	workflow	PASADENA_CODEX=0 PASADENA_REUSE=0	explore	sonnet
+plugin-codexfull	plugin	workflow	-	full	sonnet
+plugin-haiku	plugin	workflow	PASADENA_CODEX=0	explore	haiku
