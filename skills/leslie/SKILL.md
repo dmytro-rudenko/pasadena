@@ -102,10 +102,10 @@ When a `wolowitz` controller that dispatches subagents, or one of its subagents,
 invokes you, stop after Phase 3. Hand back, in that subagent's report when one
 invoked you, the root cause in one sentence, the evidence that confirmed it,
 and the fix to make, saying which part changes a test and which the code.
-Phase 4 then splits: its test half runs in the task's test writer, who has amy
-loaded, and its code half in the task's implementer, who makes the reproducing
-test pass without editing it, so the fix goes through review. When the session
-has no subagents, the controller runs Phase 4 as written.
+Phase 4 then splits, and both halves run in the task agent: the test half, with
+amy loaded, ends at the controller's checkpoint; the code half then makes the
+reproducing test pass without editing it, so the fix goes through review. When
+the session has no subagents, the controller runs Phase 4 as written.
 
 Under a controller, Phases 1–3 stay read-only: read, run commands, and add a
 temporary diagnostic only if it is removed before handing back. The
