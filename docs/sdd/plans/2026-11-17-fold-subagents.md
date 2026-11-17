@@ -102,7 +102,7 @@ Nothing had to be serialized beyond Task 0: every later task writes its own file
 **Complexity:** routine
 **Satisfies:** `one subagent per section`, `section outline`, `without the fan-out`, `Write every section yourself`
 
-- [ ] **Step 1: replace the fan-out** — in `## Present the design`, replace from `Do not stop for approval after each section. Draft them together and ask once:` through `When the design is one or two sections, write it inline without the fan-out.` with:
+- [x] **Step 1: replace the fan-out** — in `## Present the design`, replace from `Do not stop for approval after each section. Draft them together and ask once:` through `When the design is one or two sections, write it inline without the fan-out.` with:
   ```markdown
   Do not stop for approval after each section. Write every section yourself, in
   this context: the user's answers and the repository facts are already here,
@@ -116,7 +116,7 @@ Nothing had to be serialized beyond Task 0: every later task writes its own file
      Rewrite only the sections the answers touch.
   3. Present the whole design once and ask for one approval.
   ```
-- [ ] **Step 2: run** `bash skills/skills.test.sh` — the four sheldon checks no longer appear among the FAIL lines.
+- [x] **Step 2: run** `bash skills/skills.test.sh` — the four sheldon checks no longer appear among the FAIL lines.
 
 ### Task 2: task agent in the two-dispatch reference and prompts
 
@@ -128,7 +128,7 @@ Nothing had to be serialized beyond Task 0: every later task writes its own file
 **Interfaces:**
 - Produces: the section names `**The checkpoint.**`, `## A wave of one task` and the mutation check, which `wolowitz/SKILL.md` (Task 3) points to as "per `references/two-dispatch.md`".
 
-- [ ] **Step 1: rewrite `references/two-dispatch.md`** — keep its Gate red bullets, the three one-role shapes' wording for Task 0 and existing-code tasks, the "Finish" paragraph's prompt-filling rules, and the phrase `review when the schedule has one`. Make these changes:
+- [x] **Step 1: rewrite `references/two-dispatch.md`** — keep its Gate red bullets, the three one-role shapes' wording for Task 0 and existing-code tasks, the "Finish" paragraph's prompt-filling rules, and the phrase `review when the schedule has one`. Make these changes:
   - Title `# Task agent`. First paragraph: add `and \`ub-tools.sh\`` to the exceptions, and the sentence "`ub-tools.sh` sits beside `journal.sh`."
   - Replace "Most tasks are a pair: … with your own gates between them." with: "Most tasks are built by one task agent in two halves, with your gates between them: dispatched with `test-writer-prompt.md`, it writes the tests and stops on red; then the same agent receives `implementer-prompt.md` through `SendMessage` and writes the code. It keeps the reasons behind its tests, and the checkpoint keeps the tests frozen while it writes the code."
   - Lone implementer shape: "run Gate green on its report like a task agent's."
@@ -153,10 +153,10 @@ Nothing had to be serialized beyond Task 0: every later task writes its own file
     a fresh task agent. Reviews keep their schedule and their subagents. Write
     `inline` in the wave's `✎` note.
     ```
-- [ ] **Step 2: `test-writer-prompt.md`** — line 3: "Send every task agent and test writer of a wave in **one** message,"; replace "A\nseparate implementer writes the code after you report." with "You stop on red. After the controller checks your tests, the implementation half may reach you through `SendMessage`; until it arrives, the code is not yours."
-- [ ] **Step 3: `implementer-prompt.md`** — lines 3–4: "Fill the angle brackets. A task agent receives this through `SendMessage` after Gate red, per `references/two-dispatch.md`; an implementer alone goes with the wave's first stage." Rule 5 sentence: "The tests at the paths above are frozen: their checksums are recorded, even when you wrote them yourself. Do not edit them." Keep "Subtract before you add" and no mention of amy.
-- [ ] **Step 4: `references/codex-tasks.md`** line 82: `per **Test writer and implementer**` → `per **Task agent**`.
-- [ ] **Step 5: run** `bash skills/skills.test.sh` — none of this task's Satisfies checks among the FAIL lines.
+- [x] **Step 2: `test-writer-prompt.md`** — line 3: "Send every task agent and test writer of a wave in **one** message,"; replace "A\nseparate implementer writes the code after you report." with "You stop on red. After the controller checks your tests, the implementation half may reach you through `SendMessage`; until it arrives, the code is not yours."
+- [x] **Step 3: `implementer-prompt.md`** — lines 3–4: "Fill the angle brackets. A task agent receives this through `SendMessage` after Gate red, per `references/two-dispatch.md`; an implementer alone goes with the wave's first stage." Rule 5 sentence: "The tests at the paths above are frozen: their checksums are recorded, even when you wrote them yourself. Do not edit them." Keep "Subtract before you add" and no mention of amy.
+- [x] **Step 4: `references/codex-tasks.md`** line 82: `per **Test writer and implementer**` → `per **Task agent**`.
+- [x] **Step 5: run** `bash skills/skills.test.sh` — none of this task's Satisfies checks among the FAIL lines.
 
 ### Task 3: wolowitz controller, grouped review, make-it-right
 
@@ -168,7 +168,7 @@ Nothing had to be serialized beyond Task 0: every later task writes its own file
 **Interfaces:**
 - Consumes: `**The checkpoint.**`, the mutation check and `## A wave of one task` in `references/two-dispatch.md` (Task 2), referenced by name only.
 
-- [ ] **Step 1: `wolowitz/SKILL.md`** —
+- [x] **Step 1: `wolowitz/SKILL.md`** —
   - Line 47: "— unless the session has none or the wave has one task; see **Without subagents** —".
   - Tools paragraph: "or for every task when the session has no subagents or the wave has one task, see **Without subagents**;".
   - Models: replace the three Test writer / Implementer rows with the five rows from Global constraints, in that order; replace "The test writer's row equals `amy`'s frontmatter, so it holds whichever of the two wins inside the subagent." with "The `opus`/`high` rows equal `amy`'s frontmatter, so they hold whichever of the two wins inside the subagent; a `routine` task agent may run its red on `amy`'s."
@@ -178,9 +178,9 @@ Nothing had to be serialized beyond Task 0: every later task writes its own file
   - Step 5: "- **Rounds 1–2:** send the open findings, verbatim, through `SendMessage` to the task agent, which still has the context; findings on tests — a wrong or missing test — go through the checkpoint of `references/two-dispatch.md`." / "- **Round 3:** a fresh task agent, per **Models** and `references/two-dispatch.md` —" / "keep every fix with the task's agent".
   - Finish step 2: "All findings go to one fix wave, per `references/two-dispatch.md`: one task agent, its test half first when any finding needs a new or changed test; when none needs a test, one implementer alone receives them all."
   - Check `wc -c skills/wolowitz/SKILL.md` < 20000.
-- [ ] **Step 2: `references/grouped-review.md`** — Fix loop: "Step 5 applies: findings go to its task agent through `SendMessage` in rounds 1–2, test findings through the checkpoint; round 3 is a fresh task agent per `two-dispatch.md`; …". Unreachable: "a test fix goes to a fresh task agent per `two-dispatch.md`, and a code fix goes to a fresh implementer alone whose dispatch …".
-- [ ] **Step 3: `references/make-it-right.md`** — step 1: "The findings go to one fix wave per `references/two-dispatch.md`, through `pasadena:amy` as pin, change, prove: one task agent, who invokes amy, pins the current behaviour of every function the findings name in its test half; after the checkpoint, its green splits the high-CRAP functions and merges the duplicates under Gate green; …". Step 2: "one task agent kills them and covers the uncovered lines in its test half, then, after the checkpoint, deletes the code no test can reach."
-- [ ] **Step 4: run** `bash skills/skills.test.sh` — none of this task's Satisfies checks among the FAIL lines, and no `20000 bytes` failure.
+- [x] **Step 2: `references/grouped-review.md`** — Fix loop: "Step 5 applies: findings go to its task agent through `SendMessage` in rounds 1–2, test findings through the checkpoint; round 3 is a fresh task agent per `two-dispatch.md`; …". Unreachable: "a test fix goes to a fresh task agent per `two-dispatch.md`, and a code fix goes to a fresh implementer alone whose dispatch …".
+- [x] **Step 3: `references/make-it-right.md`** — step 1: "The findings go to one fix wave per `references/two-dispatch.md`, through `pasadena:amy` as pin, change, prove: one task agent, who invokes amy, pins the current behaviour of every function the findings name in its test half; after the checkpoint, its green splits the high-CRAP functions and merges the duplicates under Gate green; …". Step 2: "one task agent kills them and covers the uncovered lines in its test half, then, after the checkpoint, deletes the code no test can reach."
+- [x] **Step 4: run** `bash skills/skills.test.sh` — none of this task's Satisfies checks among the FAIL lines, and no `20000 bytes` failure.
 
 ### Task 4: amy and leslie describe the task agent
 
@@ -190,9 +190,9 @@ Nothing had to be serialized beyond Task 0: every later task writes its own file
 **Complexity:** routine
 **Satisfies:** `a task agent runs your red steps`, `implementer who does not load you`, `both halves run in the task agent`
 
-- [ ] **Step 1: amy** — lines 112–114 become: "Under `wolowitz`, `leonard` plans the outer loop as Task 0 in Wave 0. For every later task a task agent runs your red steps and stops on red; after the controller's checkpoint, the same agent writes the code under the implementer's rules. Working alone, you run both." Lines 52–53: "A task agent, test writer or implementer dispatched by `wolowitz` skips it: there the builder runs Codex."
-- [ ] **Step 2: leslie** — lines 105–107: "Phase 4 then splits, and both halves run in the task agent: the test half, with amy loaded, ends at the controller's checkpoint; the code half then makes the reproducing test pass without editing it, so the fix goes through review."
-- [ ] **Step 3: run** `bash skills/skills.test.sh` — none of this task's Satisfies checks among the FAIL lines.
+- [x] **Step 1: amy** — lines 112–114 become: "Under `wolowitz`, `leonard` plans the outer loop as Task 0 in Wave 0. For every later task a task agent runs your red steps and stops on red; after the controller's checkpoint, the same agent writes the code under the implementer's rules. Working alone, you run both." Lines 52–53: "A task agent, test writer or implementer dispatched by `wolowitz` skips it: there the builder runs Codex."
+- [x] **Step 2: leslie** — lines 105–107: "Phase 4 then splits, and both halves run in the task agent: the test half, with amy loaded, ends at the controller's checkpoint; the code half then makes the reproducing test pass without editing it, so the fix goes through review."
+- [x] **Step 3: run** `bash skills/skills.test.sh` — none of this task's Satisfies checks among the FAIL lines.
 
 ### Task 5: READMEs and version 0.25.0
 
@@ -202,18 +202,18 @@ Nothing had to be serialized beyond Task 0: every later task writes its own file
 **Complexity:** routine
 **Satisfies:** the two README task-agent rows, the three `0.25.0` checks, `drafted inline`, `drafted in parallel`, `пишуться паралельно`
 
-- [ ] **Step 1: README.md** — sheldon row: "Design sections are drafted inline and presented for one approval." Paragraph above the dispatch table: "`wolowitz` also sets `model` and `effort` on every dispatch. A Claude task goes to one task agent: it invokes `amy`, writes the tests and stops on red, then, once the controller has checked and frozen them, writes the code in the same context and passes a mutation check. A task that writes only tests or only code takes a test writer or an implementer alone, and a wave of one task runs in the main session. `leonard` marks each task `routine` or `complex` in the plan." Rows `Test writer` / `Implementer, routine` / `Implementer, complex …` become:
+- [x] **Step 1: README.md** — sheldon row: "Design sections are drafted inline and presented for one approval." Paragraph above the dispatch table: "`wolowitz` also sets `model` and `effort` on every dispatch. A Claude task goes to one task agent: it invokes `amy`, writes the tests and stops on red, then, once the controller has checked and frozen them, writes the code in the same context and passes a mutation check. A task that writes only tests or only code takes a test writer or an implementer alone, and a wave of one task runs in the main session. `leonard` marks each task `routine` or `complex` in the plan." Rows `Test writer` / `Implementer, routine` / `Implementer, complex …` become:
   `| Task agent, \`routine\` task | \`sonnet\` | \`xhigh\` |`
   `| Task agent, \`complex\` task, round 3, final fix | \`opus\` | \`high\` |`
   `| Test writer alone (acceptance tests, covering existing code) | \`opus\` | \`high\` |`
   `| Implementer alone, \`routine\` / \`complex\` task | \`sonnet\` / \`opus\` | \`xhigh\` / \`medium\` |`
-- [ ] **Step 2: README.uk.md** — sheldon row: "Секції дизайну пишуться в основному контексті й подаються на одне погодження." Paragraph: "`wolowitz` також задає `model` і `effort` у кожному dispatch. Claude-задача йде до одного task agent-а: він викликає `amy`, пише тести й зупиняється на red, а після того як контролер перевірив і заморозив їх, пише код у тому самому контексті й проходить mutation-перевірку. Задача, що пише тільки тести або тільки код, іде до test writer-а чи implementer-а окремо, а хвиля з однієї задачі виконується в основній сесії. `leonard` позначає кожну задачу в плані як `routine` або `complex`." Rows:
+- [x] **Step 2: README.uk.md** — sheldon row: "Секції дизайну пишуться в основному контексті й подаються на одне погодження." Paragraph: "`wolowitz` також задає `model` і `effort` у кожному dispatch. Claude-задача йде до одного task agent-а: він викликає `amy`, пише тести й зупиняється на red, а після того як контролер перевірив і заморозив їх, пише код у тому самому контексті й проходить mutation-перевірку. Задача, що пише тільки тести або тільки код, іде до test writer-а чи implementer-а окремо, а хвиля з однієї задачі виконується в основній сесії. `leonard` позначає кожну задачу в плані як `routine` або `complex`." Rows:
   `| Task agent, \`routine\`-задача | \`sonnet\` | \`xhigh\` |`
   `| Task agent, \`complex\`-задача, раунд 3, фінальний fix | \`opus\` | \`high\` |`
   `| Test writer окремо (acceptance-тести, покриття наявного коду) | \`opus\` | \`high\` |`
   `| Implementer окремо, \`routine\` / \`complex\`-задача | \`sonnet\` / \`opus\` | \`xhigh\` / \`medium\` |`
-- [ ] **Step 3: manifests** — `"version": "0.24.1"` → `"version": "0.25.0"` in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`.
-- [ ] **Step 4: run** `bash skills/skills.test.sh` — none of this task's Satisfies checks among the FAIL lines.
+- [x] **Step 3: manifests** — `"version": "0.24.1"` → `"version": "0.25.0"` in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`.
+- [x] **Step 4: run** `bash skills/skills.test.sh` — none of this task's Satisfies checks among the FAIL lines.
 
 ## Verification (end to end)
 After wave 1: `bash skills/skills.test.sh` → `All checks passed.`; `grep -n 'one subagent per section' skills/sheldon/SKILL.md` → nothing; `grep -c '"version": "0.25.0"' .claude-plugin/*.json` → 1 each.
