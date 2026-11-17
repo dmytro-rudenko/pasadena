@@ -45,7 +45,7 @@ the same time as subagents, you verify and commit them, and every wave leaves a
 short comment on the PR before the next wave begins.
 
 You are the controller. **All code edits live in the wave's subagents** — unless
-the session has none; see **Without subagents** — your context stays clean
+the session has none or the wave has one task; see **Without subagents** — your context stays clean
 across every wave, and every fix receives review.
 
 ## Tools
@@ -53,7 +53,7 @@ across every wave, and every fix receives review.
 This is the only skill in the workflow whose writes are not scoped to a
 directory: the plan sends it anywhere in the tree. Edit code directly only for a
 change small enough to state in one line — or for every task when the session
-has no subagents, see **Without subagents**; anything larger goes to the wave's
+has no subagents or the wave has one task, see **Without subagents**; anything larger goes to the wave's
 subagents, whose contexts are discarded, which is what lets one session run
 every wave.
 
@@ -70,15 +70,18 @@ save cost:
 
 | Dispatch | `model` | `effort` |
 |---|---|---|
-| Test writer: Task 0, red of every task, test fixes, round 3, Finish | `opus` | `high` |
-| Implementer, `routine` | `sonnet` | `xhigh` |
-| Implementer: `complex`, round 3, Finish | `opus` | `medium` |
+| Task agent, `routine` | `sonnet` | `xhigh` |
+| Task agent: `complex`, round 3, Finish | `opus` | `high` |
+| Test writer alone: Task 0, covering existing code | `opus` | `high` |
+| Implementer alone, `routine` | `sonnet` | `xhigh` |
+| Implementer alone, `complex` | `opus` | `medium` |
 | Wave 0 review and grouped wave review | `sonnet` | `high` |
 | Whole-branch review | `sonnet` | `xhigh` |
 | `Explore`, when `codex.sh available` exits non-zero | `sonnet` | `xhigh` |
 
-The test writer's row equals `amy`'s frontmatter, so it holds whichever of the
-two wins inside the subagent. Read-only lookups go to
+The `opus`/`high` rows equal `amy`'s frontmatter, so they hold whichever of
+the two wins inside the subagent; a `routine` task agent may run its red on
+`amy`'s. Read-only lookups go to
 `codex.sh explore <prompt-file>` when `codex.sh available` exits 0. `haiku` is
 never used.
 
@@ -114,21 +117,22 @@ Full mode: the effective mode, the journal's `codex-mode:` line or else
 task, or Wave 1 in full mode (`codex budget: exhausted`, `codex.sh cost add`),
 read `references/codex-tasks.md`; reread it after compaction.
 
-## Test writer and implementer
+## Task agent
 
-Every Claude task is built by two subagents. A test writer, dispatched with
-`test-writer-prompt.md`, invokes `amy` and writes only the tests. An
-implementer, dispatched with `implementer-prompt.md`, writes only the code and
-never loads `amy`; its dispatch does not mention her. `**Complexity:**` decides
-only the implementer's row in **Models**. A task with no `**Complexity:**` line
-is `complex`. Task 0 is a test writer alone, stopping on red, with no gates.
-Some shapes take one role only; the reference names them. A task with
-`**Executor:** codex` runs through **Codex tasks**; one handed to Claude because
-`codex.sh available`, `codex.sh red`, or a `codex.sh green` before Gate red
-passes exits non-zero is an ordinary pair on the `routine` row; one whose
-`codex.sh green` exits non-zero after Gate red goes to an implementer on the
-`routine` row, naming its tests. Round 3, including after Codex, is a fresh
-pair. A session with no subagents skips this section.
+Every Claude task with tests and code to write is built by one task agent:
+dispatched with `test-writer-prompt.md`, it invokes `amy`, writes the tests and
+stops on red; after Gate red, the same agent receives `implementer-prompt.md`
+through `SendMessage` and writes the code. `**Complexity:**` decides its row in
+**Models**. A task with no `**Complexity:**` line is `complex`. Task 0 is a
+test writer alone, stopping on red, with no gates. Some shapes take one role
+only; the reference names them. A task with `**Executor:** codex` runs through
+**Codex tasks**; one handed to Claude because `codex.sh available`,
+`codex.sh red`, or a `codex.sh green` before Gate red passes exits non-zero is
+an ordinary task agent on the `routine` row; one whose `codex.sh green` exits
+non-zero after Gate red goes to an implementer alone on the `routine` row,
+naming its tests. Round 3, including after Codex, is a fresh task agent. A wave
+of one task runs without a subagent, per `references/two-dispatch.md`. A
+session with no subagents skips this section.
 
 Before a wave's first task, read `references/two-dispatch.md` in this skill's
 directory, and read it again after a compaction.
@@ -163,12 +167,12 @@ is also the group's `GROUP_BASE`; see `references/grouped-review.md`.
 
 ### 2. Dispatch the whole wave at once
 
-**Dispatch the wave's first stage in a single message**: every test writer
-except the test writer of a task that only covers existing code, and every
-implementer of a task that has no test writer. Multiple dispatches in one
+**Dispatch the wave's first stage in a single message**: every task agent,
+every test writer alone except the one of a task that only covers existing
+code, and every implementer alone. Multiple dispatches in one
 response run concurrently, which is the execution model the wave table
 establishes.
-Implementers of paired tasks go after Gate red, per
+A task agent's green goes after Gate red, through `SendMessage`, per
 `references/two-dispatch.md`.
 
 Each dispatch carries what its prompt file lays out. Compose it so the plan
@@ -179,7 +183,7 @@ stays the single source of requirements:
   `## Global constraints`; the plan content stays at its source;
 - interfaces and decisions from earlier waves that the task requires;
 - your resolution of any ambiguity you spotted in the task;
-- for a test writer only, the instruction to invoke the `amy` skill
+- for a task agent or a test writer, the instruction to invoke the `amy` skill
   (`pasadena:amy`) before writing a test — a subagent starts with no skills
   loaded, and naming amy in passing does not load her;
 - `model` and `effort` set per **Models**.
@@ -219,9 +223,9 @@ remaining work.
 When the run is red and one line of the error does not show the cause, do not
 patch by guesswork: invoke the `leslie` skill with the Skill tool, as
 `pasadena:leslie`. Leslie diagnoses: she returns the root cause and the fix to
-make. The fix goes to the task's subagents — a fix to a test to its test writer,
-a fix to code to its implementer, or through amy when the session has no
-subagents — and the verification runs again. It counts as a round of the fix
+make. The fix goes to the task's agent — a test fix through the checkpoint of
+`references/two-dispatch.md` — or through amy when you ran the task yourself —
+and the verification runs again. It counts as a round of the fix
 loop for each task it touches, and that loop's routing applies.
 
 ### 4. Review schedule
@@ -253,11 +257,10 @@ one-line ruling in the wave's PR comment.
 
 ### 5. Fix loop, at most three rounds
 
-- **Rounds 1–2:** send the open findings, verbatim, through `SendMessage`:
-  findings on code to the task's implementer, findings on tests — a wrong or
-  missing test — to its test writer. Both still have the context. After a test
-  fix, follow `references/two-dispatch.md`.
-- **Round 3:** a fresh pair, per **Models** and `references/two-dispatch.md` —
+- **Rounds 1–2:** send the open findings, verbatim, through `SendMessage` to
+  the task agent, which still has the context; findings on tests — a wrong or
+  missing test — go through the checkpoint of `references/two-dispatch.md`.
+- **Round 3:** a fresh task agent, per **Models** and `references/two-dispatch.md` —
   framed honestly: "two prior attempts failed on this task; you own it now,
   here is what was tried."
 
@@ -268,7 +271,7 @@ reviews that diff. Its new findings are the next round. A grouped review's fix
 loop follows `references/grouped-review.md`.
 
 Findings still open after three rounds are parked. Write down what is unresolved,
-note it in the PR comment, keep every fix with a subagent, and continue.
+note it in the PR comment, keep every fix with the task's agent, and continue.
 
 ### 6. Commit — one commit per task, by you
 
@@ -361,9 +364,9 @@ When the last wave is closed:
    to rotate, permissions or access policy, data already exposed — is the
    security-sensitive stop gate: pause and put it to the user before the fix
    wave. All findings go to one fix wave, per `references/two-dispatch.md`:
-   findings that need a new or changed test go first to one test writer,
-   then one implementer receives every finding under Gate green; when none
-   needs a test, one implementer receives them all. This is the single
+   one task agent, its test half first when any finding needs a new or
+   changed test; when none needs a test, one implementer alone receives them
+   all. This is the single
    whole-branch fix wave. Commit its changes in one commit,
    `fix(<scope>): whole-branch and security review findings`.
 3. Post the final PR comment: every note the steps above assign to it, and the
@@ -380,7 +383,7 @@ goes unmentioned — no Out of scope or follow-ups section.
 | Situation | Required rule |
 |---|---|
 | Two tasks are candidates for one wave | Their `Writes:` sets must be disjoint. |
-| A wave contains multiple tasks | Dispatch the wave's test writers, apart from the test writer of a task that only covers existing code, and implementers of tasks without one, in one message; disjoint write sets provide safe concurrency. Implementers of paired tasks go after Gate red, per `references/two-dispatch.md`. |
+| A wave contains multiple tasks | Dispatch the wave's first stage, per step 2, in one message; disjoint write sets provide safe concurrency. A task agent's green goes after Gate red, per `references/two-dispatch.md`. |
 | A task is ready to commit | The controller commits it, keeping access to the shared index serialized. |
 | Review finds a small issue | Return it to the subagent that wrote the code or the test, so the fix receives review. |
 | A wave closes | Post its one PR comment, then start the next wave in the same session. |

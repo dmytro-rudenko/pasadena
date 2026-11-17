@@ -29,9 +29,9 @@ dispatch one reviewer on `sonnet` at `effort: "high"` with
 
 ## Fix loop
 
-Step 5 applies: findings on code go to the task's implementer, findings on
-tests to its test writer, through `SendMessage` in rounds 1–2; round 3 is a
-fresh pair per `two-dispatch.md`; Codex tasks follow `codex-tasks.md`. Per
+Step 5 applies: findings go to its task agent through `SendMessage` in rounds
+1–2, test findings through the checkpoint; round 3 is a fresh task agent per
+`two-dispatch.md`; Codex tasks follow `codex-tasks.md`. Per
 task, the counter carries on from the task's own wave, per `two-dispatch.md`,
 so a task that already used rounds there reaches round 3 sooner. The
 addressee may come from a wave two waves back.
@@ -44,8 +44,8 @@ Before every code fix in the group loop, record that task's test checksums and
 the scratchpad copy anew, per `two-dispatch.md`: a later wave may have changed
 its tests.
 
-When the addressee is not reachable, a test fix goes to a fresh test writer
-per `two-dispatch.md`, and a code fix goes to a fresh implementer whose
+When the addressee is not reachable, a test fix goes to a fresh task agent
+per `two-dispatch.md`, and a code fix goes to a fresh implementer alone whose
 dispatch says under **Context** that it may write only that task's
 `**Writes:**` set; the round number stays the same. When a Codex thread is
 not reachable, the task goes to a fresh Claude implementer per the round-3
