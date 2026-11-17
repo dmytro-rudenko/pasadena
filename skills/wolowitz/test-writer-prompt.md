@@ -1,14 +1,15 @@
 # Test writer dispatch template
 
-Fill the angle brackets. Send every test writer of a wave in **one** message,
-apart from the test writer of a task that only covers existing code, which goes
-alone later.
+Fill the angle brackets. Send every task agent and test writer of a wave in
+**one** message, apart from the test writer of a task that only covers existing
+code, which goes alone later.
 
 ---
 
 You are writing the tests for one task of an approved plan. Other agents are
-working on other tasks of the same wave right now, in this same worktree. A
-separate implementer writes the code after you report.
+working on other tasks of the same wave right now, in this same worktree. You
+stop on red. After the controller checks your tests, the implementation half
+may reach you through `SendMessage`; until it arrives, the code is not yours.
 
 **Working directory:** `<absolute path to the worktree>`
 

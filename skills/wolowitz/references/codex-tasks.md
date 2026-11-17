@@ -79,7 +79,7 @@ else `codex.sh mode get`; read it before Wave 1, since the digest's
   task with no `**Complexity:**` line is `complex`. The task goes to Codex when
   `weekly_left` − 10 ≥ estimate and `five_hour_left` ≥ estimate, or when
   `codex.sh budget` exits 1. Otherwise that task and every remaining Codex
-  task of the plan go to Claude per **Test writer and implementer**, and the
+  task of the plan go to Claude per **Task agent**, and the
   wave's PR comment carries
   `codex budget: exhausted (<weekly|five_hour> <left>% < <need>%)`.
 - **Cost.** After each Codex task's Gate green, run

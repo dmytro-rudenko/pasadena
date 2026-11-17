@@ -1,7 +1,8 @@
 # Implementer dispatch template
 
-Fill the angle brackets. Implementers of tasks with a test writer go after Gate
-red, per `references/two-dispatch.md`; the rest go with the wave's first stage.
+Fill the angle brackets. A task agent receives this through `SendMessage` after
+Gate red, per `references/two-dispatch.md`; an implementer alone goes with the
+wave's first stage.
 
 ---
 
@@ -42,8 +43,8 @@ ambiguity you spotted in the task; nothing else>
 4. **Do not dispatch subagents.** Not helpers, not a reviewer. Review comes
    from the controller after your report.
 
-5. **The tests are not yours.** The tests at the paths above were written
-   before you started and their checksums are recorded. Do not edit them.
+5. **The tests are not yours.** The tests at the paths above are frozen: their
+   checksums are recorded, even when you wrote them yourself. Do not edit them.
    Write the minimum that makes them pass. When a test itself is wrong, or a
    behaviour you must write has no test, stop and report `BLOCKED` with the
    test and your reason.
