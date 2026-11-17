@@ -1,7 +1,7 @@
 ---
 branch: worktree-subagents-less
 spec: docs/sdd/specs/2026-11-17-fold-subagents.md
-plan: -
+plan: docs/sdd/plans/2026-11-17-fold-subagents.md
 codex-mode: explore
 status: in-progress
 started: 2026-11-17
@@ -14,10 +14,11 @@ sheldon пише дизайн inline без fan-out, wolowitz виконує х�
 Готово, коли скіли змінено, skills.test.sh зелений, версію плагіна піднято.
 
 ## Now
-Spec написано й погоджено в чаті (підхід A: SendMessage-чекпоінт + mutation на Gate green, модель за Complexity, однозадачна хвиля inline, sheldon без fan-out). Чекаємо рев'ю spec у draft PR. Далі: leonard → план.
+Building. План погоджено: Wave 0 (Task 0, acceptance у skills/skills.test.sh, очікується FAILED: 37), Wave 1 (Tasks 1–5 паралельно). Далі: Wave 0, потім `bash skills/skills.test.sh`.
 
 ## Timeline
 
 ### 2026-11-17
 - 14:37 ✎ codex-mode: explore
 - 14:55 ✎ Shaping: обрано SendMessage-чекпоінт + mutator на Gate green проти підгонки тестів; модель злитого агента за Complexity
+- 14:55 ● 350130a docs(sdd): spec for folding subagents into the main loop
