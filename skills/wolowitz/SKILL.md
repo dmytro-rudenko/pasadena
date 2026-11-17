@@ -45,17 +45,18 @@ the same time as subagents, you verify and commit them, and every wave leaves a
 short comment on the PR before the next wave begins.
 
 You are the controller. **All code edits live in the wave's subagents** — unless
-the session has none or the wave has one task; see **Without subagents** — your context stays clean
-across every wave, and every fix receives review.
+the session has none or the wave has one task; see **Without subagents** and
+`references/two-dispatch.md` — your context stays clean across every wave, and
+every fix receives review.
 
 ## Tools
 
 This is the only skill in the workflow whose writes are not scoped to a
 directory: the plan sends it anywhere in the tree. Edit code directly only for a
 change small enough to state in one line — or for every task when the session
-has no subagents or the wave has one task, see **Without subagents**; anything larger goes to the wave's
-subagents, whose contexts are discarded, which is what lets one session run
-every wave.
+has no subagents or the wave has one task, see **Without subagents** and
+`references/two-dispatch.md`; anything larger goes to the wave's subagents,
+whose contexts are discarded, which is what lets one session run every wave.
 
 `git push` is deliberately absent from the pre-approved list — a push to a
 shared branch is one of the four stop gates below, so it asks. The plan's
@@ -123,9 +124,9 @@ Every Claude task with tests and code to write is built by one task agent:
 dispatched with `test-writer-prompt.md`, it invokes `amy`, writes the tests and
 stops on red; after Gate red, the same agent receives `implementer-prompt.md`
 through `SendMessage` and writes the code. `**Complexity:**` decides its row in
-**Models**. A task with no `**Complexity:**` line is `complex`. Task 0 is a
-test writer alone, stopping on red, with no gates. Some shapes take one role
-only; the reference names them. A task with `**Executor:** codex` runs through
+**Models**. A task with no `**Complexity:**` line is `complex`. Task 0
+stops on red, with no gates. Some shapes take one role only; the reference
+names them. A task with `**Executor:** codex` runs through
 **Codex tasks**; one handed to Claude because `codex.sh available`,
 `codex.sh red`, or a `codex.sh green` before Gate red passes exits non-zero is
 an ordinary task agent on the `routine` row; one whose `codex.sh green` exits
@@ -260,7 +261,8 @@ one-line ruling in the wave's PR comment.
 - **Rounds 1–2:** send the open findings, verbatim, through `SendMessage` to
   the task agent, which still has the context; findings on tests — a wrong or
   missing test — go through the checkpoint of `references/two-dispatch.md`.
-- **Round 3:** a fresh task agent, per **Models** and `references/two-dispatch.md` —
+- **Round 3:** a fresh task agent, per **Models** and
+  `references/two-dispatch.md` —
   framed honestly: "two prior attempts failed on this task; you own it now,
   here is what was tried."
 
@@ -385,7 +387,7 @@ goes unmentioned — no Out of scope or follow-ups section.
 | Two tasks are candidates for one wave | Their `Writes:` sets must be disjoint. |
 | A wave contains multiple tasks | Dispatch the wave's first stage, per step 2, in one message; disjoint write sets provide safe concurrency. A task agent's green goes after Gate red, per `references/two-dispatch.md`. |
 | A task is ready to commit | The controller commits it, keeping access to the shared index serialized. |
-| Review finds a small issue | Return it to the subagent that wrote the code or the test, so the fix receives review. |
+| Review finds a small issue | Return it to the agent that wrote the code or the test, or fix it yourself when you ran the task inline, so the fix receives review. |
 | A wave closes | Post its one PR comment, then start the next wave in the same session. |
 | A wave after Wave 0 closes no group, or closes the last one | Skip steps 4–5; the next grouped review or the whole-branch review covers it. |
 | The context feels long | The code work stays in subagents and the main context holds compact reports; loop the waves and hand off only when a genuine ruling forces a stop. |

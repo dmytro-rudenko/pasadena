@@ -29,7 +29,9 @@ When a test fix is needed and the task's agent is not reachable — an earlier
 wave wrote the tests, or Codex did — send it to a fresh task agent for those
 tests. Its dispatch says under **Context** that, overriding Rule 1, it may
 write those test files and no others, and that it stops when the test fix is
-done; then follow **The checkpoint.**
+done. Check that its reported files are all test files, record the checksums
+and the scratchpad copy; any code half then goes to a fresh implementer alone,
+as `grouped-review.md` says, not to that agent.
 
 A wave runs in stages: every task agent, every test writer alone apart from the
 one of a task that only covers existing code, and every implementer alone go in
@@ -38,7 +40,10 @@ for the lone implementers; then send every task agent that passed Gate red its
 green, in one message, and run every remaining Gate green and finish its fix
 rounds; a round-3 task agent's green goes in a later message, once it passes
 Gate red; then the tasks that only cover existing code; only then the wave's
-Codex tasks, because a Codex call needs no other writer active.
+Codex tasks, because a Codex call needs no other writer active. Every mutation
+check waits until no agent of the wave is working, so the mutation checks of
+Gate green run one at a time, after the stage's agents report and between fix
+rounds.
 
 1. **Red.** Dispatch the task agent with `test-writer-prompt.md`.
 2. **Gate red.** Check it yourself:
@@ -76,7 +81,9 @@ Codex tasks, because a Codex call needs no other writer active.
      `mutator exit: 2` means the baseline failed: invoke `pasadena:leslie`. On
      `unavailable`, skip the check and put `mutator: skipped (<reason>)` in the
      wave's `✎` note; the install question belongs to
-     `references/make-it-right.md`.
+     `references/make-it-right.md`. A task whose `**Writes:**` holds no
+     production source file — only markdown, JSON or tests — skips the check
+     and says so in the wave's `✎` note.
 5. The rest of the wave — suite, review when the schedule has one, commit, PR comment — is unchanged.
 
 One counter per task covers every Gate green failure, `BLOCKED` report,
@@ -85,10 +92,11 @@ files from the scratchpad copy and tell the agent they were edited and
 restored.
 
 **The checkpoint.** A test fix — after `BLOCKED`, a review finding or survivors
-— goes to the task agent through `SendMessage` in rounds 1–2, saying it changes
-test files only and stops when they are done. Check that its reported files are
-all test files, record the checksums anew, replace the scratchpad copy, then
-send it the green — make these tests pass, do not edit them — and run Gate
+— goes to the task agent through `SendMessage` in rounds 1–2, saying that,
+overriding Rule 5 of `implementer-prompt.md`, it may change the task's test
+files only for this fix, and stops when they are done. Check that its reported
+files are all test files, record the checksums anew, replace the scratchpad
+copy, then send it the green — make these tests pass, do not edit them — and run Gate
 green. A code fix goes to the same agent, then Gate green. In a task with no
 green half — Task 0, or a task that only covers existing code — the fix ends at
 the test writer: Task 0's tests must stay red for the reasons they predict, and
@@ -127,10 +135,13 @@ its reported files must all be test files.
 
 ## A wave of one task
 
-A wave whose only task is not `**Executor:** codex` gets no subagent: run
-that task yourself as in **Without subagents** in `SKILL.md`, invoking
-`pasadena:amy` first, and apply this file's gates to your own work — Gate
-red with its checksums and scratchpad copy after your red, Gate green with
-the mutation check after your green. Rounds 1–2 are yours; round 3 goes to
-a fresh task agent. Reviews keep their schedule and their subagents. Write
-`inline` in the wave's `✎` note.
+A wave whose only task is not `**Executor:** codex` is built inline: run it as
+in **Without subagents** in `SKILL.md`, invoking `pasadena:amy` and working
+yourself, while reviews keep their schedule and their subagents. Write `inline`
+in the wave's `✎` note. A paired task applies Gate red, with its checksums and
+scratchpad copy, after your red, and Gate green, with the mutation check, after
+your green. A one-role task keeps its shape's rules: Task 0 stops on red, with
+no gates; a task that only covers existing code proves each test by mutation
+under amy's rules for existing code; a task with no test file runs Gate green
+on your own code. Rounds 1–2 are yours; round 3 goes to a fresh task agent, or
+for a one-role task to a fresh agent of its role.

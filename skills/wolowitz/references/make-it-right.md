@@ -26,17 +26,18 @@ put `<tool>: skipped (<reason>)` in the final PR comment.
    `pasadena:amy` as pin, change, prove: one task agent, who invokes amy,
    pins the current behaviour of every function the findings name in its
    test half; after the checkpoint, its green splits the high-CRAP functions
-   and merges the duplicates under Gate green; the unchanged suite proves nothing else changed. Its
-   `**Writes:**` is the files the tools named plus their test files. Commit
+   and merges the duplicates under Gate green; the unchanged suite proves
+   nothing else changed. Its `**Writes:**` is the files the tools named plus
+   their test files. Commit
    `refactor(<scope>): crapper and dryer findings`. No findings, no wave.
 2. **Tests.** Run `ub-tools.sh mutator --scan <files>` and leave out every
    file with more than 50 sites — mutator's `--mutation-warning` default —
    naming it in the final PR comment. Run
    `ub-tools.sh mutator <the rest> -- "<test command>"`. `mutator exit: 3` means
    survivors: one task agent kills them and covers the uncovered lines in its
-   test half, then, after the checkpoint, deletes the code no test can reach. Commit
-   `test(<scope>): mutator survivors`. `mutator exit: 2` means the baseline
-   tests failed: invoke `pasadena:leslie` before anything else.
+   test half, then, after the checkpoint, deletes the code no test can reach.
+   Commit `test(<scope>): mutator survivors`. `mutator exit: 2` means the
+   baseline tests failed: invoke `pasadena:leslie` before anything else.
 3. In a session without subagents, run both fix waves yourself through
    `pasadena:amy`.
 4. One round each, no loop. What remains goes in the final PR comment with its

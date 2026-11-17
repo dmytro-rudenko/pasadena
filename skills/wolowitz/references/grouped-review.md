@@ -29,12 +29,12 @@ dispatch one reviewer on `sonnet` at `effort: "high"` with
 
 ## Fix loop
 
-Step 5 applies: findings go to its task agent through `SendMessage` in rounds
-1–2, test findings through the checkpoint; round 3 is a fresh task agent per
-`two-dispatch.md`; Codex tasks follow `codex-tasks.md`. Per
-task, the counter carries on from the task's own wave, per `two-dispatch.md`,
-so a task that already used rounds there reaches round 3 sooner. The
-addressee may come from a wave two waves back.
+Step 5 applies: findings go to the task's agent through `SendMessage` in
+rounds 1–2, so a test finding goes to its task agent through the checkpoint;
+round 3 is a fresh task agent per `two-dispatch.md`; Codex tasks follow
+`codex-tasks.md`. Per task, the counter carries on from the task's own wave,
+per `two-dispatch.md`, so a task that already used rounds there reaches round 3
+sooner. The addressee may come from a wave two waves back.
 
 Tasks of different waves in one group can share files. Fixes for tasks whose
 `**Writes:**` sets intersect go one at a time, in task order, and a finding on
