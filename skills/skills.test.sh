@@ -216,14 +216,16 @@ before=$fails
 require leonard '**Complexity:** routine | complex'
 require leonard '- the task is `**Complexity:** routine`;'
 require leonard 'When in doubt, write `complex`.'
-require wolowitz '| Test writer: Task 0, red of every task, test fixes, round 3, Finish | `opus` | `high` |'
-require wolowitz '| Implementer, `routine` | `sonnet` | `xhigh` |'
-require wolowitz '| Implementer: `complex`, round 3, Finish | `opus` | `medium` |'
+require wolowitz '| Task agent, `routine` | `sonnet` | `xhigh` |'
+require wolowitz '| Task agent: `complex`, round 3, Finish | `opus` | `high` |'
+require wolowitz '| Test writer alone: Task 0, covering existing code | `opus` | `high` |'
+require wolowitz '| Implementer alone, `routine` | `sonnet` | `xhigh` |'
+require wolowitz '| Implementer alone, `complex` | `opus` | `medium` |'
 require wolowitz '| `Explore`, when `codex.sh available` exits non-zero | `sonnet` | `xhigh` |'
-require wolowitz '## Test writer and implementer'
+require wolowitz '## Task agent'
 require wolowitz 'test-writer-prompt.md'
 require wolowitz 'references/two-dispatch.md'
-require wolowitz '- for a test writer only, the instruction to invoke the `amy` skill'
+require wolowitz '- for a task agent or a test writer, the instruction to invoke the `amy` skill'
 wolowitz_flat="$(tr '\n' ' ' <"$SKILLS/wolowitz/SKILL.md")"
 grep -qF 'A task with no `**Complexity:**` line is `complex`.' <<<"$wolowitz_flat" || fail "wolowitz: missing \"A task with no **Complexity:** line is complex.\""
 ! grep -qF 'whole `amy` cycle' <<<"$wolowitz_flat" || fail "wolowitz: a routine task still runs the whole amy cycle"
@@ -253,12 +255,12 @@ for readme in README.md README.uk.md; do
   grep -qF '| `wolowitz`, `penny` | `opus` | `medium` |' "$ROOT/$readme" || fail "$readme: no skill model table"
   grep -qF -- '--advisor' "$ROOT/$readme" || fail "$readme: no advisor note"
 done
-grep -qF '| Implementer, `complex` task, round 3, final fix | `opus` | `medium` |' "$ROOT/README.md" || fail "README.md: no dispatch model table"
-grep -qF '| Implementer, `complex`-задача, раунд 3, фінальний fix | `opus` | `medium` |' "$ROOT/README.uk.md" || fail "README.uk.md: no dispatch model table"
+grep -qF '| Task agent, `complex` task, round 3, final fix | `opus` | `high` |' "$ROOT/README.md" || fail "README.md: no task agent row"
+grep -qF '| Task agent, `complex`-задача, раунд 3, фінальний fix | `opus` | `high` |' "$ROOT/README.uk.md" || fail "README.uk.md: no task agent row"
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.24.1"' "$ROOT/$manifest" || fail "$manifest: not on 0.24.1"
+  grep -qF '"version": "0.25.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.25.0"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"
@@ -326,18 +328,22 @@ grep -qF 'reasonable person' "$SKILLS/wolowitz/reviewer-prompt.md" || fail "revi
 grep -qF '## Declined to judge' "$SKILLS/wolowitz/reviewer-prompt.md" || fail "reviewer-prompt.md: missing Declined to judge"
 [ "$fails" -eq "$before" ] && ok "upstream adoption checked"
 
-echo "Parallel design"
+echo "Inline design"
 before=$fails
-require sheldon 'one subagent per section, all in parallel'
-require sheldon 'section outline'
+! grep -qF 'one subagent per section' "$SKILLS/sheldon/SKILL.md" || fail "sheldon: still fans the design out to subagents"
+! grep -qF 'section outline' "$SKILLS/sheldon/SKILL.md" || fail "sheldon: still writes a section outline"
+! grep -qF 'without the fan-out' "$SKILLS/sheldon/SKILL.md" || fail "sheldon: still mentions the fan-out"
+require sheldon 'Write every section yourself'
 require sheldon 'open questions'
 require sheldon 'one message through the `AskUserQuestion` tool'
 require sheldon 'one approval'
-require sheldon 'one or two sections'
 ! grep -qF 'After each section, ask whether everything looks right' "$SKILLS/sheldon/SKILL.md" || fail "sheldon: still asks after each section"
 grep -qF 'one approval' "$ROOT/README.md" || fail "README.md: sheldon row lacks one approval"
+grep -qF 'drafted inline' "$ROOT/README.md" || fail "README.md: sheldon row does not say drafted inline"
+! grep -qF 'drafted in parallel' "$ROOT/README.md" || fail "README.md: sheldon row still says drafted in parallel"
 grep -qF 'одне погодження' "$ROOT/README.uk.md" || fail "README.uk.md: sheldon row lacks одне погодження"
-[ "$fails" -eq "$before" ] && ok "parallel design checked"
+! grep -qF 'пишуться паралельно' "$ROOT/README.uk.md" || fail "README.uk.md: sheldon row still says пишуться паралельно"
+[ "$fails" -eq "$before" ] && ok "inline design checked"
 
 echo "ub-mode quality gates"
 before=$fails
@@ -376,8 +382,30 @@ for readme in README.md README.uk.md; do
   grep -qF 'PASADENA_DRYER' "$ROOT/$readme" || fail "$readme: no PASADENA_DRYER"
   grep -qF 'bash hooks/ub-tools.test.sh' "$ROOT/$readme" || fail "$readme: no ub-tools check"
 done
-grep -qF '"version": "0.24.1"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.24.1"
+grep -qF '"version": "0.25.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.25.0"
 [ "$fails" -eq "$before" ] && ok "ub-mode quality gates checked"
+
+echo "Folded subagents"
+before=$fails
+require_ref_flat two-dispatch.md 'Send the same agent, through `SendMessage`,'
+require_ref_flat two-dispatch.md 'ub-tools.sh mutator'
+require_ref_flat two-dispatch.md 'mutator exit: 3'
+require_ref_flat two-dispatch.md 'Run mutation checks one at a time'
+require_ref_flat two-dispatch.md 'A wave whose only task is not'
+require_ref_flat two-dispatch.md '**The checkpoint.**'
+! grep -qF 'send every paired implementer' "$SKILLS/wolowitz/references/two-dispatch.md" || fail "references/two-dispatch.md: still sends paired implementers"
+require_flat wolowitz 'A wave of one task runs without a subagent'
+! grep -qF 'a fresh pair' "$SKILLS/wolowitz/SKILL.md" || fail "wolowitz: round 3 is still a fresh pair"
+grep -qF 'implementation half' "$SKILLS/wolowitz/test-writer-prompt.md" || fail "test-writer-prompt.md: no implementation half"
+! grep -qF 'separate implementer writes the code' "$SKILLS/wolowitz/test-writer-prompt.md" || fail "test-writer-prompt.md: still names a separate implementer"
+grep -qF 'even when you wrote them yourself' "$SKILLS/wolowitz/implementer-prompt.md" || fail "implementer-prompt.md: tests not frozen for a task agent"
+require amy 'a task agent runs your red steps'
+! grep -qF 'implementer who does not load you' "$SKILLS/amy/SKILL.md" || fail "amy: still names an implementer who does not load her"
+require leslie 'both halves run in the task agent'
+require_ref_flat grouped-review.md 'to its task agent'
+require_ref_flat make-it-right.md 'one task agent'
+require_ref codex-tasks.md '**Task agent**'
+[ "$fails" -eq "$before" ] && ok "folded subagents checked"
 
 echo "Manifest versions"
 manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json"
