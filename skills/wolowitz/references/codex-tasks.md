@@ -8,7 +8,7 @@ A task with `**Executor:** codex` runs as two Codex calls with your own gates
 between them, because Codex cannot load amy and its report is not evidence.
 
 Run Codex calls one at a time, and start a wave's Codex tasks only after all of
-the wave's Claude implementers have reported, and after every Gate green and its
+the wave's Claude agents have reported, and after every Gate green and its
 fix rounds. No other writer is active during a Codex call, so the
 `codex changed:` line that `red` and `green` print on stderr attributes every
 change it lists to that call.
@@ -29,7 +29,7 @@ change it lists to that call.
    When the gate fails, run `codex.sh green <thread-id> <prompt-file> <complexity>` with a
    prompt that names the problem and says to fix the tests only, then run Gate
    red again. At most two such retries; after that the task goes to a fresh
-   Claude implementer.
+   task agent per **Models**.
    `<complexity>` is the task's `routine` or `complex` from the plan; it sets
    Codex's model and effort.
 3. **Green.** Run `codex.sh green <thread-id> <prompt-file> <complexity>` with a prompt that
@@ -44,20 +44,21 @@ change it lists to that call.
 
 When any gate after Gate red finds a checksum mismatch, first restore the test
 files from the scratchpad copy, then tell the next implementer — the Codex
-round or the fresh Claude implementer — that the tests were edited and
+round or the fresh task agent — that the tests were edited and
 restored.
 
 Fix loop: a Gate green failure right after step 3 counts as round 1, and its
 findings are the gate's output. Rounds 1–2 go to
 `codex.sh green <thread-id> <prompt-file> <complexity>`, the prompt file holding the
-findings verbatim; round 3 goes to a fresh Claude implementer per **Models**.
+findings verbatim; round 3 goes to a fresh task agent per **Models**.
 After each round sent to `codex.sh green`, run Gate green again before
 the wave goes on. A Gate green failure of any kind — checksum, `**Writes:**`
 set or verification — consumes that round; after round 2 the task goes to a
-fresh Claude implementer. When `codex.sh` exits non-zero, the task goes to a
-Claude implementer at once and the wave's PR comment names the exit code. The
-wave's PR comment sums the `codex usage:` lines its Codex calls printed on
-stderr.
+fresh task agent per **Models**. When `codex.sh` exits non-zero, the task goes
+to Claude at once — before Gate red as a task agent, after it to an
+implementer alone on the `routine` row — and the wave's PR comment names the
+exit code. The wave's PR comment sums the `codex usage:` lines its Codex calls
+printed on stderr.
 
 ## Codex mode full
 
@@ -79,7 +80,7 @@ else `codex.sh mode get`; read it before Wave 1, since the digest's
   task with no `**Complexity:**` line is `complex`. The task goes to Codex when
   `weekly_left` − 10 ≥ estimate and `five_hour_left` ≥ estimate, or when
   `codex.sh budget` exits 1. Otherwise that task and every remaining Codex
-  task of the plan go to Claude per **Test writer and implementer**, and the
+  task of the plan go to Claude per **Task agent**, and the
   wave's PR comment carries
   `codex budget: exhausted (<weekly|five_hour> <left>% < <need>%)`.
 - **Cost.** After each Codex task's Gate green, run

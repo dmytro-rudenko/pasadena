@@ -181,23 +181,17 @@ sentences for straightforward parts and a few paragraphs for more complex ones.
 Cover the architecture, components and their boundaries, data flow, failure
 handling, and how the result will be tested.
 
-Do not stop for approval after each section. Draft them together and ask once:
+Do not stop for approval after each section. Write every section yourself, in
+this context: the user's answers and the repository facts are already here,
+and sections drafted apart would need their interfaces reconciled.
 
-1. Write a section outline: one line per section, with its boundaries and the
-   interfaces it shares with the others, so the sections can be drafted
-   independently.
-2. Dispatch one subagent per section, all in parallel. Give each the approved
-   approach, the user's answers, the repository facts it needs, and the module
-   template below. Each returns its draft and its open questions: only those
-   whose answer changes what gets built.
-3. Merge the drafts and check them against each other for interfaces, names,
-   and duplicated responsibility. Ask all open questions in
-   one message through the `AskUserQuestion` tool, most important first. This is
-   an exception to one question per message. Rewrite only the sections the
-   answers touch.
-4. Present the whole design once and ask for one approval.
-
-When the design is one or two sections, write it inline without the fan-out.
+1. Draft the sections in order, keeping one set of names and interfaces
+   across them.
+2. Collect the open questions: only those whose answer changes what gets
+   built. Ask them in one message through the `AskUserQuestion` tool, most
+   important first. This is an exception to one question per message.
+   Rewrite only the sections the answers touch.
+3. Present the whole design once and ask for one approval.
 
 Design modules so that each one has a single responsibility, communicates
 through a clearly defined interface, and can be understood and tested in

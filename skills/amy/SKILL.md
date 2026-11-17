@@ -13,8 +13,9 @@ Write the test first. Watch it fail. Write the minimum that passes.
 it tests the right thing.
 
 This skill declares no tool rules. It is a technique applied inside whichever
-skill or test writer is already running, and its writes are that caller's
-writes; a scope declared here would narrow theirs for the rest of the turn.
+skill, task agent or test writer is already running, and its writes are that
+caller's writes; a scope declared here would narrow theirs for the rest of the
+turn.
 
 Following the full sequence preserves both the letter and the spirit of these
 rules.
@@ -49,8 +50,8 @@ Only the stated exceptions alter the TDD sequence.
 
 This section applies only when `sheldon` handed you an approved Bounded design
 with the effective Codex mode `full` — explicit, or resolved from `auto` — and
-`codex.sh available` (beside `journal.sh`) exits 0. A test writer or
-implementer dispatched by `wolowitz` skips it: there the builder runs Codex.
+`codex.sh available` (beside `journal.sh`) exits 0. A task agent, test writer
+or implementer dispatched by `wolowitz` skips it: there the builder runs Codex.
 Invoked directly, with no classification, `auto` works as `explore` and this
 section does not apply.
 
@@ -110,8 +111,9 @@ over each step inside it.
    it through its own cycle.
 
 Under `wolowitz`, `leonard` plans the outer loop as Task 0 in Wave 0. For every
-later task a test writer runs your red steps and stops on red, and an
-implementer who does not load you writes the code. Working alone, you run both.
+later task a task agent runs your red steps and stops on red; after the
+controller's checkpoint, the same agent writes the code under the implementer's
+rules. Working alone, you run both.
 
 ## Red → Green → Refactor
 

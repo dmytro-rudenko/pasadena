@@ -27,7 +27,7 @@ Run `/pasadena` to continue from the branch's current stage. `/bazinga` remains 
 
 | Skill | Job |
 | --- | --- |
-| `sheldon` | Scopes the request, asks focused questions, and writes an agreed spec. Design sections are drafted in parallel and presented for one approval. For architectural work, it creates the worktree, journal, and draft PR first. |
+| `sheldon` | Scopes the request, asks focused questions, and writes an agreed spec. Design sections are drafted inline and presented for one approval. For architectural work, it creates the worktree, journal, and draft PR first. |
 | `penny` | Builds two to four browser prototypes for a UI decision, tests the chosen version with you, and records the decision. |
 | `leonard` | Uses Claude Code plan mode to split the spec into executable tasks and safe parallel waves. |
 | `wolowitz` | Runs each wave, verifies it, commits every task, reviews every third wave and the whole branch, and records progress on the PR. |
@@ -154,13 +154,14 @@ Every skill sets `model` and `effort` in its frontmatter. The override lasts unt
 | `bernie`, `stuart` | `sonnet` | `xhigh` |
 | `pasadena`, `raj`, `journal` | `sonnet` | `medium` |
 
-`wolowitz` also sets `model` and `effort` on every dispatch. A Claude task goes to a test writer, who invokes `amy` and writes only the tests, then to an implementer, who writes only the code; a task that writes only tests or only code takes one of them. `leonard` marks each task `routine` or `complex` in the plan.
+`wolowitz` also sets `model` and `effort` on every dispatch. A Claude task goes to one task agent: it invokes `amy`, writes the tests and stops on red, then, once the controller has checked and frozen them, writes the code in the same context and passes a mutation check. A task that writes only tests or only code takes a test writer or an implementer alone, and a wave of one task runs in the main session. `leonard` marks each task `routine` or `complex` in the plan.
 
 | Dispatch | Model | Effort |
 |---|---|---|
-| Test writer | `opus` | `high` |
-| Implementer, `routine` task | `sonnet` | `xhigh` |
-| Implementer, `complex` task, round 3, final fix | `opus` | `medium` |
+| Task agent, `routine` task | `sonnet` | `xhigh` |
+| Task agent, `complex` task, round 3, final fix | `opus` | `high` |
+| Test writer alone (acceptance tests, covering existing code) | `opus` | `high` |
+| Implementer alone, `routine` / `complex` task | `sonnet` / `opus` | `xhigh` / `medium` |
 | Wave 0 and grouped wave reviews | `sonnet` | `high` |
 | Whole-branch review, `Explore` fallback | `sonnet` | `xhigh` |
 
