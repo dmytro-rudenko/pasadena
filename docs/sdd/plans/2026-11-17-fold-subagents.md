@@ -37,7 +37,7 @@ Nothing had to be serialized beyond Task 0: every later task writes its own file
 **Executor:** claude
 **Covers:** "`bash skills/skills.test.sh` — зелений"; "`grep -n 'one subagent per section' skills/sheldon/SKILL.md` — нічого"; "SendMessage … mutator у two-dispatch.md"; "`\"version\": \"0.25.0\"` — два рядки".
 
-- [ ] **Step 1: write the acceptance tests** — edits to `skills/skills.test.sh`:
+- [x] **Step 1: write the acceptance tests** — edits to `skills/skills.test.sh`:
   1. In `echo "Model routing"`, replace the three lines
      `require wolowitz '| Test writer: Task 0, red of every task, test fixes, round 3, Finish | \`opus\` | \`high\` |'`,
      `require wolowitz '| Implementer, \`routine\` | \`sonnet\` | \`xhigh\` |'`,
@@ -92,7 +92,7 @@ Nothing had to be serialized beyond Task 0: every later task writes its own file
      require_ref codex-tasks.md '**Task agent**'
      [ "$fails" -eq "$before" ] && ok "folded subagents checked"
      ```
-- [ ] **Step 2: run them, watch them fail** — `bash skills/skills.test.sh`, expect `FAILED: 37`: 5 model rows, `## Task agent`, the amy instruction line, 2 README task-agent rows, 3 version checks, 7 inline-design checks, 18 folded-subagent checks — each because the behaviour is missing.
+- [x] **Step 2: run them, watch them fail** — `bash skills/skills.test.sh`, expect `FAILED: 37`: 5 model rows, `## Task agent`, the amy instruction line, 2 README task-agent rows, 3 version checks, 7 inline-design checks, 18 folded-subagent checks — each because the behaviour is missing.
 
 ### Task 1: sheldon drafts the design inline
 
