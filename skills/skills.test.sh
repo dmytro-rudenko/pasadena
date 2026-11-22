@@ -184,6 +184,21 @@ for readme in README.md README.uk.md; do
 done
 [ "$fails" -eq "$before" ] && ok "codex mode documented"
 
+echo "Issue command"
+before=$fails
+issue_cmd="$ROOT/commands/issue.md"
+if [ -f "$issue_cmd" ]; then
+  for needle in "argument-hint:" "gh issue view" "\$0" "pasadena"; do
+    grep -qF -- "$needle" "$issue_cmd" || fail "commands/issue.md: missing \"$needle\""
+  done
+else
+  fail "commands/issue.md: missing"
+fi
+for readme in README.md README.uk.md; do
+  grep -qF -- "/issue" "$ROOT/$readme" || fail "$readme: missing \"/issue\""
+done
+[ "$fails" -eq "$before" ] && ok "issue command documented"
+
 echo "Frontmatter models"
 before=$fails
 for file in "$SKILLS"/*/SKILL.md; do
@@ -260,7 +275,7 @@ grep -qF '| Task agent, `complex`-задача, раунд 3, фінальний
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.26.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.26.0"
+  grep -qF '"version": "0.27.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.27.0"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"
@@ -382,7 +397,7 @@ for readme in README.md README.uk.md; do
   grep -qF 'PASADENA_DRYER' "$ROOT/$readme" || fail "$readme: no PASADENA_DRYER"
   grep -qF 'bash hooks/ub-tools.test.sh' "$ROOT/$readme" || fail "$readme: no ub-tools check"
 done
-grep -qF '"version": "0.26.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.26.0"
+grep -qF '"version": "0.27.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.27.0"
 [ "$fails" -eq "$before" ] && ok "ub-mode quality gates checked"
 
 echo "Folded subagents"
