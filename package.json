@@ -1,0 +1,14 @@
+{
+  "name": "pasadena-bench",
+  "private": true,
+  "scripts": {
+    "bench:setup": "bash bench/setup.sh",
+    "bench:select": "bash bench/select.sh",
+    "bench:baseline": "bash bench/run.sh --arm baseline",
+    "bench:pasadena": "bash bench/run.sh --arm pasadena",
+    "bench:compare": "python3 bench/compare.py",
+    "bench:artifacts": "python3 bench/artifacts.py",
+    "bench:test": "bash bench/bench.test.sh",
+    "bench": "npm run bench:baseline && npm run bench:pasadena && npm run bench:compare"
+  }
+}

@@ -1,0 +1,1 @@
+{"task_name":"task-c","reward_valid":false,"verifier_result":null,"agent_result":{"n_input_tokens":1000,"n_cache_tokens":0,"n_output_tokens":100,"cost_usd":0.5},"agent_execution":{"started_at":"2026-11-22T10:00:00Z","finished_at":"2026-11-22T10:01:40Z"},"exception_info":{"exception_type":"ApiRateLimitError"}}
