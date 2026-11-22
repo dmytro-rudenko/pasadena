@@ -190,6 +190,15 @@ strictest reading and a target inside the bound by at least 20 % of the allowed 
 58–72 °C becomes 60.8–69.2, at most 5 becomes at most 4. Verification states
 that target, not the bare bound.
 
+**Adversarial input.** When the task sanitizes, filters, escapes, or validates
+input an attacker controls (HTML, SQL, shell commands, paths, URLs), the spec
+marks it adversarial in `## 2.` and carries a threat model: who crafts the input, what they win when it passes, and
+which consumer interprets the output (a browser, a shell, a database).
+Verification names a public attack corpus for that consumer (for XSS, the
+OWASP XSS Filter Evasion Cheat Sheet and the PayloadsAllTheThings lists) and
+requires every payload in it to be checked, not only examples written for the
+task.
+
 ## Propose approaches
 
 Propose two or three approaches with their trade-offs. Lead with the approach
@@ -358,13 +367,13 @@ approval, hand the work over to `leonard`.
 
 ## Decision rules for ambiguous situations
 
-| Situation                                                        | Rule                                                                                                                                                                                                                     |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| The task looks very simple                                       | Simplicity means a short design. Even for a simple task, provide two sentences of design in chat and get approval.                                                                                                       |
-| There is uncertainty about whether the task qualifies as bounded | Take the heavier path. Bounded applies only when its boundaries are clearly confirmed by the structure of the repository.                                                                                                |
-| The design seems obvious                                         | Implementation begins after explicit approval of the design. Until then, the work remains in shaping mode.                                                                                                               |
-| The task resembles a familiar type of application                | Bounded is determined by an existing flow in the repository. Personal familiarity helps analysis, while the structure of the current code determines the classification.                                                 |
-| A UI or interactive surface requires validation                  | Validate the prototype first, then transfer the confirmed decisions into the specification. This ensures the specification reflects a validated design from the start.                                                   |
+| Situation                                                        | Rule |
+| ---------------------------------------------------------------- | --- |
+| The task looks very simple                                       | Simplicity means a short design. Even for a simple task, provide two sentences of design in chat and get approval. |
+| There is uncertainty about whether the task qualifies as bounded | Take the heavier path. Bounded applies only when its boundaries are clearly confirmed by the structure of the repository. |
+| The design seems obvious                                         | Implementation begins after explicit approval of the design. Until then, the work remains in shaping mode. |
+| The task resembles a familiar type of application                | Bounded is determined by an existing flow in the repository. Personal familiarity helps analysis, while the structure of the current code determines the classification. |
+| A UI or interactive surface requires validation                  | Validate the prototype first, then transfer the confirmed decisions into the specification. This ensures the specification reflects a validated design from the start. |
 | A spike produces a working result                                | The outcome of a spike is an answer and recommendation, while anything created during the investigation remains throwaway. Moving to a permanent implementation is treated as a separate task with a new classification. |
-| Additional complexity is discovered during the work              | Increase the classification immediately, communicate the new scope to the user, and continue under the rules of the heavier path.                                                                                        |
-| New work appears after an approved spike                         | Each separate task receives its own classification and its own explicit approval before moving into implementation.                                                                                                      |
+| Additional complexity is discovered during the work              | Increase the classification immediately, communicate the new scope to the user, and continue under the rules of the heavier path. |
+| New work appears after an approved spike                         | Each separate task receives its own classification and its own explicit approval before moving into implementation. |

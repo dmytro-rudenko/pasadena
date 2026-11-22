@@ -103,6 +103,14 @@ Gather context deliberately, so every task carries what an implementer needs:
   candidates, score each under every reading the spec lists, and keep the one
   whose worst reading sits farthest inside the bound. A step that only checks
   "≤ bound" does not stand in for it.
+- **Allowlist through a real parser.** For a task the spec marks adversarial,
+  the plan parses the input with the parser the consumer uses or its reference
+  implementation (html5lib for HTML, a shell lexer, parameterised queries),
+  keeps only the elements, attributes and URL schemes on an explicit
+  allowlist, and serialises the result again. A plan that
+  strips known bad patterns with regexes is rejected: every pattern it misses
+  is a bypass. Fetching or vendoring the attack corpus is a task in the
+  earliest wave.
 - **Build the lever.** When one change repeats across many places and is not
   obvious at a glance, plan one task that does a single unit by hand and one
   that builds the tool doing the rest, matched against that unit.
