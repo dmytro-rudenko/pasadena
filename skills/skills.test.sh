@@ -416,6 +416,15 @@ require_ref_flat make-it-right.md 'one task agent'
 require_ref codex-tasks.md '**Task agent**'
 [ "$fails" -eq "$before" ] && ok "folded subagents checked"
 
+echo "Public interface from the wording"
+before=$fails
+require sheldon '**Public interface from the wording.**'
+require sheldon 'alternative reading'
+require sheldon '### Public interface'
+grep -qF '<the original task statement' "$SKILLS/sheldon/builder-check-prompt.md" || fail "builder-check-prompt.md: no task statement slot"
+grep -qF 'convention' "$SKILLS/sheldon/builder-check-prompt.md" || fail "builder-check-prompt.md: no wording-vs-convention check"
+[ "$fails" -eq "$before" ] && ok "public interface from the wording checked"
+
 echo "Manifest versions"
 manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json"
 before=$fails
