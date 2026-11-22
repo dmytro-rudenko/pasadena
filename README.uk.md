@@ -23,7 +23,7 @@ Pasadena виросла з щоденної роботи з [obra/superpowers](h
 
 ## Бенчмарк
 
-Результати на 10 задачах [Terminal-Bench 2.0](https://tbench.ai), які Claude Code без скілів провалював найчастіше:
+Результати на задачах [Terminal-Bench 2.0](https://tbench.ai), які Claude Code без скілів провалював найчастіше:
 
 | Задача | Claude без скілів | Pasadena |
 |---|---|---|
