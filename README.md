@@ -23,9 +23,19 @@ Feedback is welcome: open an [issue](https://github.com/dmytro-rudenko/pasadena/
 
 ## Benchmark
 
-On the [Terminal-Bench 2.0](https://tbench.ai) tasks that Claude Code without skills failed most often, Pasadena solved three that plain Claude never solved: `polyglot-c-py`, `polyglot-rust-c` and `protein-assembly`. Claude without skills failed each of them on every one of its 2–3 attempts; Pasadena passed each on its first.
+Results on the 10 [Terminal-Bench 2.0](https://tbench.ai) tasks that Claude Code without skills failed most often:
 
-Across the 10 hardest tasks, Pasadena passed 4 on the first attempt (40%), against 3 of 28 attempts (10.7%) for Claude without skills. Both used Claude Opus 5.5 and Claude Code 2.1.330. Pasadena ran in the real interactive Claude Code session, with a scripted user approving each step. The sample is small, so treat this as a strong signal rather than a statistically significant result. Harness, method and full report: [#42](https://github.com/dmytro-rudenko/pasadena/pull/42).
+| Task | Claude without skills | Pasadena |
+|---|---|---|
+| `polyglot-c-py` | 0/3 | **1/1** |
+| `polyglot-rust-c` | 0/3 | **1/1** |
+| `protein-assembly` | 0/2 | **1/1** |
+| `dna-assembly` | 2/3 | 1/1 |
+| `dna-insert` | 1/3 | 0/1 |
+| 5 other tasks | 0/13 | 0/5 |
+| **Total** | **3/28 (10.7%)** | **4/10 (40%)** |
+
+Claude without skills never solved the first three tasks in 2–3 attempts each; Pasadena solved each on its first attempt. Both used Claude Opus 5.5 and Claude Code 2.1.330. Pasadena ran in the real interactive Claude Code session, with a scripted user approving each step. The sample is small, so treat this as a strong signal rather than a statistically significant result. Harness, method and full report: [#42](https://github.com/dmytro-rudenko/pasadena/pull/42).
 
 ## Workflow
 
