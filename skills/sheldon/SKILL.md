@@ -183,6 +183,13 @@ any known timeout. Record each value in the spec under
 `## 2. Constraint that shapes the solution`. Write `not found` for each limit
 you cannot find.
 
+**Numeric bounds.** When a numeric bound's measurement has more than one
+reasonable reading (which part counts, tool and flags, rounding, units), list
+every reading in the spec. The acceptance criterion takes the
+strictest reading and a target inside the bound by at least 20 % of the allowed range:
+58–72 °C becomes 60.8–69.2, at most 5 becomes at most 4. Verification states
+that target, not the bare bound.
+
 ## Propose approaches
 
 Propose two or three approaches with their trade-offs. Lead with the approach

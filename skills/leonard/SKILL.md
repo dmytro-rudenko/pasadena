@@ -66,6 +66,11 @@ puts the implementation plan in front of the user as the approval gate. Fall
 back to chat only when the session exposes no `EnterPlanMode` at all: present
 the same plan there and wait for explicit approval before making changes.
 
+A location for workflow files named by the user or the task — "keep the plan
+under /tmp/x" — is where step 5 copies the approved plan. It
+does not replace plan mode: enter it all the same and write the plan into the
+native plan file.
+
 Explore before decomposing — this is where a plan's quality is won or lost.
 Gather context deliberately, so every task carries what an implementer needs:
 
@@ -93,6 +98,11 @@ Gather context deliberately, so every task carries what an implementer needs:
   and whatever helps every later task goes in the earliest wave.
 - **Verifiable units.** Each task ends in a state one command can check; a
   task that cannot be checked on its own is split or merged.
+- **Margin, not the edge.** When Verification holds a number near a bound, the
+  task that produces it gets a step to pick the solution with margin: generate
+  candidates, score each under every reading the spec lists, and keep the one
+  whose worst reading sits farthest inside the bound. A step that only checks
+  "≤ bound" does not stand in for it.
 - **Build the lever.** When one change repeats across many places and is not
   obvious at a glance, plan one task that does a single unit by hand and one
   that builds the tool doing the rest, matched against that unit.
@@ -322,6 +332,7 @@ ruling that forces a halt.
 | Plan content | The approved file contains the executable decomposition; step 5 persists it after approval. |
 | Approval transition | Approval immediately persists the plan and starts wave 1. `wolowitz` then runs every wave through to the finish. |
 | Plan-mode gate | Planning opens by calling `EnterPlanMode`, with one-keystroke UI approval as the gate. |
+| Workflow-file location | A given folder for the plan is where step 5 copies it; planning still opens in plan mode. |
 | File ownership | Every `Writes:` set names the exact files the builder stages and the wave computation uses. |
 | Wave independence | Tasks share a wave only when their write sets and interfaces satisfy the dependency rules above. |
 | Task context | Each task supplies exact values and complete steps for an implementer seeing that task in isolation. |
