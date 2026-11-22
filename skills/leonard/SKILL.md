@@ -111,6 +111,10 @@ Gather context deliberately, so every task carries what an implementer needs:
   strips known bad patterns with regexes is rejected: every pattern it misses
   is a bypass. Fetching or vendoring the attack corpus is a task in the
   earliest wave.
+- **Placeholders stay open.** The plan leaves every placeholder in the spec open
+  to substitution. For a part the user sets up, the tasks keep every common
+  setup working. Treat login with the agent's own key and user as one possible
+  setup.
 - **Build the lever.** When one change repeats across many places and is not
   obvious at a glance, plan one task that does a single unit by hand and one
   that builds the tool doing the rest, matched against that unit.

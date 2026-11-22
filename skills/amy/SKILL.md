@@ -115,6 +115,12 @@ over each step inside it.
    When the corpus cannot be fetched, say so and rebuild its evasion classes from memory — broken
    tags, control characters, encodings, parser differentials — never only the
    obvious payloads.
+   For every task, whatever its kind: for each placeholder the spec lists, test with
+   a value other than the example's and with the domain's conventional value
+   (the `git` user for a git server, `localhost` for `server`). For a part the
+   user sets up, test the way an outside checker would: for login, another
+   user and password authentication, not the agent's own key. After the test's
+   own clean-up, verify that the state the checker relies on is still in place.
 2. **Inner — one cycle per step.** Each step takes its own failing test and
    the minimum that passes, as below. After each step, run the acceptance
    tests again: the number failing never grows, and only the ones this step
