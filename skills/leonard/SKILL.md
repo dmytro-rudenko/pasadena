@@ -132,12 +132,19 @@ Header:
 ## Global constraints
 Project-wide rules, with exact values copied verbatim from the spec. Every
 task's requirements implicitly include this section.
+Environment limits: <nproc, memory limit, timeout — copied from the spec, or `not found`>
 
 ## Review Focus
 Up to five inputs or failure modes the spec implies but no task's tests exercise,
 one line each: the condition and what a reasonable person would expect, most
 likely first. Add a test for each line to the task that owns the code.
 ```
+
+When the spec records environment limits, every step that runs into them gets
+concrete parameters: `make -j1` on one CPU, fewer iterations or a smaller batch
+to fit the timeout. Its first step is a guard that checks free memory with
+`free -m`. A heavy task runs alone in its wave: tasks of one wave share one
+memory limit.
 
 Then one block per task:
 

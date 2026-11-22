@@ -243,6 +243,19 @@ These are not evidence: "should work", "probably", "looks right", the result of
 an earlier run, and a subagent's report that carries no output. A delegated
 task is checked through its diff and a fresh run of its verification.
 
+**Heavy commands.** A build, training run or other memory-heavy command runs
+under a cap, so its failure ends the command and not the agent's session:
+`(ulimit -v <budget_kb>; timeout <seconds> make -j1) > build.log 2>&1`. The
+budget is the memory limit from the spec or the plan's `## Global constraints`
+minus 512 MB for the agent, in KB; when the limit is `not found` or `max`,
+start from the `available` column of `free -m`. `ulimit -v` bounds one
+process's virtual memory, not the whole cgroup: keep the build to one job, and
+for toolchains that reserve a large address space (JVM, Go, Node, ASan) use
+`systemd-run --user --scope -p MemoryMax=<budget>` where it works. Before a
+full build, compile the heaviest single file under the same cap. When the
+capped command fails, read `tail -n 50 build.log`; it is a failed
+verification, and that output is its evidence.
+
 | Claim | Requires | Not sufficient |
 |---|---|---|
 | Tests pass | Test output with 0 failures | A previous run, "should pass" |
