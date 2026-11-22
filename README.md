@@ -21,6 +21,12 @@ Pasadena grew out of daily work with [obra/superpowers](https://github.com/obra/
 
 Feedback is welcome: open an [issue](https://github.com/dmytro-rudenko/pasadena/issues/new/choose).
 
+## Benchmark
+
+On the [Terminal-Bench 2.0](https://tbench.ai) tasks that Claude Code without skills failed most often, Pasadena solved three that plain Claude never solved: `polyglot-c-py`, `polyglot-rust-c` and `protein-assembly`. Claude without skills failed each of them on every one of its 2–3 attempts; Pasadena passed each on its first.
+
+Across the 10 hardest tasks, Pasadena passed 4 on the first attempt (40%), against 3 of 28 attempts (10.7%) for Claude without skills. Both used Claude Opus 5.5 and Claude Code 2.1.330. Pasadena ran in the real interactive Claude Code session, with a scripted user approving each step. The sample is small, so treat this as a strong signal rather than a statistically significant result. Harness, method and full report: [#42](https://github.com/dmytro-rudenko/pasadena/pull/42).
+
 ## Workflow
 
 Run `/pasadena` to continue from the branch's current stage. `/bazinga` remains an alias. `/issue <number>` reads that GitHub issue with `gh` and starts the workflow from it; the PR closes the issue.
