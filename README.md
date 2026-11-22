@@ -35,7 +35,7 @@ Results on the 10 [Terminal-Bench 2.0](https://tbench.ai) tasks that Claude Code
 | 5 other tasks | 0/14 | 0/5 |
 | **Total** | **3/28 (10.7%)** | **4/10 (40%)** |
 
-Claude without skills never solved the first three tasks in 2–3 attempts each; Pasadena solved each on its first attempt. Both used Claude Opus 5.5 and Claude Code 2.1.330. Pasadena ran in the real interactive Claude Code session, with a scripted user approving each step. The sample is small, so treat this as a strong signal rather than a statistically significant result. Harness, method and full report: [#42](https://github.com/dmytro-rudenko/pasadena/pull/42).
+Claude without skills never solved the first three tasks in 2–3 attempts each; Pasadena solved each on its first attempt. Both used Claude Opus 5.5 and Claude Code 2.1.330.
 
 ## Workflow
 
