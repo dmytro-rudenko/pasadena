@@ -176,6 +176,15 @@ first argument, "domain" one object. The spec still picks one reading; it
 accepts both forms only when it says so explicitly. In Verification, call the
 interface as an outside caller or check most likely would.
 
+**Placeholders in examples.** The spec sorts example identifiers into
+contract (path, port, branch) and placeholder (`user`, `server`). Never fix
+a placeholder as the only value; Verification adds the usual one, like
+the `git` user for a git server.
+
+**Parts the user sets up.** On "I'll set up X", every common X works,
+none disabled (login: password and key, any user); Verification takes the
+way the agent would not pick.
+
 **Environment limits.** When the task builds, trains, or processes large data,
 measure the limits before designing. Run `nproc` and `free -m`, read
 `/sys/fs/cgroup/memory.max` (`memory.limit_in_bytes` on cgroup v1), and check for

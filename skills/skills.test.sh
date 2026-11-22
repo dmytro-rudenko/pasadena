@@ -296,7 +296,7 @@ grep -qF '| Task agent, `complex`-задача, раунд 3, фінальний
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.30.1"' "$ROOT/$manifest" || fail "$manifest: not on 0.30.1"
+  grep -qF '"version": "0.31.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.31.0"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"
@@ -418,7 +418,7 @@ for readme in README.md README.uk.md; do
   grep -qF 'PASADENA_DRYER' "$ROOT/$readme" || fail "$readme: no PASADENA_DRYER"
   grep -qF 'bash hooks/ub-tools.test.sh' "$ROOT/$readme" || fail "$readme: no ub-tools check"
 done
-grep -qF '"version": "0.30.1"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.30.1"
+grep -qF '"version": "0.31.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.31.0"
 [ "$fails" -eq "$before" ] && ok "ub-mode quality gates checked"
 
 echo "Folded subagents"
@@ -498,6 +498,20 @@ require leonard 'strips known bad patterns with regexes is rejected'
 require sheldon 'marks it adversarial'
 require amy 'When the corpus cannot be fetched'
 [ "$fails" -eq "$before" ] && ok "adversarial input checked"
+
+echo "Placeholders in examples"
+before=$fails
+require sheldon '**Placeholders in examples.**'
+require sheldon '**Parts the user sets up.**'
+require sheldon 'contract (path, port, branch)'
+require sheldon 'none disabled'
+require amy 'For every task, whatever its kind'
+require sheldon 'the `git` user for a git server'
+require sheldon 'I'"'"'ll set up X'
+require leonard '**Placeholders stay open.**'
+require amy 'the way an outside checker would'
+require amy 'a value other than the example'"'"'s'
+[ "$fails" -eq "$before" ] && ok "placeholders in examples checked"
 
 echo "Manifest versions"
 manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json"
