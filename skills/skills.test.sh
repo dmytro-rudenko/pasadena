@@ -15,6 +15,7 @@ ok() { echo "  ok  — $1"; }
 # Routing skills invoke another skill in the same turn, where a disallowed-tools
 # entry would still be in force and would restrict the skill they route into.
 routers="pasadena journal leonard amy leslie bernie"
+invoked="raj penny"
 
 for dir in "$SKILLS"/*/; do
   name="$(basename "$dir")"
@@ -53,6 +54,17 @@ for dir in "$SKILLS"/*/; do
       *) ok "$name: disallowed-tools on a leaf skill" ;;
     esac
   fi
+
+  case " $invoked " in
+    *" $name "*)
+      if sed -n '/^disallowed-tools:/,/^[^[:space:]#]/p' <<<"$fm" |
+        grep -qE '^[[:blank:]]+-[[:blank:]]+Agent([[:blank:]]+#.*)?[[:blank:]]*$'; then
+        fail "$name: Agent under disallowed-tools would stay in force for the rest of the turn and block later subagent dispatches"
+      else
+        ok "$name: disallowed-tools leaves Agent available"
+      fi
+      ;;
+  esac
 done
 
 ROOT="$(cd "$SKILLS/.." && pwd)"

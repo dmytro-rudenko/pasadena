@@ -25,7 +25,6 @@ allowed-tools:
   - Bash(cat docs/sdd/proto/*)
   - Bash(cp -r docs/sdd/proto/*)
 disallowed-tools:
-  - Agent
   - NotebookEdit
 ---
 
