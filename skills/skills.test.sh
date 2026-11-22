@@ -178,13 +178,13 @@ require wolowitz "codex.sh cost add"
 require wolowitz "codex review: skipped (codex-mode full)"
 require amy "codex.sh red"
 require amy "codex.sh budget"
-mode_cmd="$ROOT/commands/codex-mode.md"
+mode_cmd="$ROOT/.claude/commands/codex-mode.md"
 if [ -f "$mode_cmd" ]; then
   for needle in "argument-hint:" "codex.sh mode set" "journal.sh codex-mode" "--branch"; do
-    grep -qF -- "$needle" "$mode_cmd" || fail "commands/codex-mode.md: missing \"$needle\""
+    grep -qF -- "$needle" "$mode_cmd" || fail ".claude/commands/codex-mode.md: missing \"$needle\""
   done
 else
-  fail "commands/codex-mode.md: missing"
+  fail ".claude/commands/codex-mode.md: missing"
 fi
 for readme in README.md README.uk.md; do
   for needle in "/codex-mode" "codex.sh budget" "codex-cost.tsv"; do
@@ -195,13 +195,13 @@ done
 
 echo "Issue command"
 before=$fails
-issue_cmd="$ROOT/commands/issue.md"
+issue_cmd="$ROOT/.claude/commands/issue.md"
 if [ -f "$issue_cmd" ]; then
   for needle in "argument-hint:" "gh issue view" "\$0" "pasadena"; do
-    grep -qF -- "$needle" "$issue_cmd" || fail "commands/issue.md: missing \"$needle\""
+    grep -qF -- "$needle" "$issue_cmd" || fail ".claude/commands/issue.md: missing \"$needle\""
   done
 else
-  fail "commands/issue.md: missing"
+  fail ".claude/commands/issue.md: missing"
 fi
 for readme in README.md README.uk.md; do
   grep -qF -- "/issue" "$ROOT/$readme" || fail "$readme: missing \"/issue\""
@@ -284,7 +284,7 @@ grep -qF '| Task agent, `complex`-задача, раунд 3, фінальний
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.27.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.27.0"
+  grep -qF '"version": "0.27.1"' "$ROOT/$manifest" || fail "$manifest: not on 0.27.1"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"
@@ -406,7 +406,7 @@ for readme in README.md README.uk.md; do
   grep -qF 'PASADENA_DRYER' "$ROOT/$readme" || fail "$readme: no PASADENA_DRYER"
   grep -qF 'bash hooks/ub-tools.test.sh' "$ROOT/$readme" || fail "$readme: no ub-tools check"
 done
-grep -qF '"version": "0.27.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.27.0"
+grep -qF '"version": "0.27.1"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.27.1"
 [ "$fails" -eq "$before" ] && ok "ub-mode quality gates checked"
 
 echo "Folded subagents"
