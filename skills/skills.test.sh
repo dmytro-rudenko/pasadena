@@ -193,6 +193,21 @@ for readme in README.md README.uk.md; do
 done
 [ "$fails" -eq "$before" ] && ok "codex mode documented"
 
+echo "Issue command"
+before=$fails
+issue_cmd="$ROOT/commands/issue.md"
+if [ -f "$issue_cmd" ]; then
+  for needle in "argument-hint:" "gh issue view" "\$0" "pasadena"; do
+    grep -qF -- "$needle" "$issue_cmd" || fail "commands/issue.md: missing \"$needle\""
+  done
+else
+  fail "commands/issue.md: missing"
+fi
+for readme in README.md README.uk.md; do
+  grep -qF -- "/issue" "$ROOT/$readme" || fail "$readme: missing \"/issue\""
+done
+[ "$fails" -eq "$before" ] && ok "issue command documented"
+
 echo "Frontmatter models"
 before=$fails
 for file in "$SKILLS"/*/SKILL.md; do

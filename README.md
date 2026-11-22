@@ -23,7 +23,7 @@ Feedback is welcome: open an [issue](https://github.com/dmytro-rudenko/pasadena/
 
 ## Workflow
 
-Run `/pasadena` to continue from the branch's current stage. `/bazinga` remains an alias.
+Run `/pasadena` to continue from the branch's current stage. `/bazinga` remains an alias. `/issue <number>` reads that GitHub issue with `gh` and starts the workflow from it; the PR closes the issue.
 
 | Skill | Job |
 | --- | --- |
