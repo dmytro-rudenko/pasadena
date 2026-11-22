@@ -23,7 +23,7 @@ Feedback is welcome: open an [issue](https://github.com/dmytro-rudenko/pasadena/
 
 ## Benchmark
 
-Results on the 10 [Terminal-Bench 2.0](https://tbench.ai) tasks that Claude Code without skills failed most often:
+Results on [Terminal-Bench 2.0](https://tbench.ai) tasks that Claude Code without skills failed most often:
 
 | Task | Claude without skills | Pasadena |
 |---|---|---|
