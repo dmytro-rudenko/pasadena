@@ -284,7 +284,7 @@ grep -qF '| Task agent, `complex`-задача, раунд 3, фінальний
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.27.1"' "$ROOT/$manifest" || fail "$manifest: not on 0.27.1"
+  grep -qF '"version": "0.28.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.28.0"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"
@@ -406,7 +406,7 @@ for readme in README.md README.uk.md; do
   grep -qF 'PASADENA_DRYER' "$ROOT/$readme" || fail "$readme: no PASADENA_DRYER"
   grep -qF 'bash hooks/ub-tools.test.sh' "$ROOT/$readme" || fail "$readme: no ub-tools check"
 done
-grep -qF '"version": "0.27.1"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.27.1"
+grep -qF '"version": "0.28.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.28.0"
 [ "$fails" -eq "$before" ] && ok "ub-mode quality gates checked"
 
 echo "Folded subagents"
@@ -439,6 +439,27 @@ require sheldon '### Public interface'
 grep -qF '<the original task statement' "$SKILLS/sheldon/builder-check-prompt.md" || fail "builder-check-prompt.md: no task statement slot"
 grep -qF 'convention' "$SKILLS/sheldon/builder-check-prompt.md" || fail "builder-check-prompt.md: no wording-vs-convention check"
 [ "$fails" -eq "$before" ] && ok "public interface from the wording checked"
+
+echo "Environment limits"
+before=$fails
+require sheldon '**Environment limits.**'
+require sheldon 'memory.max'
+require sheldon 'not found'
+require leonard 'make -j1'
+require leonard 'free -m'
+require amy '**Heavy commands.**'
+require amy 'ulimit -v'
+require leonard 'runs alone in its wave'
+require leonard 'Environment limits:'
+for heavy in 'minus 512 MB' 'systemd-run --user --scope -p MemoryMax=' 'tail -n 50 build.log'; do
+  require amy "$heavy"
+done
+for prompt in implementer-prompt.md implementer-prompt-codex.md; do
+  grep -qF '**Heavy commands.**' "$SKILLS/wolowitz/$prompt" || fail "$prompt: missing **Heavy commands.**"
+  grep -qF 'ulimit -v' "$SKILLS/wolowitz/$prompt" || fail "$prompt: missing ulimit -v"
+  grep -qF 'minus 512 MB' "$SKILLS/wolowitz/$prompt" || fail "$prompt: no memory budget formula"
+done
+[ "$fails" -eq "$before" ] && ok "environment limits checked"
 
 echo "Manifest versions"
 manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json"

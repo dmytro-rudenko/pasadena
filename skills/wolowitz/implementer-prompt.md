@@ -70,6 +70,14 @@ ambiguity you spotted in the task; nothing else>
     each decision in one place, and ship the smallest edit that passes.
     Outside data is checked once, where it enters; inside, trust it.
 
+11. **Heavy commands.** Run a build, training run or other memory-heavy
+    command under a cap, so its failure ends the command and not your session:
+    `(ulimit -v <budget_kb>; timeout <seconds> make -j1) > build.log 2>&1`,
+    the budget being the `Environment limits:` memory from
+    `## Global constraints` minus 512 MB, in KB. `ulimit -v` bounds one
+    process, so keep one job. On failure, `tail -n 50 build.log` goes in your
+    report.
+
 ## Before you start
 
 If anything in the task is ambiguous, ask now, in one message. Once you begin,

@@ -50,6 +50,10 @@ The next message, in this same session, asks for the implementation.
 6. **Subtract before you add.** Take complexity out before adding any, keep
    each decision in one place, and ship the smallest edit that passes.
    Outside data is checked once, where it enters; inside, trust it.
+7. **Heavy commands.** Run a build, training run or other memory-heavy
+   command under amy's cap above, `ulimit -v` at the `Environment limits:`
+   memory from `## Global constraints` minus 512 MB, so its failure ends the
+   command and not the session.
 
 ## Report
 

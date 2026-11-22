@@ -176,6 +176,13 @@ first argument, "domain" one object. The spec still picks one reading; it
 accepts both forms only when it says so explicitly. In Verification, call the
 interface as an outside caller or check most likely would.
 
+**Environment limits.** When the task builds, trains, or processes large data,
+measure the limits before designing. Run `nproc` and `free -m`, read
+`/sys/fs/cgroup/memory.max` (`memory.limit_in_bytes` on cgroup v1), and check for
+any known timeout. Record each value in the spec under
+`## 2. Constraint that shapes the solution`. Write `not found` for each limit
+you cannot find.
+
 ## Propose approaches
 
 Propose two or three approaches with their trade-offs. Lead with the approach
