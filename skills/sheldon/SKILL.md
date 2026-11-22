@@ -166,6 +166,16 @@ Then ask questions:
   is cheaper than a wrong specification. At the same time, keep the dialogue
   focused and concise enough to remain productive.
 
+**Public interface from the wording.** List every phrase in the task statement
+that bears on names, argument order and shape, output format, or file paths.
+Words like "primary", "first", "domain", and "format" are signals. For each
+interface decision the statement leaves open, record the phrase it rests on and
+name the alternative reading in the spec. Where the wording points to a
+specific shape, it beats the language's habit: "primary input" suggests the
+first argument, "domain" one object. The spec still picks one reading; it
+accepts both forms only when it says so explicitly. In Verification, call the
+interface as an outside caller or check most likely would.
+
 ## Propose approaches
 
 Propose two or three approaches with their trade-offs. Lead with the approach
@@ -259,6 +269,10 @@ preserves the context behind the decision for future planning.
 
 ## 3. Solution
 Sections as required by the design. Exact values, exact names.
+
+### Public interface
+Each signature, output format, and path, with the quoted phrase it rests on
+and the alternative reading. Omit when the work has none.
 
 ## 4. Out of scope
 What is deliberately left outside this work so the implementation boundaries
