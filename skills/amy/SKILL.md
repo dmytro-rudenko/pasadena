@@ -104,7 +104,17 @@ over each step inside it.
    behaviour is missing. For a criterion with a numeric bound, the test
    computes the value under every reading the spec lists and asserts the
    spec's target with its margin for each, not only the bound under the
-   reading the build chose.
+   reading the build chose. For a task the spec marks adversarial, the payloads
+   come from the public corpus the spec names, fetched or vendored into the
+   fixtures with their source recorded, and the output is judged by the
+   consumer the threat targets — a headless browser that reports whether any
+   script ran, the real shell, the real database — not by a regex over the
+   output. A second set checks that clean input comes through unchanged. When
+   the real consumer cannot run in the environment, say so in the report and
+   judge with its reference parser (html5lib for HTML).
+   When the corpus cannot be fetched, say so and rebuild its evasion classes from memory — broken
+   tags, control characters, encodings, parser differentials — never only the
+   obvious payloads.
 2. **Inner — one cycle per step.** Each step takes its own failing test and
    the minimum that passes, as below. After each step, run the acceptance
    tests again: the number failing never grows, and only the ones this step
