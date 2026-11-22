@@ -6,3 +6,8 @@
 
 # Local git worktrees
 .worktrees/
+.bench/
+bench/.env
+.env
+__pycache__/
+bench/results/artifacts/

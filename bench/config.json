@@ -1,0 +1,11 @@
+{
+  "dataset": "terminal-bench@2.0",
+  "model": "anthropic/claude-opus-5-5",
+  "attempts": 3,
+  "concurrency": 2,
+  "agentTimeoutMultiplier": 1.0,
+  "hardSetMax": 15,
+  "retries": 2,
+  "harborVersion": "0.27.0",
+  "claudeCodeVersion": "2.1.330"
+}
