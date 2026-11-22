@@ -15,6 +15,7 @@ ok() { echo "  ok  — $1"; }
 # Routing skills invoke another skill in the same turn, where a disallowed-tools
 # entry would still be in force and would restrict the skill they route into.
 routers="pasadena journal leonard amy leslie bernie"
+invoked="raj penny"
 
 for dir in "$SKILLS"/*/; do
   name="$(basename "$dir")"
@@ -53,6 +54,17 @@ for dir in "$SKILLS"/*/; do
       *) ok "$name: disallowed-tools on a leaf skill" ;;
     esac
   fi
+
+  case " $invoked " in
+    *" $name "*)
+      if sed -n '/^disallowed-tools:/,/^[^[:space:]#]/p' <<<"$fm" |
+        grep -qE '^[[:blank:]]+-[[:blank:]]+Agent([[:blank:]]+#.*)?[[:blank:]]*$'; then
+        fail "$name: Agent under disallowed-tools would stay in force for the rest of the turn and block later subagent dispatches"
+      else
+        ok "$name: disallowed-tools leaves Agent available"
+      fi
+      ;;
+  esac
 done
 
 ROOT="$(cd "$SKILLS/.." && pwd)"
@@ -284,7 +296,7 @@ grep -qF '| Task agent, `complex`-задача, раунд 3, фінальний
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.30.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.30.0"
+  grep -qF '"version": "0.30.1"' "$ROOT/$manifest" || fail "$manifest: not on 0.30.1"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"
@@ -406,7 +418,7 @@ for readme in README.md README.uk.md; do
   grep -qF 'PASADENA_DRYER' "$ROOT/$readme" || fail "$readme: no PASADENA_DRYER"
   grep -qF 'bash hooks/ub-tools.test.sh' "$ROOT/$readme" || fail "$readme: no ub-tools check"
 done
-grep -qF '"version": "0.30.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.30.0"
+grep -qF '"version": "0.30.1"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.30.1"
 [ "$fails" -eq "$before" ] && ok "ub-mode quality gates checked"
 
 echo "Folded subagents"

@@ -23,7 +23,6 @@ allowed-tools:
   - Bash(gh pr edit *)
   - Bash(gh pr ready *)
 disallowed-tools:
-  - Agent
   - NotebookEdit
 ---
 
