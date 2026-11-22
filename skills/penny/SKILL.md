@@ -11,6 +11,8 @@ allowed-tools:
   - TodoWrite
   - Skill(pasadena:sheldon)
   - Skill(pasadena:raj)
+  - Skill(artifact-design)
+  - Artifact
   - Edit(docs/sdd/proto/**)
   - mcp__playwright
   - mcp__claude-in-chrome
@@ -73,9 +75,27 @@ Send one message containing only this offer:
 Wait for the answer. If they decline, continue in the terminal and offer again
 only when they raise it.
 
+## Default format: HTML artifacts
+
+Unless the user or the spec explicitly asks for another form (the local proto
+server, a framework app, a specific stack), prototype as self-contained HTML
+artifacts:
+
+- Write each variant as a single `.html` file under
+  `docs/sdd/proto/<slug>/variants/<x>/index.html` — inline CSS and JS, no build
+  step. A choice screen is one file under `screens/` in the same way.
+- Load `artifact-design` before writing the first file, then publish every
+  variant with the `Artifact` tool and give the user the artifact links, one per
+  variant. Republish a fixed variant under a fresh filename, as below.
+- Debug the local file in Playwright or Chrome MCP, not the published page: the
+  loop below is unchanged. Artifacts report no clicks, so the user's choice
+  and comments arrive in chat only.
+- Skip "Start the server" unless the user asked for the server. `frame.css`
+  and `/_sdd/` paths exist only there, so artifacts carry their own styles.
+
 ## Start the server
 
-The session-start digest hands you the absolute path to the plugin's
+When the proto server is explicitly required, the session-start digest hands you the absolute path to the plugin's
 `hooks/journal.sh`. The server sits beside it:
 
     bash "<plugin root>/proto/start.sh" --content-dir docs/sdd/proto/<slug> --open
