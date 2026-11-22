@@ -101,7 +101,10 @@ over each step inside it.
    or the issue's acceptance criteria. Test what is observable at the task's
    boundary — a public function, an endpoint, a rendered component — rather
    than the steps. Run them and watch each fail for the predicted reason: the
-   behaviour is missing.
+   behaviour is missing. For a criterion with a numeric bound, the test
+   computes the value under every reading the spec lists and asserts the
+   spec's target with its margin for each, not only the bound under the
+   reading the build chose.
 2. **Inner — one cycle per step.** Each step takes its own failing test and
    the minimum that passes, as below. After each step, run the acceptance
    tests again: the number failing never grows, and only the ones this step

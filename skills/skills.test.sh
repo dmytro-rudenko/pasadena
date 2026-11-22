@@ -284,7 +284,7 @@ grep -qF '| Task agent, `complex`-задача, раунд 3, фінальний
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.28.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.28.0"
+  grep -qF '"version": "0.29.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.29.0"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"
@@ -406,7 +406,7 @@ for readme in README.md README.uk.md; do
   grep -qF 'PASADENA_DRYER' "$ROOT/$readme" || fail "$readme: no PASADENA_DRYER"
   grep -qF 'bash hooks/ub-tools.test.sh' "$ROOT/$readme" || fail "$readme: no ub-tools check"
 done
-grep -qF '"version": "0.28.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.28.0"
+grep -qF '"version": "0.29.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.29.0"
 [ "$fails" -eq "$before" ] && ok "ub-mode quality gates checked"
 
 echo "Folded subagents"
@@ -460,6 +460,17 @@ for prompt in implementer-prompt.md implementer-prompt-codex.md; do
   grep -qF 'minus 512 MB' "$SKILLS/wolowitz/$prompt" || fail "$prompt: no memory budget formula"
 done
 [ "$fails" -eq "$before" ] && ok "environment limits checked"
+
+echo "Numeric bounds with margin"
+before=$fails
+require sheldon '**Numeric bounds.**'
+require sheldon 'strictest reading'
+require sheldon '20 % of the allowed range'
+require amy 'every reading the spec lists'
+require leonard 'pick the solution with margin'
+require leonard 'does not replace plan mode'
+grep -qF '| Workflow-file location |' "$SKILLS/leonard/SKILL.md" || fail "leonard: no workflow-file location rule"
+[ "$fails" -eq "$before" ] && ok "numeric bounds checked"
 
 echo "Manifest versions"
 manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json"
