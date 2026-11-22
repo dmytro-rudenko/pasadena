@@ -31,7 +31,6 @@ Results on the 10 [Terminal-Bench 2.0](https://tbench.ai) tasks that Claude Code
 | `polyglot-rust-c` | 0/3 | **1/1** |
 | `protein-assembly` | 0/2 | **1/1** |
 | `dna-assembly` | 2/3 | 1/1 |
-| **Total** | **3/28 (10.7%)** | **4/10 (40%)** |
 
 Claude without skills never solved the first three tasks in 2–3 attempts each; Pasadena solved each on its first attempt. Both used Claude Opus 5.5 and Claude Code 2.1.330.
 
