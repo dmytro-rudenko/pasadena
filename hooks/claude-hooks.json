@@ -17,6 +17,17 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/sync.sh\" session-start",
+            "shell": "bash",
+            "timeout": 30
+          }
+        ]
       }
     ],
     "SubagentStart": [
