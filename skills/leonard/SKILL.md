@@ -168,6 +168,15 @@ to fit the timeout. Its first step is a guard that checks free memory with
 `free -m`. A heavy task runs alone in its wave: tasks of one wave share one
 memory limit.
 
+**Constraints bind.** Each line of `## Global constraints` binds every task.
+A step may add work to meet a constraint; it never makes it optional or
+conditional, never leaves it to the user, and never argues it away as
+harmless or as a product of the user's own command. A constraint on the end
+state — which files exist and which do not, a port, a size — gets its own
+test in Task 0, run after every other command, so leftovers of the build and
+of the agent's own checks fail it. The `Environment limits:` line is an input
+to the steps, not an end-state constraint.
+
 Then one block per task:
 
 ```markdown
@@ -251,14 +260,15 @@ Otherwise write `routine`. When in doubt, write `complex`. Task 0 carries no
 how they learn the names and signatures their neighbours produce.
 
 **Task 0 is always the acceptance tests** — the outer loop of `amy`, one test
-per completion criterion in the spec's Verification section:
+per completion criterion in the spec's Verification section, and
+one per end-state line of `## Global constraints`:
 
 ```markdown
 ### Task 0: acceptance tests
 
 **Writes:** `<the acceptance test files only>`
 **Executor:** claude
-**Covers:** <each completion criterion, quoted from the spec>
+**Covers:** <each completion criterion and end-state constraint, quoted from the spec>
 
 - [ ] **Step 1: write the acceptance tests** — <the actual test code>
 - [ ] **Step 2: run them, watch them fail** — `<command>`, expect `<line>`:
@@ -267,7 +277,9 @@ per completion criterion in the spec's Verification section:
 
 Task 0 writes no production code and has no green step. Every later task names
 the acceptance tests it turns green in a `**Satisfies:**` line, and together
-those lines cover every test Task 0 wrote.
+those lines cover every test Task 0 wrote. An end-state constraint test may
+pass on arrival: it needs no red step and no `**Satisfies:**` owner, since
+`wolowitz` runs it last, in Finish.
 
 Steps follow `amy`: failing test, watch it fail, minimum that passes, watch it
 pass. One action per step, with the literal command and its expected output.
@@ -308,6 +320,12 @@ only when the dependency rules above prove that they can run together.
 the reader both want.
 
 ## 4. Present the plan for approval
+
+**Constraint check.** Before `ExitPlanMode`, read every step against every
+line of `## Global constraints`. A step that weakens one — `optionally`, `if
+the user wants`, `harmless`, `leave it` — is rewritten as required work.
+Under that section write one line:
+`Constraint check: <n> constraints, end state covered by Task 0: <test names>`.
 
 Present the plan through the plan-mode approval control (`ExitPlanMode`);
 use chat as the fallback approval surface. If the user asks for changes, revise
@@ -350,3 +368,4 @@ ruling that forces a halt.
 | Task context | Each task supplies exact values and complete steps for an implementer seeing that task in isolation. |
 | Repeated work | Each task repeats the full instruction because agents read tasks out of order. |
 | Context gathering | The stack scan and file enumeration happen up front, so every task rests on a verified convention. |
+| Global constraint | Binds every task: a step adds work to meet it and never makes it optional. Each end-state constraint has a Task 0 test. |
