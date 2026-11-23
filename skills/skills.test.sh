@@ -296,7 +296,7 @@ grep -qF '| Task agent, `complex`-задача, раунд 3, фінальний
 ! grep -qF 'stays on your own settings' "$ROOT/README.md" || fail "README.md: the main session still stays on the user's settings"
 ! grep -qF 'лишається на ваших налаштуваннях' "$ROOT/README.uk.md" || fail "README.uk.md: the main session still stays on the user's settings"
 for manifest in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-  grep -qF '"version": "0.31.0"' "$ROOT/$manifest" || fail "$manifest: not on 0.31.0"
+  grep -qF '"version": "0.31.1"' "$ROOT/$manifest" || fail "$manifest: not on 0.31.1"
 done
 grep -qF '2026-11-02-skill-frontmatter-models.md' "$ROOT/docs/sdd/specs/2026-11-01-skill-model-routing.md" ||
   fail "docs/sdd/specs/2026-11-01-skill-model-routing.md: no link to the spec that supersedes it"
@@ -418,7 +418,7 @@ for readme in README.md README.uk.md; do
   grep -qF 'PASADENA_DRYER' "$ROOT/$readme" || fail "$readme: no PASADENA_DRYER"
   grep -qF 'bash hooks/ub-tools.test.sh' "$ROOT/$readme" || fail "$readme: no ub-tools check"
 done
-grep -qF '"version": "0.31.0"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.31.0"
+grep -qF '"version": "0.31.1"' "$ROOT/.claude-plugin/plugin.json" || fail "plugin.json: not 0.31.1"
 [ "$fails" -eq "$before" ] && ok "ub-mode quality gates checked"
 
 echo "Folded subagents"
@@ -512,6 +512,21 @@ require leonard '**Placeholders stay open.**'
 require amy 'the way an outside checker would'
 require amy 'a value other than the example'"'"'s'
 [ "$fails" -eq "$before" ] && ok "placeholders in examples checked"
+
+echo "Global constraints bind"
+before=$fails
+require leonard '**Constraints bind.**'
+require leonard 'never makes it optional'
+require leonard 'one per end-state line of `## Global constraints`'
+require leonard '**Constraint check.**'
+require leonard 'Constraint check: <n> constraints'
+require leonard '| Global constraint |'
+require wolowitz '**Constraints last.**'
+require wolowitz "Task 0's end-state constraint tests as the last command"
+require sheldon '**Constraints on the end state.**'
+require amy 'For each constraint on the end state'
+require amy 'every end-state constraint test passes'
+[ "$fails" -eq "$before" ] && ok "global constraints checked"
 
 echo "Manifest versions"
 manifests=".claude-plugin/plugin.json .claude-plugin/marketplace.json"

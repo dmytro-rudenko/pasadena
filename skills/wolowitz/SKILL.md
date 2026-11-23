@@ -371,10 +371,15 @@ When the last wave is closed:
    all. This is the single
    whole-branch fix wave. Commit its changes in one commit,
    `fix(<scope>): whole-branch and security review findings`.
-3. Post the final PR comment: every note the steps above assign to it, and the
+3. **Constraints last.** Remove what the build and its own verification left
+   that a line of the plan's `## Global constraints` rules out — build
+   outputs, caches, logs. Then run
+   Task 0's end-state constraint tests as the last command before the final
+   PR comment; a red one is fixed through `amy`, committed, and run again.
+4. Post the final PR comment: every note the steps above assign to it, and the
    `codex usage:` line. Invoke `journal` with `finish` — status `done`, the timeline summarized into the PR body,
    `git rm` the journal, commit `chore(journal): close <task>`.
-4. `gh pr ready` — the draft becomes a real PR.
+5. `gh pr ready` — the draft becomes a real PR.
 
 The final message reports only what was done. Work the future depends on is
 done inside the task, not handed back as a next step; anything merely adjacent

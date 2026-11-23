@@ -121,6 +121,11 @@ over each step inside it.
    user sets up, test the way an outside checker would: for login, another
    user and password authentication, not the agent's own key. After the test's
    own clean-up, verify that the state the checker relies on is still in place.
+   For each constraint on the end state — from the spec, the plan's
+   `## Global constraints` or the approved design — write a test that checks
+   it the way an outside checker would, run after every other command,
+   including the builds and checks the other tests run; a test that builds
+   removes what it built.
 2. **Inner — one cycle per step.** Each step takes its own failing test and
    the minimum that passes, as below. After each step, run the acceptance
    tests again: the number failing never grows, and only the ones this step
@@ -285,6 +290,7 @@ verification, and that output is its evidence.
 ## Before calling the work done
 
 - [ ] The task's acceptance tests were written first, watched failing, and now pass
+- [ ] After the last command, every end-state constraint test passes: your own builds and checks left nothing a constraint rules out
 - [ ] Every new behaviour has a test
 - [ ] You watched each one fail, and the failure was the expected one
 - [ ] You wrote the minimum that passed
