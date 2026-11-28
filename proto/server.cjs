@@ -23,12 +23,12 @@ const IDLE_MS = Number(process.env.SDD_IDLE_MS || 4 * 60 * 60 * 1000);
 const ASSET_DIR = __dirname;
 
 function required(name) {
-  const v = process.env[name];
-  if (!v) {
+  const value = process.env[name];
+  if (!value) {
     process.stdout.write(JSON.stringify({ error: `${name} is not set` }) + '\n');
     process.exit(1);
   }
-  return v;
+  return value;
 }
 
 fs.mkdirSync(CONTENT_DIR, { recursive: true });
@@ -48,36 +48,36 @@ const NONCE = readOrCreate(NONCE_FILE, () => crypto.randomBytes(18).toString('he
 
 function readOrCreate(file, make) {
   try {
-    const v = fs.readFileSync(file, 'utf8').trim();
-    if (v) return v;
+    const value = fs.readFileSync(file, 'utf8').trim();
+    if (value) return value;
   } catch { /* first run */ }
-  const v = make();
-  fs.writeFileSync(file, v + '\n', { mode: 0o600 });
-  return v;
+  const value = make();
+  fs.writeFileSync(file, value + '\n', { mode: 0o600 });
+  return value;
 }
 
 function preferredPort() {
   if (process.env.SDD_PORT) return Number(process.env.SDD_PORT);
   try {
-    const p = Number(fs.readFileSync(PORT_FILE, 'utf8').trim());
-    if (p >= 1024 && p <= 65535) return p;
+    const port = Number(fs.readFileSync(PORT_FILE, 'utf8').trim());
+    if (port >= 1024 && port <= 65535) return port;
   } catch { /* no previous run */ }
   return 0; // let the OS pick, then remember it
 }
 
 // timingSafeEqual throws on a length mismatch, which itself leaks length —
 // hash both sides first so the comparison is always over 32 equal bytes.
-function sameSecret(a, b) {
-  if (typeof a !== 'string' || typeof b !== 'string') return false;
-  const ha = crypto.createHash('sha256').update(a).digest();
-  const hb = crypto.createHash('sha256').update(b).digest();
-  return crypto.timingSafeEqual(ha, hb);
+function sameSecret(left, right) {
+  if (typeof left !== 'string' || typeof right !== 'string') return false;
+  const leftHash = crypto.createHash('sha256').update(left).digest();
+  const rightHash = crypto.createHash('sha256').update(right).digest();
+  return crypto.timingSafeEqual(leftHash, rightHash);
 }
 
 function cookieKey(header) {
   for (const part of (header || '').split(';')) {
-    const [k, ...rest] = part.trim().split('=');
-    if (k === 'sdd_key') return decodeURIComponent(rest.join('='));
+    const [name, ...rest] = part.trim().split('=');
+    if (name === 'sdd_key') return decodeURIComponent(rest.join('='));
   }
   return null;
 }
@@ -106,21 +106,21 @@ function walk(dir, out = [], budget = { n: 2000 }) {
   } catch {
     return out;
   }
-  for (const e of entries) {
+  for (const entry of entries) {
     if (budget.n-- <= 0) return out;
-    if (e.name.startsWith('.')) continue;
-    const full = path.join(dir, e.name);
-    if (e.isDirectory()) walk(full, out, budget);
-    else if (e.isFile()) out.push(full);
+    if (entry.name.startsWith('.')) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(full, out, budget);
+    else if (entry.isFile()) out.push(full);
   }
   return out;
 }
 
 function contentStamp() {
   let newest = 0;
-  for (const f of walk(CONTENT_DIR)) {
-    const m = fs.statSync(f).mtimeMs;
-    if (m > newest) newest = m;
+  for (const file of walk(CONTENT_DIR)) {
+    const modified = fs.statSync(file).mtimeMs;
+    if (modified > newest) newest = modified;
   }
   return Math.round(newest);
 }
@@ -132,10 +132,10 @@ function contentStamp() {
 function newestHtml() {
   let best = null;
   let bestTime = -1;
-  for (const f of walk(CONTENT_DIR)) {
-    if (path.extname(f) !== '.html') continue;
-    const m = fs.statSync(f).mtimeMs;
-    if (m > bestTime) { bestTime = m; best = f; }
+  for (const file of walk(CONTENT_DIR)) {
+    if (path.extname(file) !== '.html') continue;
+    const modified = fs.statSync(file).mtimeMs;
+    if (modified > bestTime) { bestTime = modified; best = file; }
   }
   return best;
 }
@@ -168,18 +168,18 @@ function headers(type, extra = {}) {
   };
 }
 
-function send(res, code, type, body, extra) {
-  res.writeHead(code, headers(type, extra));
-  res.end(body);
+function send(response, code, type, body, extra) {
+  response.writeHead(code, headers(type, extra));
+  response.end(body);
 }
 
-function sendFile(res, file, extra) {
+function sendFile(response, file, extra) {
   const type = TYPES[path.extname(file)] || 'application/octet-stream';
   let body;
   try {
     body = fs.readFileSync(file);
   } catch {
-    return send(res, 404, 'text/plain; charset=utf-8', 'not found');
+    return send(response, 404, 'text/plain; charset=utf-8', 'not found');
   }
   // Every served page gets the client: click capture and the reload poll.
   if (type.startsWith('text/html')) {
@@ -189,19 +189,19 @@ function sendFile(res, file, extra) {
     );
     if (!body.includes('/_sdd/client.js')) body += '\n<script src="/_sdd/client.js"></script>\n';
   }
-  send(res, 200, type, body, extra);
+  send(response, 200, type, body, extra);
 }
 
 // ---------- request handling ----------
 let lastActivity = Date.now();
 
-const server = http.createServer((req, res) => {
+const server = http.createServer((request, response) => {
   lastActivity = Date.now();
-  const url = new URL(req.url, 'http://localhost');
+  const url = new URL(request.url, 'http://localhost');
   const viaQuery = url.searchParams.get('key');
-  const authorized = sameSecret(viaQuery, NONCE) || sameSecret(cookieKey(req.headers.cookie), NONCE);
+  const authorized = sameSecret(viaQuery, NONCE) || sameSecret(cookieKey(request.headers.cookie), NONCE);
 
-  if (!authorized) return send(res, 403, 'text/plain; charset=utf-8', 'forbidden');
+  if (!authorized) return send(response, 403, 'text/plain; charset=utf-8', 'forbidden');
 
   // Hand the key to the browser once so subresources and fetches carry it.
   const setCookie = viaQuery
@@ -209,51 +209,51 @@ const server = http.createServer((req, res) => {
     : {};
 
   if (url.pathname === '/_sdd/poll') {
-    return send(res, 200, TYPES['.json'], JSON.stringify({ stamp: contentStamp() }), setCookie);
+    return send(response, 200, TYPES['.json'], JSON.stringify({ stamp: contentStamp() }), setCookie);
   }
 
   if (url.pathname === '/_sdd/event') {
-    if (req.method !== 'POST') return send(res, 405, 'text/plain; charset=utf-8', 'POST only');
+    if (request.method !== 'POST') return send(response, 405, 'text/plain; charset=utf-8', 'POST only');
     let body = '';
-    req.on('data', (c) => {
-      body += c;
-      if (body.length > 8192) req.destroy(); // a click record is never this big
+    request.on('data', (chunk) => {
+      body += chunk;
+      if (body.length > 8192) request.destroy(); // a click record is never this big
     });
-    req.on('end', () => {
+    request.on('end', () => {
       let payload;
       try {
         payload = JSON.parse(body);
       } catch {
-        return send(res, 400, 'text/plain; charset=utf-8', 'bad json');
+        return send(response, 400, 'text/plain; charset=utf-8', 'bad json');
       }
       const line = JSON.stringify({ ...payload, ts: new Date().toISOString() });
       fs.appendFileSync(EVENTS_FILE, line + '\n');
-      send(res, 200, TYPES['.json'], '{"ok":true}', setCookie);
+      send(response, 200, TYPES['.json'], '{"ok":true}', setCookie);
     });
     return;
   }
 
   if (url.pathname === '/_sdd/client.js' || url.pathname === '/_sdd/frame.css') {
-    return sendFile(res, path.join(ASSET_DIR, path.basename(url.pathname)), setCookie);
+    return sendFile(response, path.join(ASSET_DIR, path.basename(url.pathname)), setCookie);
   }
 
   const file = url.pathname === '/' ? newestHtml() : resolveInContent(url.pathname);
   if (!file && url.pathname === '/favicon.ico') {
     // Otherwise every screen logs a 404, and the console is where we read the
     // prototype's own errors from.
-    res.writeHead(204, headers('image/x-icon', setCookie));
-    return res.end();
+    response.writeHead(204, headers('image/x-icon', setCookie));
+    return response.end();
   }
   if (!file) {
     return send(
-      res,
+      response,
       404,
       'text/plain; charset=utf-8',
       url.pathname === '/' ? 'no screen written yet' : 'not found',
       setCookie
     );
   }
-  sendFile(res, file, setCookie);
+  sendFile(response, file, setCookie);
 });
 
 setInterval(() => {
@@ -263,7 +263,7 @@ setInterval(() => {
 // 'listening' rather than a listen() callback: the EADDRINUSE path below
 // re-listens, and a callback passed to the first listen() would not fire again.
 server.on('listening', () => {
-  const port = server.address().port;
+  const { port } = server.address();
   fs.writeFileSync(PORT_FILE, port + '\n');
   process.stdout.write(
     JSON.stringify({
@@ -279,13 +279,13 @@ server.on('listening', () => {
 
 server.listen(preferredPort(), HOST);
 
-server.on('error', (err) => {
+server.on('error', (error) => {
   // A stale port file points at a port someone else took; forget it and retry.
-  if (err.code === 'EADDRINUSE' && !process.env.SDD_PORT) {
+  if (error.code === 'EADDRINUSE' && !process.env.SDD_PORT) {
     try { fs.unlinkSync(PORT_FILE); } catch { /* already gone */ }
     server.listen(0, HOST);
     return;
   }
-  process.stdout.write(JSON.stringify({ error: String(err.message || err) }) + '\n');
+  process.stdout.write(JSON.stringify({ error: String(error.message || error) }) + '\n');
   process.exit(1);
 });
